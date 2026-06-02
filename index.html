@@ -1,0 +1,1636 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>婚禮互動大廳 · Wedding Hub</title>
+
+<!-- ===== 字型 ===== -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+<!-- ===== QR Code ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- ===== Firebase (compat) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+/* ============================================================
+   設計系統 — 香檳玫瑰 · 浪漫婚禮
+   ============================================================ */
+:root{
+  --cream:#fbf3ea; --cream2:#f5e6d8; --blush:#f4dcd6;
+  --rose:#b5566b; --rose-deep:#8e3a52; --rose-soft:#d98ca0;
+  --gold:#c8a04e; --gold-l:#e7cd92; --gold-d:#a07d35;
+  --ink:#3a2730; --ink-soft:#7a626c; --line:rgba(58,39,48,.12);
+  --paper:#fffaf4;
+  --A:#c15c72; --B:#c89b3c; --C:#7c9b72; --D:#6f8fb0;
+  --ok:#5fa06a; --no:#c4607a;
+  --shadow:0 18px 50px -18px rgba(58,39,48,.45);
+  --r:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  font-family:"Noto Sans TC",system-ui,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 700px at 80% -10%, var(--blush), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, #f6e3cf, transparent 55%),
+    linear-gradient(160deg, var(--cream), var(--cream2));
+  background-attachment:fixed;
+  overflow-x:hidden;
+}
+/* 漂浮花瓣 */
+.petals{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.petals span{position:absolute;top:-40px;font-size:20px;opacity:.5;animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+
+.wrap{position:relative;z-index:1;min-height:100%;display:flex;flex-direction:column;align-items:center;padding:22px 16px 40px}
+.screen{width:100%;max-width:560px;display:none;animation:rise .5s cubic-bezier(.2,.8,.2,1)}
+.screen.host{max-width:920px}
+.screen.active{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* 標題 */
+.brand{text-align:center;margin:10px 0 22px}
+.brand .ring{font-size:30px;letter-spacing:8px}
+.brand h1{font-family:"Playfair Display","Noto Serif TC",serif;font-weight:900;font-size:clamp(30px,7vw,46px);margin:6px 0 2px;color:var(--rose-deep);line-height:1.05}
+.brand .sub{font-family:"Noto Serif TC",serif;letter-spacing:6px;color:var(--gold-d);font-size:13px}
+.brand .rule{width:70px;height:2px;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+/* 卡片 */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:26px 22px;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;border-radius:var(--r);padding:1px;background:linear-gradient(135deg,var(--gold-l),transparent 40%,transparent 60%,var(--rose-soft));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.6;pointer-events:none}
+.card + .card{margin-top:16px}
+
+/* 文字 */
+h2{font-family:"Noto Serif TC",serif;font-weight:900;margin:0 0 4px;font-size:22px;color:var(--rose-deep)}
+.muted{color:var(--ink-soft);font-size:14px;line-height:1.6}
+label{display:block;font-weight:700;font-size:14px;margin:14px 0 6px;color:var(--ink)}
+label:first-child{margin-top:0}
+
+/* 表單 */
+input[type=text],input[type=number],textarea,select{
+  width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:14px;font:inherit;
+  background:#fff;color:var(--ink);transition:.2s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--rose-soft);box-shadow:0 0 0 4px rgba(181,86,107,.12)}
+textarea{resize:vertical;min-height:60px}
+
+/* 按鈕 */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border:none;border-radius:16px;
+  font:inherit;font-weight:700;font-size:17px;cursor:pointer;transition:.18s;letter-spacing:1px}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn.primary{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;box-shadow:0 12px 26px -10px rgba(142,58,82,.7)}
+.btn.gold{background:linear-gradient(135deg,var(--gold-l),var(--gold));color:#4a370f;box-shadow:0 12px 26px -10px rgba(168,125,53,.7)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink-soft);font-weight:500}
+.btn.sm{width:auto;padding:11px 18px;font-size:14px;border-radius:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+
+/* 選擇角色 */
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.role{padding:26px 16px;border-radius:18px;border:1.5px solid var(--line);background:#fff;text-align:center;cursor:pointer;transition:.2s}
+.role:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--rose-soft)}
+.role .ic{font-size:34px}
+.role b{display:block;margin-top:8px;font-size:17px;color:var(--rose-deep)}
+.role span{font-size:12px;color:var(--ink-soft)}
+
+/* QR 區 */
+.qrbox{display:flex;gap:22px;align-items:center;flex-wrap:wrap;justify-content:center}
+#qrcanvas{background:#fff;padding:14px;border-radius:18px;box-shadow:var(--shadow)}
+.codepill{font-family:"Playfair Display",serif;font-weight:900;font-size:46px;letter-spacing:10px;color:var(--rose-deep);
+  background:#fff;border:2px dashed var(--gold);border-radius:16px;padding:8px 22px;text-align:center}
+.joinurl{font-size:13px;color:var(--ink-soft);word-break:break-all;text-align:center;margin-top:8px}
+
+/* 賓客列表 */
+.players{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;min-height:30px}
+.pl{display:flex;flex-direction:column;align-items:center;gap:5px;width:74px;animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
+.pl img,.pl .ph{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2.5px solid var(--gold-l);box-shadow:0 6px 14px -6px rgba(0,0,0,.3)}
+.pl .ph{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--blush),var(--cream2));font-size:24px}
+.pl small{font-size:11px;max-width:74px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.counter{font-family:"Playfair Display",serif;font-weight:900;color:var(--gold-d);display:inline-block}
+.counter.bump{animation:bump .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.5);color:var(--rose)}100%{transform:scale(1)}}
+
+/* 新賓客頭像飛入 */
+.pl.flyin{animation:flyin .7s cubic-bezier(.18,1.5,.4,1)}
+@keyframes flyin{
+  0%{opacity:0;transform:translateY(-80px) scale(.3) rotate(-12deg)}
+  60%{opacity:1;transform:translateY(8px) scale(1.18) rotate(4deg)}
+  100%{transform:none}
+}
+.pl.flyin img,.pl.flyin .ph{animation:ring .7s ease}
+@keyframes ring{0%,100%{box-shadow:0 6px 14px -6px rgba(0,0,0,.3)}50%{box-shadow:0 0 0 6px rgba(200,160,78,.5),0 6px 14px -6px rgba(0,0,0,.3)}}
+
+/* 進場快報橫幅 */
+.join-banner{position:fixed;top:-90px;left:50%;transform:translateX(-50%);z-index:45;
+  display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#fff,var(--cream));
+  border:1.5px solid var(--gold-l);border-radius:50px;padding:10px 22px 10px 12px;
+  box-shadow:var(--shadow);font-weight:700;font-size:17px;color:var(--rose-deep);
+  opacity:0;transition:top .45s cubic-bezier(.2,1.3,.4,1),opacity .35s;max-width:90vw}
+.join-banner.show{top:20px;opacity:1}
+.join-banner .ba{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-l);flex:0 0 auto}
+.join-banner .ba.ph{display:flex;align-items:center;justify-content:center;background:var(--cream2);font-size:20px}
+.join-banner b{color:var(--rose)}
+
+/* 頭像上傳 */
+.avatarpick{display:flex;flex-direction:column;align-items:center;gap:10px;margin:6px 0}
+.avatarpick .preview{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--gold-l);
+  background:linear-gradient(135deg,var(--blush),var(--cream2));display:flex;align-items:center;justify-content:center;font-size:42px;cursor:pointer;box-shadow:var(--shadow)}
+
+/* 題目 */
+.qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:700;color:var(--ink-soft);font-size:14px}
+.timer{font-family:"Playfair Display",serif;font-weight:900;font-size:30px;color:var(--rose-deep);min-width:54px;text-align:right}
+.timer.warn{color:var(--no);animation:pulse .6s infinite}
+@keyframes pulse{50%{opacity:.4}}
+.qtext{font-family:"Noto Serif TC",serif;font-weight:900;font-size:clamp(22px,5vw,30px);line-height:1.35;margin:6px 0 20px;color:var(--ink)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{position:relative;padding:20px 16px;border-radius:18px;border:none;color:#fff;font:inherit;font-weight:700;font-size:17px;
+  cursor:pointer;text-align:left;min-height:74px;display:flex;align-items:center;gap:10px;transition:.18s;line-height:1.3}
+.opt:active{transform:scale(.97)}
+.opt .k{flex:0 0 28px;height:28px;border-radius:8px;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-family:"Playfair Display",serif;font-weight:900}
+.opt[data-i="0"]{background:linear-gradient(135deg,#cf6f84,var(--A))}
+.opt[data-i="1"]{background:linear-gradient(135deg,#d6ad53,var(--B))}
+.opt[data-i="2"]{background:linear-gradient(135deg,#8fae85,var(--C))}
+.opt[data-i="3"]{background:linear-gradient(135deg,#83a0bf,var(--D))}
+.opt.dim{opacity:.32;filter:grayscale(.4)}
+.opt.right{box-shadow:0 0 0 4px var(--ok),0 14px 30px -10px var(--ok);transform:scale(1.02)}
+.opt.right::after{content:"✓";position:absolute;right:14px;font-size:22px}
+.opt.wrong{box-shadow:0 0 0 4px var(--no)}
+.opt.wrong::after{content:"✕";position:absolute;right:14px;font-size:20px}
+.opt .cnt{position:absolute;right:14px;top:8px;font-size:13px;opacity:.85}
+
+/* 等待 / 結果 */
+.bigstate{text-align:center;padding:30px 10px}
+.bigstate .em{font-size:56px}
+.bigstate h2{font-size:26px;margin-top:10px}
+.gain{font-family:"Playfair Display",serif;font-weight:900;font-size:54px;color:var(--gold-d);margin:6px 0}
+.gain.miss{color:var(--ink-soft);font-size:30px}
+.mytotal{font-size:15px;color:var(--ink-soft)}
+
+/* 公布答案媒體 */
+.reveal-media{margin:16px 0;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);background:#000}
+.reveal-media img,.reveal-media video,.reveal-media iframe{display:block;width:100%;max-height:60vh;border:none;aspect-ratio:16/9;object-fit:contain;background:#000}
+.reveal-media img{aspect-ratio:auto;object-fit:cover;max-height:46vh}
+.caption{font-family:"Noto Serif TC",serif;font-size:17px;line-height:1.6;color:var(--ink);text-align:center;margin-top:6px}
+
+/* 排行榜 */
+.lb{list-style:none;margin:0;padding:0}
+.lb li{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;margin-bottom:8px;background:#fff;border:1px solid var(--line);
+  animation:slidein .4s both}
+@keyframes slidein{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+.lb .rank{font-family:"Playfair Display",serif;font-weight:900;font-size:22px;width:34px;text-align:center;color:var(--ink-soft)}
+.lb li.top1{background:linear-gradient(135deg,#fff6e0,#ffe9b8);border-color:var(--gold)}
+.lb li.top2{background:linear-gradient(135deg,#fff,#f0eef0)}
+.lb li.top3{background:linear-gradient(135deg,#fff,#f6e7df)}
+.lb li.top1 .rank,.lb li.top2 .rank,.lb li.top3 .rank{color:var(--gold-d);font-size:24px}
+.lb img,.lb .ph{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--gold-l);flex:0 0 auto}
+.lb .ph{display:flex;align-items:center;justify-content:center;background:var(--cream2);font-size:20px}
+.lb .nm{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .sc{font-family:"Playfair Display",serif;font-weight:900;font-size:20px;color:var(--rose-deep)}
+.lb .delta{font-size:12px;color:var(--ok);font-weight:700;margin-left:4px}
+
+/* 題目編輯器 */
+.qedit{border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;background:#fff;position:relative}
+.qedit .qn{position:absolute;top:-11px;left:14px;background:var(--rose);color:#fff;font-size:12px;font-weight:700;padding:3px 12px;border-radius:20px}
+.qedit .del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--no);font-size:20px;cursor:pointer;line-height:1}
+.optedit{display:flex;align-items:center;gap:8px;margin-top:8px}
+.optedit input[type=radio]{width:20px;height:20px;accent-color:var(--ok);flex:0 0 auto}
+.optedit .badge{flex:0 0 26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;font-family:"Playfair Display",serif}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:12px;color:var(--ink-soft);margin-top:4px}
+
+/* 設定步驟 */
+.steps{counter-reset:s;padding-left:0;list-style:none}
+.steps li{position:relative;padding:8px 0 8px 38px;font-size:14px;line-height:1.6;border-bottom:1px dashed var(--line)}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:8px;width:26px;height:26px;border-radius:50%;
+  background:var(--rose);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+code{background:var(--cream2);padding:2px 7px;border-radius:6px;font-size:13px;color:var(--rose-deep);word-break:break-all}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:30px;
+  font-weight:700;z-index:50;box-shadow:var(--shadow);opacity:0;transition:.3s;pointer-events:none}
+.toast.show{opacity:1;bottom:34px}
+.tag{display:inline-block;font-size:12px;background:var(--cream2);color:var(--gold-d);padding:3px 10px;border-radius:20px;font-weight:700;margin-bottom:8px}
+
+@media(max-width:480px){.opts{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}.codepill{font-size:36px}}
+
+/* 大廳賓客桌號標籤 */
+.pl .ptable{font-size:10px;background:var(--cream2);color:var(--gold-d);padding:1px 7px;border-radius:10px;font-style:normal;font-weight:700}
+
+/* 排行榜分頁 */
+.tabs{display:flex;gap:8px;max-width:560px;margin:0 auto 14px}
+.tab{flex:1;padding:11px;border:1.5px solid var(--line);background:#fff;border-radius:14px;font:inherit;font-weight:700;
+  color:var(--ink-soft);cursor:pointer;transition:.18s}
+.tab.active{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;border-color:transparent;box-shadow:0 8px 20px -8px rgba(142,58,82,.6)}
+.tablelb li .ph{font-size:22px}
+
+/* 席位卡 */
+.seatgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;margin-top:18px}
+.seatcard{position:relative;background:var(--paper);border:1.5px solid var(--gold-l);border-radius:18px;padding:22px 16px 18px;text-align:center;
+  box-shadow:var(--shadow);overflow:hidden;page-break-inside:avoid;break-inside:avoid}
+.seatcard .sc-deco{position:absolute;top:-14px;right:-6px;font-size:60px;color:var(--blush);opacity:.5;pointer-events:none}
+.seatcard .sc-title{font-family:"Noto Serif TC",serif;font-size:12px;color:var(--gold-d);letter-spacing:1px;margin-bottom:8px;position:relative}
+.seatcard .sc-name{font-family:"Noto Serif TC",serif;font-weight:900;font-size:24px;color:var(--rose-deep);line-height:1.2;position:relative}
+.seatcard .sc-table{display:inline-block;margin-top:6px;font-size:13px;background:var(--cream2);color:var(--gold-d);padding:2px 12px;border-radius:20px;font-weight:700}
+.seatcard .sc-qr{margin:14px auto 8px;width:150px;height:150px}
+.seatcard .sc-qr img{display:block;margin:0 auto}
+.seatcard .sc-hint{font-size:12px;color:var(--ink-soft);font-weight:700}
+
+/* 彩帶 */
+canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
+
+/* 設定分隔標題 */
+.setup-sec{max-width:920px;margin:26px auto 12px;text-align:center;position:relative}
+.setup-sec::before{content:"";position:absolute;top:50%;left:0;right:0;height:1px;background:var(--line)}
+.setup-h{position:relative;background:var(--cream);padding:0 16px;font-family:"Noto Serif TC",serif;font-weight:900;color:var(--rose-deep);font-size:18px}
+
+/* 主持控制台按鈕 */
+.ctrlgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
+.ctrlgrid .btn{font-size:15px;padding:14px}
+
+/* 賓客 Hub */
+.hub{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hubcard{background:var(--paper);border:1.5px solid var(--line);border-radius:20px;padding:24px 16px;text-align:center;cursor:pointer;
+  transition:.2s;position:relative;overflow:hidden}
+.hubcard::after{content:"";position:absolute;inset:0;border-radius:20px;border:2px solid var(--hc);opacity:0;transition:.2s}
+.hubcard:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.hubcard:active{transform:scale(.97)}
+.hubcard:hover::after{opacity:.5}
+.hubcard .hi{font-size:40px}
+.hubcard b{display:block;margin-top:8px;font-size:18px;color:var(--hc)}
+.hubcard span{font-size:12px;color:var(--ink-soft)}
+
+/* 祝福牆(投影) */
+.wallgrid{columns:3;column-gap:16px}
+@media(max-width:700px){.wallgrid{columns:2}}
+.wishnote{break-inside:avoid;margin-bottom:16px;background:var(--paper);border:1px solid var(--gold-l);border-radius:16px;padding:16px;
+  box-shadow:var(--shadow);animation:rise .5s both}
+.wishnote .wtop{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.wishnote img,.wishnote .ph{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1.5px solid var(--gold-l);flex:0 0 auto}
+.wishnote .ph{display:flex;align-items:center;justify-content:center;background:var(--cream2);font-size:15px}
+.wishnote .wn{font-weight:700;font-size:13px;color:var(--rose-deep)}
+.wishnote .wt{font-family:"Noto Serif TC",serif;font-size:16px;line-height:1.5;color:var(--ink)}
+.mywishes{margin-top:16px}
+.mywishes .mw{background:var(--cream2);border-radius:12px;padding:10px 14px;margin-top:8px;font-size:14px}
+
+/* 點歌 */
+.songmenu{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.songrow{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;transition:.18s}
+.songrow:hover{border-color:var(--gold);transform:translateX(3px)}
+.songrow:active{transform:scale(.98)}
+.songrow .sic{font-size:22px;flex:0 0 auto}
+.songrow .sinfo{flex:1;min-width:0}
+.songrow .stitle{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.songrow .sartist{font-size:12px;color:var(--ink-soft)}
+.songrow .splay{flex:0 0 auto;color:var(--gold-d);font-weight:700;font-size:13px}
+.ytplayer{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden}
+.ytplayer iframe{width:100%;height:100%;border:none}
+.ytplaceholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:15px}
+.nowplaying{text-align:center;font-weight:700;color:var(--rose-deep);margin-top:12px;font-size:17px;min-height:22px}
+.queue{list-style:none;margin:8px 0 0;padding:0}
+.queue li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid var(--line);margin-bottom:8px}
+.queue li.playing{background:linear-gradient(135deg,#fff6e0,#ffe9b8);border-color:var(--gold)}
+.queue .qn{font-family:"Playfair Display",serif;font-weight:900;color:var(--ink-soft);width:24px;text-align:center}
+.queue .qt{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.queue .qby{font-size:12px;color:var(--ink-soft)}
+
+/* 照片 */
+.photopreview{width:160px;height:160px;margin:14px auto 0;border-radius:18px;border:2px dashed var(--gold);background:var(--cream2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:36px;color:var(--gold-d);cursor:pointer}
+.photopreview small{font-size:13px;margin-top:6px}
+.photogrid{columns:4;column-gap:12px}
+@media(max-width:700px){.photogrid{columns:2}}
+.photogrid .pwrap{break-inside:avoid;margin-bottom:12px;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);position:relative;animation:rise .5s both}
+.photogrid img{width:100%;display:block}
+.photogrid .pby{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));color:#fff;font-size:12px;padding:14px 8px 6px;font-weight:700}
+.myphotos{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;justify-content:center}
+.myphotos img{width:70px;height:70px;border-radius:10px;object-fit:cover;border:2px solid var(--gold-l)}
+
+/* 列印:只印席位卡 */
+@media print{
+  body{background:#fff !important}
+  .petals,.join-banner,.toast,.noprint{display:none !important}
+  .wrap{padding:0}
+  .screen{display:none !important}
+  #s-seatcards.active{display:block !important;max-width:none}
+  .seatgrid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .seatcard{box-shadow:none;border:1px dashed #c8a04e}
+  .card::before{display:none}
+}
+</style>
+</head>
+<body>
+<div class="petals" id="petals"></div>
+<div class="wrap">
+
+  <!-- ================= 角色選擇 ================= -->
+  <section id="s-home" class="screen active">
+    <div class="brand">
+      <div class="ring">💍</div>
+      <h1>Wedding Hub</h1>
+      <div class="sub">婚 禮 互 動 大 廳</div>
+      <div class="rule"></div>
+    </div>
+    <div class="card">
+      <h2>準備好一起同樂了嗎?</h2>
+      <p class="muted">掃描座位上的 QR Code,就能留祝福、點歌、上傳照片,還有快問快答小遊戲!</p>
+      <div class="roles">
+        <div class="role" onclick="goHostSetup()">
+          <div class="ic">🎙️</div><b>我是主持人</b><span>建立活動 · 投影大螢幕</span>
+        </div>
+        <div class="role" onclick="show('s-join')">
+          <div class="ic">📱</div><b>我是賓客</b><span>輸入房號加入</span>
+        </div>
+      </div>
+      <p class="hint" style="text-align:center;margin-top:16px">還沒設定好 Firebase?<a href="javascript:void(0)" onclick="startDemo('host')" style="color:var(--rose);font-weight:700">先用預覽模式逛一圈 👀</a></p>
+    </div>
+  </section>
+
+  <!-- ================= Firebase 未設定提示 ================= -->
+  <section id="s-config" class="screen">
+    <div class="brand"><h1>差一步</h1><div class="sub">F I R E B A S E  設 定</div><div class="rule"></div></div>
+    <div class="card">
+      <span class="tag">⚙️ 一次性設定</span>
+      <h2>請先填入你的 Firebase 設定</h2>
+      <p class="muted">即時連線(掃碼、同步答題、排行榜)需要一個免費的 Firebase 即時資料庫。設定一次就好。</p>
+      <ol class="steps">
+        <li>到 <code>console.firebase.google.com</code> 建立一個專案(免費)。</li>
+        <li>左側選單 →「Realtime Database」→ 建立資料庫 → 測試模式啟動。</li>
+        <li>專案設定 →「你的應用程式」→ 新增「網頁應用程式」</li>
+        <li>複製 <code>firebaseConfig</code> 內容,貼到這個 HTML 檔最上方的 <code>FIREBASE_CONFIG</code> 區塊,存檔。</li>
+        <li>把這個檔案上傳到任何網頁空間(GitHub Pages / Firebase Hosting / Netlify 皆可),用該網址掃碼即可。</li>
+      </ol>
+      <p class="hint">⚠️ 婚禮當天為求方便,Realtime Database 規則設為公開讀寫即可(遊戲結束後可關閉)。要我幫你產生規則就跟我說。</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <span class="tag">👀 想先看看內容?</span>
+      <h2>先用預覽模式逛一圈</h2>
+      <p class="muted">還沒設定 Firebase 也沒關係。預覽模式會用範例資料讓你把所有畫面點過一遍(祝福牆、點歌、照片牆、問答…),只是不會跨裝置即時同步。</p>
+      <button class="btn gold" onclick="startDemo('host')">🎙️ 預覽主持端</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="startDemo('guest')">📱 預覽賓客端</button>
+    </div>
+  </section>
+
+  <!-- ================= 主持人:建立遊戲 + 題目編輯 ================= -->
+  <section id="s-host-setup" class="screen host">
+    <div class="brand"><h1>婚禮互動大廳</h1><div class="sub">H O S T  ·  主 持 端 設 定</div><div class="rule"></div></div>
+    <div class="card">
+      <label>活動標題(顯示在大螢幕)</label>
+      <input id="gameTitle" type="text" value="俊宏 ❤ 怡君 的婚禮">
+      <div class="grid2">
+        <div><label>每題作答秒數</label><input id="qTime" type="number" value="20" min="5" max="120"></div>
+        <div><label>房號(自動產生)</label><input id="roomCode" type="text" readonly></div>
+      </div>
+    </div>
+
+    <div class="setup-sec"><span class="setup-h">🎮 快問快答題目</span></div>
+    <div id="qlist"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost" onclick="addQuestion()">＋ 新增題目</button>
+      <button class="btn gold" onclick="loadSample()">載入範例題</button>
+    </div>
+
+    <div class="setup-sec"><span class="setup-h">🪑 席位卡名單</span></div>
+    <div class="card">
+      <h2>賓客名單(每人一張專屬 QR)</h2>
+      <p class="muted">每行一位賓客,格式「<b>姓名,桌號</b>」。賓客掃自己座位上的 QR,系統就知道他是誰、坐哪桌,免輸入暱稱。</p>
+      <textarea id="guestList" style="min-height:140px;font-family:monospace;line-height:1.7" placeholder="王小明,1&#10;李美華,1&#10;張大同,2&#10;陳怡君,2"></textarea>
+      <p class="hint">桌號可以是數字或文字(如「主桌」「親友桌」)。留空桌號也可以,只是不參加桌次競賽。</p>
+    </div>
+
+    <div class="setup-sec"><span class="setup-h">🎵 精選點歌歌單</span></div>
+    <div class="card">
+      <h2>賓客可點的歌</h2>
+      <p class="muted">每行一首,格式「<b>歌名 - 演唱者,YouTube連結</b>」。賓客從這份清單點播,進入播放佇列。(賓客也能貼自己的連結,可在下方關閉)</p>
+      <textarea id="songList" style="min-height:130px;font-family:monospace;line-height:1.7" placeholder="小幸運 - 田馥甄,https://youtu.be/0pwAfp9NgjU&#10;告白氣球 - 周杰倫,https://youtu.be/bu7nU9Mhpyo"></textarea>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer">
+        <input type="checkbox" id="allowCustomSong" checked style="width:18px;height:18px;accent-color:var(--rose)">
+        <span style="font-weight:500">允許賓客貼自己的 YouTube 連結</span>
+      </label>
+    </div>
+
+    <button class="btn primary" style="margin-top:18px" onclick="createRoom()">🚀 建立活動 · 開放掃碼</button>
+    <p class="hint" style="text-align:center">所有設定會自動存在這台裝置,下次開啟還在。</p>
+  </section>
+
+  <!-- ================= 主持人:大廳(QR + 賓客) ================= -->
+  <section id="s-host-lobby" class="screen host">
+    <div id="joinBanner" class="join-banner"></div>
+    <div class="brand"><h1 id="lobbyTitle">婚禮快問快答</h1><div class="sub">掃 描 加 入</div><div class="rule"></div></div>
+    <div class="card">
+      <div class="qrbox">
+        <div id="qrcanvas"></div>
+        <div>
+          <div style="font-size:13px;color:var(--ink-soft);text-align:center;font-weight:700">通用房號(現場臨時加入用)</div>
+          <div class="codepill" id="lobbyCode">----</div>
+          <div class="joinurl" id="lobbyUrl"></div>
+          <button class="btn gold sm" style="margin-top:12px;width:100%" onclick="openSeatCards()">🖨️ 列印賓客席位卡</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2 style="margin:0">已加入賓客 <span class="counter" id="plCount">0</span> 人</h2>
+        <button class="btn ghost sm" onclick="toggleLobbyAudio(this)">🔊 音效開</button>
+      </div>
+      <div class="players" id="plList" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
+      <span class="tag">📺 投影控制台</span>
+      <h2>切換大螢幕畫面</h2>
+      <p class="muted">活動進行中,隨時切換大螢幕要顯示的內容。賓客手機端不受影響,可自由瀏覽各功能。</p>
+      <div class="ctrlgrid">
+        <button class="btn gold" onclick="hostOpenWall()">💌 祝福牆</button>
+        <button class="btn gold" onclick="hostOpenSongs()">🎵 點歌播放器</button>
+        <button class="btn gold" onclick="hostOpenPhotos()">📸 照片牆</button>
+      </div>
+    </div>
+
+    <button class="btn primary" id="startBtn" onclick="nextQuestion()" disabled>🎮 開始快問快答(第一題)</button>
+  </section>
+
+  <!-- ================= 主持人:席位卡列印頁 ================= -->
+  <section id="s-seatcards" class="screen host">
+    <div class="brand noprint"><h1>席位卡</h1><div class="sub">每 人 一 張 · 擺 到 座 位</div><div class="rule"></div></div>
+    <div class="card noprint" style="text-align:center">
+      <p class="muted">下方每張卡片對應一位賓客。按「列印」後,賓客掃自己那張就會直接以本人身分進場(免輸入暱稱),只需加一張自拍。建議用厚紙列印後對折立在座位上。</p>
+      <div class="row" style="margin-top:8px">
+        <button class="btn primary" onclick="window.print()">🖨️ 列印 / 存成 PDF</button>
+        <button class="btn ghost" onclick="show('s-host-lobby')">返回大廳</button>
+      </div>
+    </div>
+    <div id="seatCardGrid" class="seatgrid"></div>
+  </section>
+
+  <!-- ================= 主持人:祝福牆(投影) ================= -->
+  <section id="s-host-wall" class="screen host">
+    <div class="brand"><h1>💌 祝福牆</h1><div class="sub">B L E S S I N G S</div><div class="rule"></div></div>
+    <div id="wallGrid" class="wallgrid"></div>
+    <button class="btn ghost" style="margin-top:18px" onclick="show('s-host-lobby')">← 返回控制台</button>
+  </section>
+
+  <!-- ================= 主持人:點歌播放器(投影) ================= -->
+  <section id="s-host-songs" class="screen host">
+    <div class="brand"><h1>🎵 點歌播放器</h1><div class="sub">N O W  P L A Y I N G</div><div class="rule"></div></div>
+    <div class="card">
+      <div id="ytPlayer" class="ytplayer"><div class="ytplaceholder">尚無點播,等待賓客點歌…</div></div>
+      <div id="nowPlaying" class="nowplaying"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn ghost" onclick="playerPrev()">⏮ 上一首</button>
+        <button class="btn gold" onclick="playerNext()">下一首 ⏭</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>點歌佇列 <span class="counter" id="queueCount">0</span></h2>
+      <ol class="queue" id="queueList"></ol>
+    </div>
+    <button class="btn ghost" onclick="show('s-host-lobby')">← 返回控制台</button>
+  </section>
+
+  <!-- ================= 主持人:照片牆(投影) ================= -->
+  <section id="s-host-photos" class="screen host">
+    <div class="brand"><h1>📸 現場照片牆</h1><div class="sub">L I V E  M O M E N T S</div><div class="rule"></div></div>
+    <div id="photoGrid" class="photogrid"></div>
+    <button class="btn ghost" style="margin-top:18px" onclick="show('s-host-lobby')">← 返回控制台</button>
+  </section>
+
+  <!-- ================= 主持人:出題中 ================= -->
+  <section id="s-host-q" class="screen host">
+    <div class="qhead"><span id="hqProgress">第 1 / 5 題</span><span class="timer" id="hqTimer">20</span></div>
+    <div class="card">
+      <div class="qtext" id="hqText"></div>
+      <div class="opts" id="hqOpts"></div>
+    </div>
+    <div class="card" style="text-align:center">
+      <span class="counter" id="hqAnswered" style="font-size:30px">0</span>
+      <span class="muted"> / <span id="hqTotal">0</span> 人已作答</span>
+    </div>
+    <button class="btn gold" onclick="revealAnswer()">📣 公布答案</button>
+  </section>
+
+  <!-- ================= 主持人:公布答案 ================= -->
+  <section id="s-host-reveal" class="screen host">
+    <div class="brand"><div class="sub">正 確 答 案</div></div>
+    <div class="card">
+      <div class="qtext" id="hrText"></div>
+      <div class="opts" id="hrOpts"></div>
+      <div class="reveal-media" id="hrMedia" style="display:none"></div>
+      <div class="caption" id="hrCaption"></div>
+    </div>
+    <button class="btn primary" onclick="showLeaderboard()">🏆 看排行榜</button>
+  </section>
+
+  <!-- ================= 主持人 / 賓客 共用:排行榜 ================= -->
+  <section id="s-lb" class="screen host">
+    <div class="brand"><h1>🏆 排行榜</h1><div class="sub" id="lbSub">目 前 前 十 名</div><div class="rule"></div></div>
+    <div class="tabs">
+      <button class="tab active" id="tabIndiv" onclick="switchLbTab('indiv')">👤 個人榜</button>
+      <button class="tab" id="tabTable" onclick="switchLbTab('table')">🪑 桌次榜</button>
+    </div>
+    <div class="card" id="lbCardIndiv"><ol class="lb" id="lbList"></ol></div>
+    <div class="card" id="lbCardTable" style="display:none"><ol class="lb tablelb" id="lbTableList"></ol></div>
+    <button class="btn primary" id="lbNextBtn" onclick="nextQuestion()">下一題 ▶</button>
+    <button class="btn ghost" id="lbHubBtn" style="display:none;margin-top:10px" onclick="show('s-hub')">← 返回大廳</button>
+  </section>
+
+  <!-- ================= 主持人:結束 ================= -->
+  <section id="s-end" class="screen host">
+    <div class="brand"><h1>🎉 恭喜!</h1><div class="sub">最 終 排 行</div><div class="rule"></div></div>
+    <div class="card">
+      <h2 style="text-align:center">🪑 冠軍桌</h2>
+      <ol class="lb tablelb" id="endTableList"></ol>
+    </div>
+    <div class="card">
+      <h2 style="text-align:center">👤 個人前十名</h2>
+      <ol class="lb" id="endList"></ol>
+    </div>
+    <button class="btn gold" onclick="location.reload()">再玩一次</button>
+  </section>
+
+  <!-- ================= 賓客:輸入房號 ================= -->
+  <section id="s-join" class="screen">
+    <div class="brand"><h1>加入遊戲</h1><div class="sub">G U E S T</div><div class="rule"></div></div>
+    <div class="card">
+      <label>輸入房號</label>
+      <input id="joinCode" type="text" maxlength="5" placeholder="例如 K7Q2" style="text-transform:uppercase;letter-spacing:6px;font-size:24px;text-align:center;font-weight:900">
+      <button class="btn primary" style="margin-top:16px" onclick="enterRoom()">下一步</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="show('s-home')">返回</button>
+    </div>
+  </section>
+
+  <!-- ================= 賓客:暱稱 + 頭像 ================= -->
+  <section id="s-profile" class="screen">
+    <div class="brand"><h1 id="profHi">準備加入</h1><div class="sub" id="profRoom"></div><div class="rule"></div></div>
+    <div class="card">
+      <div id="profNamed" style="display:none;text-align:center;margin-bottom:6px">
+        <div class="muted">你是</div>
+        <div style="font-family:'Noto Serif TC',serif;font-weight:900;font-size:26px;color:var(--rose-deep)" id="profName"></div>
+        <div class="tag" id="profTable" style="margin-top:6px"></div>
+      </div>
+      <div class="avatarpick">
+        <div class="preview" id="avPreview" onclick="document.getElementById('avFile').click()">📷</div>
+        <button class="btn ghost sm" onclick="document.getElementById('avFile').click()">📸 拍照 / 上傳自拍</button>
+        <input id="avFile" type="file" accept="image/*" capture="user" hidden onchange="pickAvatar(event)">
+      </div>
+      <div id="nickWrap">
+        <label>你的暱稱</label>
+        <input id="nick" type="text" maxlength="10" placeholder="例如 新郎的大學室友">
+      </div>
+      <button class="btn primary" style="margin-top:18px" onclick="joinGame()">✋ 加入!</button>
+      <p class="hint" id="selfieHint" style="text-align:center">📷 加入前請先上傳一張自拍喔</p>
+    </div>
+  </section>
+
+  <!-- ================= 賓客:互動大廳 Hub ================= -->
+  <section id="s-hub" class="screen">
+    <div class="brand"><h1 id="hubTitle">婚禮互動大廳</h1><div class="sub" id="hubHi">W E L C O M E</div><div class="rule"></div></div>
+    <div class="hub">
+      <div class="hubcard" style="--hc:var(--rose)" onclick="openWish()">
+        <div class="hi">💌</div><b>祝福留言</b><span>留下你的祝福</span>
+      </div>
+      <div class="hubcard" style="--hc:var(--gold-d)" onclick="openSongPick()">
+        <div class="hi">🎵</div><b>我要點歌</b><span>點一首想聽的歌</span>
+      </div>
+      <div class="hubcard" style="--hc:#7c9b72" onclick="openPhotoUpload()">
+        <div class="hi">📸</div><b>上傳照片</b><span>分享現場的美好</span>
+      </div>
+      <div class="hubcard" style="--hc:#6f8fb0" onclick="openQuizFromHub()">
+        <div class="hi">🎮</div><b>快問快答</b><span id="quizCardSub">問答小遊戲</span>
+      </div>
+    </div>
+    <p class="hint" style="text-align:center" id="hubName"></p>
+  </section>
+
+  <!-- 賓客:祝福留言 -->
+  <section id="s-wish" class="screen">
+    <div class="brand"><h1>💌 祝福留言</h1><div class="rule"></div></div>
+    <div class="card">
+      <p class="muted">你的祝福會出現在大螢幕的祝福牆上 ✨</p>
+      <textarea id="wishText" maxlength="80" placeholder="寫下你想對新人說的話…(最多80字)" style="min-height:110px"></textarea>
+      <button class="btn primary" style="margin-top:14px" onclick="sendWish()">送出祝福 💕</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="show('s-hub')">← 返回大廳</button>
+      <div id="myWishes" class="mywishes"></div>
+    </div>
+  </section>
+
+  <!-- 賓客:點歌 -->
+  <section id="s-song" class="screen">
+    <div class="brand"><h1>🎵 我要點歌</h1><div class="rule"></div></div>
+    <div class="card">
+      <p class="muted">從精選歌單點一首,會加入大螢幕的播放佇列 🎶</p>
+      <div id="songMenu" class="songmenu"></div>
+    </div>
+    <div class="card" id="customSongCard">
+      <h2 style="font-size:18px">貼自己的 YouTube 連結</h2>
+      <input id="customSongUrl" type="text" placeholder="貼上 YouTube 網址">
+      <input id="customSongName" type="text" placeholder="歌名(選填)" style="margin-top:8px">
+      <button class="btn gold" style="margin-top:12px" onclick="sendCustomSong()">點這首 🎵</button>
+    </div>
+    <button class="btn ghost" onclick="show('s-hub')">← 返回大廳</button>
+  </section>
+
+  <!-- 賓客:上傳照片 -->
+  <section id="s-photo" class="screen">
+    <div class="brand"><h1>📸 上傳照片</h1><div class="rule"></div></div>
+    <div class="card" style="text-align:center">
+      <p class="muted">分享你拍的現場照片,即時出現在大螢幕照片牆上 🌟</p>
+      <div id="photoPreview" class="photopreview" onclick="document.getElementById('photoFile').click()">📷<br><small>點此選擇照片</small></div>
+      <input id="photoFile" type="file" accept="image/*" hidden onchange="pickPhoto(event)">
+      <button class="btn primary" id="photoSendBtn" style="margin-top:14px;display:none" onclick="sendPhoto()">上傳這張 📤</button>
+    </div>
+    <button class="btn ghost" onclick="show('s-hub')">← 返回大廳</button>
+    <div id="myPhotos" class="myphotos"></div>
+  </section>
+
+  <!-- 賓客:遊戲尚未開始 -->
+  <section id="s-quiz-soon" class="screen">
+    <div class="bigstate">
+      <div class="em">🎮</div>
+      <h2>快問快答即將開始</h2>
+      <p class="muted">主持人還沒開始遊戲,先去留個祝福或點首歌吧!<br>開始後這裡會自動跳出題目 🎯</p>
+      <button class="btn primary" style="margin-top:20px;width:auto;padding:14px 28px" onclick="show('s-hub')">← 返回大廳</button>
+    </div>
+  </section>
+
+  <!-- ================= 賓客:等待 / 答題 / 結果 ================= -->
+  <section id="s-wait" class="screen">
+    <div class="bigstate">
+      <div class="em">🕐</div>
+      <h2 id="waitMsg">已加入,等待主持人開始…</h2>
+      <p class="muted" id="waitName"></p>
+    </div>
+  </section>
+
+  <section id="s-play" class="screen">
+    <div class="qhead"><span id="pqProgress"></span><span class="timer" id="pqTimer">20</span></div>
+    <div class="card">
+      <div class="qtext" id="pqText"></div>
+      <div class="opts" id="pqOpts"></div>
+    </div>
+  </section>
+
+  <section id="s-answered" class="screen">
+    <div class="bigstate">
+      <div class="em">✨</div>
+      <h2>答案已送出!</h2>
+      <p class="muted">等待其他賓客作答中…</p>
+    </div>
+  </section>
+
+  <section id="s-result" class="screen">
+    <div class="bigstate" id="resultBox"></div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   ① 在這裡貼上你的 Firebase 設定 ↓↓↓
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAYoInVD8kB66ST3EwZ3pSeIorS5lp3wBQ",
+  authDomain: "wedding-hub-dcda8.firebaseapp.com",
+  databaseURL: "https://wedding-hub-dcda8-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wedding-hub-dcda8",
+  storageBucket: "wedding-hub-dcda8.firebasestorage.app",
+  messagingSenderId: "804321827079",
+  appId: "1:804321827079:web:3d4b69d190d59806088da2",
+  measurementId: "G-0MY9CFV1LM"
+};
+/* ============================================================ */
+
+let db = null, fbReady = false, DEMO = false;
+try{
+  if(FIREBASE_CONFIG.databaseURL){
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database();
+    fbReady = true;
+  }
+}catch(e){ console.error(e); }
+
+/* ============================================================
+   預覽 / Demo 模式:沒有 Firebase 時,用記憶體模擬即時資料庫,
+   讓所有畫面都能點進去看(不跨裝置同步,純預覽)。
+   ============================================================ */
+function enableDemo(){
+  DEMO = true; fbReady = true;
+  const root = {};                 // 模擬資料樹
+  const listeners = [];            // {path, type, cb}
+  const now = ()=>Date.now();
+  function getNode(path){ const parts=path.split('/').filter(Boolean); let n=root;
+    for(const p of parts){ if(n==null||typeof n!=='object') return undefined; n=n[p]; } return n; }
+  function setNode(path,val){ const parts=path.split('/').filter(Boolean); let n=root;
+    for(let i=0;i<parts.length-1;i++){ if(typeof n[parts[i]]!=='object'||n[parts[i]]==null) n[parts[i]]={}; n=n[parts[i]]; }
+    if(val===null) delete n[parts[parts.length-1]]; else n[parts[parts.length-1]]=val; }
+  function snap(path){ const v=getNode(path); return { val:()=>v===undefined?null:v, key:path.split('/').filter(Boolean).pop() }; }
+  function fire(path){
+    // value 監聽:路徑本身或祖先
+    listeners.forEach(l=>{
+      if(l.type==='value' && (l.path===path || path.startsWith(l.path+'/') || l.path.startsWith(path+'/')||l.path===path)){
+        l.cb(snap(l.path));
+      }
+    });
+  }
+  function childKey(){ return 'k'+Math.random().toString(36).slice(2,9); }
+
+  function makeRef(path){
+    return {
+      key: path.split('/').filter(Boolean).pop(),
+      child(p){ return makeRef(path+'/'+p); },
+      set(val){ setNode(path, JSON.parse(JSON.stringify(val,(k,v)=>v===undefined?null:v))); 
+        // 觸發 child_added(針對既有子節點)
+        const node=getNode(path);
+        if(node&&typeof node==='object'){ Object.keys(node).forEach(k=>{
+          listeners.forEach(l=>{ if(l.type==='child_added'&&l.path===path) l.cb({val:()=>node[k],key:k}); }); }); }
+        fire(path); return {then:f=>{ if(f)f(); return {catch:()=>{}}; }}; },
+      update(obj){ Object.keys(obj).forEach(k=>{ setNode(path+'/'+k, obj[k]); fire(path+'/'+k); }); fire(path);
+        return {then:f=>{ if(f)f(); return {catch:()=>{}}; }}; },
+      remove(){ setNode(path,null); fire(path); return {then:f=>{if(f)f();return{catch:()=>{}};}}; },
+      push(val){ const k=childKey(); const cpath=path+'/'+k;
+        if(val!==undefined){ setNode(cpath, JSON.parse(JSON.stringify(val,(kk,v)=>v===undefined?null:v)));
+          listeners.forEach(l=>{ if(l.type==='child_added'&&l.path===path) l.cb({val:()=>getNode(cpath),key:k}); });
+          fire(path);
+          return { key:k, then:f=>{ if(f)f(); return {catch:()=>{}}; } };
+        }
+        return makeRef(cpath); },
+      once(type){ return { then:cb=>{ cb(snap(path)); return {catch:()=>{}}; } }; },
+      on(type, cb){ listeners.push({path,type,cb});
+        // 立即回放現有資料
+        if(type==='value'){ cb(snap(path)); }
+        else if(type==='child_added'){ const node=getNode(path);
+          if(node&&typeof node==='object') Object.keys(node).forEach(k=>cb({val:()=>node[k],key:k})); }
+        return cb; },
+      off(){ /* demo:略 */ }
+    };
+  }
+  db = { ref:(p)=>makeRef(p||'') };
+}
+
+const TS = ()=> DEMO ? Date.now() : firebase.database.ServerValue.TIMESTAMP;
+
+/* ---------- 全域狀態 ---------- */
+const state = {
+  role:null, room:null, pid:null, name:null, avatar:null, table:null, gid:null,
+  questions:[], qTime:20, title:"", guests:[], songs:[], allowCustomSong:true,
+  curQ:-1, phase:null, qStartAt:0, answered:false,
+  timerInt:null, lbTab:'indiv', quizStarted:false, photoData:null
+};
+
+/* ---------- 工具 ---------- */
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),2200); }
+function rid(n){ const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s=""; for(let i=0;i<n;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
+function esc(s){ return (s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function avatarHTML(p,cls){ return p.avatar? `<img class="${cls}" src="${p.avatar}">` : `<div class="${cls} ph">${(p.name||'?').slice(0,1)}</div>`; }
+
+/* 花瓣背景 */
+(function(){const box=document.getElementById('petals');const e=['🌸','🌷','💕','✿','❀'];for(let i=0;i<16;i++){const s=document.createElement('span');s.textContent=e[i%e.length];s.style.left=Math.random()*100+'%';s.style.animationDuration=(8+Math.random()*10)+'s';s.style.animationDelay=(-Math.random()*12)+'s';s.style.fontSize=(14+Math.random()*16)+'px';box.appendChild(s);}})();
+
+/* ============================================================
+   主持人 — 題目編輯
+   ============================================================ */
+const SAMPLE=[
+ {text:"新郎新娘是在哪裡第一次相遇的?",opts:["公司","大學社團","朋友聚會","健身房"],ans:1,mediaType:"none",media:"",cap:"原來是社團學長學妹的緣分 💕"},
+ {text:"新郎第一次告白是在哪一天?",opts:["情人節","新娘生日","跨年夜","沒有特別告白"],ans:2,mediaType:"none",media:"",cap:"跨年煙火下的勇敢告白!"},
+ {text:"他們交往多久才決定結婚?",opts:["1 年","3 年","5 年","7 年以上"],ans:2,mediaType:"none",media:"",cap:"五年磨一劍,終成正果 🥂"},
+ {text:"求婚時新娘的第一反應是?",opts:["大哭","愣住三秒","馬上說好","先打給媽媽"],ans:0,mediaType:"none",media:"",cap:""},
+ {text:"以下哪一道是新郎的拿手菜?",opts:["番茄炒蛋","泡麵加蛋","紅燒牛肉","只會訂外送"],ans:3,mediaType:"none",media:"",cap:"以後就靠新娘掌廚啦 😆"}
+];
+const LS_KEY='weddingQuizQuestions_v1';
+const LS_GUESTS='weddingQuizGuests_v1';
+const LS_SONGS='weddingQuizSongs_v1';
+
+function blankQ(){ return {text:"",opts:["","","",""],ans:0,mediaType:"none",media:"",cap:""}; }
+
+function renderEditor(){
+  const wrap=document.getElementById('qlist'); wrap.innerHTML='';
+  state.questions.forEach((q,qi)=>{
+    const div=document.createElement('div'); div.className='qedit';
+    const opts=q.opts.map((o,oi)=>`
+      <div class="optedit">
+        <input type="radio" name="ans${qi}" ${q.ans===oi?'checked':''} onchange="setField(${qi},'ans',${oi})">
+        <span class="badge" style="background:var(--${['A','B','C','D'][oi]})">${['A','B','C','D'][oi]}</span>
+        <input type="text" value="${esc(o)}" placeholder="選項 ${['A','B','C','D'][oi]}" oninput="setOpt(${qi},${oi},this.value)">
+      </div>`).join('');
+    div.innerHTML=`
+      <span class="qn">第 ${qi+1} 題</span>
+      <button class="del" onclick="delQuestion(${qi})" title="刪除">×</button>
+      <label>題目</label>
+      <textarea oninput="setField(${qi},'text',this.value)" placeholder="輸入題目…">${esc(q.text)}</textarea>
+      <label>選項(點左側圓圈選正確答案)</label>
+      ${opts}
+      <label>公布答案時顯示的媒體</label>
+      <div class="grid2">
+        <select onchange="setField(${qi},'mediaType',this.value);renderEditor()">
+          <option value="none" ${q.mediaType==='none'?'selected':''}>無</option>
+          <option value="image" ${q.mediaType==='image'?'selected':''}>照片(上傳/網址)</option>
+          <option value="youtube" ${q.mediaType==='youtube'?'selected':''}>YouTube 影片</option>
+          <option value="video" ${q.mediaType==='video'?'selected':''}>影片網址 (mp4)</option>
+        </select>
+        ${q.mediaType==='image'?`<button class="btn ghost sm" onclick="document.getElementById('mf${qi}').click()">上傳照片</button><input id="mf${qi}" type="file" accept="image/*" hidden onchange="pickMedia(event,${qi})">`:''}
+      </div>
+      ${q.mediaType!=='none' && q.mediaType!=='image'?`<input type="text" style="margin-top:8px" placeholder="貼上網址" value="${esc(q.media&&q.media.startsWith('data:')?'':q.media)}" oninput="setField(${qi},'media',this.value)">`:''}
+      ${q.mediaType==='image'?`<input type="text" style="margin-top:8px" placeholder="或貼上照片網址" value="${esc(q.media&&q.media.startsWith('data:')?'':q.media)}" oninput="setField(${qi},'media',this.value)">${q.media&&q.media.startsWith('data:')?'<div class="hint">✅ 已上傳照片</div>':''}`:''}
+      <label>說明文字(選填,公布時顯示)</label>
+      <input type="text" placeholder="例如:他們的第一張合照 💕" value="${esc(q.cap)}" oninput="setField(${qi},'cap',this.value)">
+    `;
+    wrap.appendChild(div);
+  });
+  saveLocal();
+}
+function setField(qi,f,v){ state.questions[qi][f]=v; if(f!=='mediaType') saveLocal(); }
+function setOpt(qi,oi,v){ state.questions[qi].opts[oi]=v; saveLocal(); }
+function addQuestion(){ state.questions.push(blankQ()); renderEditor(); }
+function delQuestion(qi){ if(confirm('確定刪除這題?')){ state.questions.splice(qi,1); renderEditor(); } }
+function loadSample(){ state.questions=JSON.parse(JSON.stringify(SAMPLE)); renderEditor(); toast('已載入 5 題範例'); }
+function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state.questions)); }catch(e){} }
+function pickMedia(ev,qi){ compress(ev.target.files[0],1000,.82,d=>{ state.questions[qi].media=d; renderEditor(); toast('照片已加入'); }); }
+
+function goHostSetup(){
+  if(!fbReady){ show('s-config'); return; }
+  let saved=null; try{ saved=JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){}
+  state.questions = (saved&&saved.length)? saved : JSON.parse(JSON.stringify(SAMPLE));
+  document.getElementById('roomCode').value = rid(4);
+  // 還原賓客名單
+  try{ const g=localStorage.getItem(LS_GUESTS); if(g) document.getElementById('guestList').value=g; }catch(e){}
+  const gl=document.getElementById('guestList');
+  gl.oninput=()=>{ try{ localStorage.setItem(LS_GUESTS, gl.value); }catch(e){} };
+  // 還原歌單
+  try{ const sg=localStorage.getItem(LS_SONGS); if(sg) document.getElementById('songList').value=sg; }catch(e){}
+  const sl=document.getElementById('songList');
+  sl.oninput=()=>{ try{ localStorage.setItem(LS_SONGS, sl.value); }catch(e){} };
+  renderEditor();
+  show('s-host-setup');
+}
+
+/* ============================================================
+   預覽模式啟動:開啟記憶體模擬資料庫 + 塞入範例資料
+   ============================================================ */
+function startDemo(which){
+  enableDemo();
+  toast('已進入預覽模式 👀(資料僅供瀏覽,不會同步)');
+  if(which==='host'){
+    // 預先填好設定頁的範例,並直接建立一間 demo 房,塞入範例互動資料
+    goHostSetup();
+    document.getElementById('guestList').value='王小明,1\n李美華,1\n張大同,2\n陳怡君,2';
+    document.getElementById('songList').value='小幸運 - 田馥甄,https://youtu.be/0pwAfp9NgjU\n告白氣球 - 周杰倫,https://youtu.be/bu7nU9Mhpyo\nMarry You - Bruno Mars,https://youtu.be/aEParqGfDoE';
+    toast('範例已帶入,按「建立活動」就能看大廳');
+  }else{
+    // 賓客端:先建一間 demo 房(背景),再走賓客加入流程
+    seedDemoRoom('DEMO');
+    state.room='DEMO'; state.title='俊宏 ❤ 怡君 的婚禮';
+    document.getElementById('joinCode').value='DEMO';
+    prepProfile('g0');  // 直接以「王小明」身分,免打字
+    // 給個預設頭像,讓賓客能直接按加入
+    state.avatar='';
+    show('s-profile');
+    setTimeout(()=>toast('預覽:可直接上傳自拍,或留空按加入'),400);
+  }
+}
+
+// 在 demo 資料庫裡塞一間範例房 + 範例祝福/照片/點歌
+function seedDemoRoom(code){
+  const songbook={s0:{title:'小幸運',artist:'田馥甄',vid:'0pwAfp9NgjU'},s1:{title:'告白氣球',artist:'周杰倫',vid:'bu7nU9Mhpyo'},s2:{title:'Marry You',artist:'Bruno Mars',vid:'aEParqGfDoE'}};
+  db.ref('rooms/'+code).set({
+    meta:{title:'俊宏 ❤ 怡君 的婚禮',qTime:20,total:5,hasQuiz:true,allowCustomSong:true,createdAt:Date.now()},
+    roster:{g0:{name:'王小明',table:'1'},g1:{name:'李美華',table:'1'},g2:{name:'張大同',table:'2'},g3:{name:'陳怡君',table:'2'}},
+    songbook:songbook,
+    state:{phase:'lobby',curQ:-1,quizStarted:false}
+  });
+  // 範例祝福
+  ['新婚快樂,白頭偕老! 💕','終於等到這一天,祝福你們!','願你們永遠像今天一樣幸福 🥂','恭喜恭喜!記得要請客 😆'].forEach((t,i)=>{
+    db.ref('rooms/'+code+'/wishes').push({name:['李美華','張大同','陳怡君','王小明'][i],avatar:'',table:['1','2','2','1'][i],text:t,at:Date.now()+i});
+  });
+  // 範例點歌
+  db.ref('rooms/'+code+'/queue').push({title:'小幸運',artist:'田馥甄',vid:'0pwAfp9NgjU',by:'李美華',at:Date.now(),played:false});
+  db.ref('rooms/'+code+'/queue').push({title:'告白氣球',artist:'周杰倫',vid:'bu7nU9Mhpyo',by:'張大同',at:Date.now()+1,played:false});
+}
+
+// 解析名單文字 → [{name,table,gid}]
+function parseGuests(txt){
+  const out=[]; const seen={};
+  (txt||'').split(/\n/).forEach((line,i)=>{
+    const s=line.trim(); if(!s) return;
+    const parts=s.split(/[,，\t]/).map(x=>x.trim());
+    const name=parts[0]; if(!name) return;
+    const table=(parts[1]||'').trim();
+    // 產生穩定的 gid(同名加序號)
+    let base='g'+i; let gid=base;
+    out.push({name, table, gid});
+  });
+  return out;
+}
+
+// 解析歌單 → [{title,artist,vid,sid}]
+function parseSongs(txt){
+  const out=[];
+  (txt||'').split(/\n/).forEach((line,i)=>{
+    const s=line.trim(); if(!s) return;
+    // 格式:歌名 - 演唱者,連結  或  歌名,連結
+    const ci=s.lastIndexOf(','); const cic=s.lastIndexOf('，');
+    const cut=Math.max(ci,cic);
+    if(cut<0) return;
+    const left=s.slice(0,cut).trim(); const url=s.slice(cut+1).trim();
+    const vid=ytId(url); if(!vid) return;
+    let title=left, artist='';
+    const dash=left.split(/\s+-\s+|\s+–\s+/);
+    if(dash.length>=2){ title=dash[0].trim(); artist=dash.slice(1).join(' - ').trim(); }
+    out.push({title, artist, vid, sid:'s'+i});
+  });
+  return out;
+}
+
+/* ============================================================
+   圖片壓縮(頭像 / 媒體)
+   ============================================================ */
+function compress(file,max,q,cb){
+  if(!file) return;
+  const img=new Image(); const fr=new FileReader();
+  fr.onload=e=>{ img.onload=()=>{
+    let{width:w,height:h}=img; if(w>h){ if(w>max){h=h*max/w;w=max;} } else { if(h>max){w=w*max/h;h=max;} }
+    const c=document.createElement('canvas'); c.width=w; c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h); cb(c.toDataURL('image/jpeg',q));
+  }; img.src=e.target.result; };
+  fr.readAsDataURL(file);
+}
+
+/* ============================================================
+   主持人 — 建立房間 & 流程控制
+   ============================================================ */
+function createRoom(){
+  // 題目可有可無(問答只是 Hub 的一個功能);若有,過濾不完整的
+  state.questions = state.questions.filter(q=>q.text.trim() && q.opts.filter(o=>o.trim()).length>=2);
+  state.role='host';
+  state.room=document.getElementById('roomCode').value;
+  state.qTime=parseInt(document.getElementById('qTime').value)||20;
+  state.title=document.getElementById('gameTitle').value||'婚禮互動大廳';
+  state.guests=parseGuests(document.getElementById('guestList').value);
+  state.songs=parseSongs(document.getElementById('songList').value);
+  state.allowCustomSong=document.getElementById('allowCustomSong').checked;
+
+  // 名單轉成物件存進 DB(賓客掃碼時據此認人)
+  const roster={};
+  state.guests.forEach(g=>{ roster[g.gid]={name:g.name, table:g.table||''}; });
+  // 精選歌單存進 DB
+  const songbook={};
+  state.songs.forEach(s=>{ songbook[s.sid]={title:s.title, artist:s.artist, vid:s.vid}; });
+
+  const base={
+    meta:{title:state.title, qTime:state.qTime, total:state.questions.length,
+          hasQuiz:state.questions.length>0, allowCustomSong:state.allowCustomSong, createdAt:TS()},
+    roster:roster,
+    songbook:songbook,
+    state:{phase:'lobby', curQ:-1, quizStarted:false}
+  };
+  db.ref('rooms/'+state.room).set(base).then(()=>{
+    buildLobby(); show('s-host-lobby');
+    const pref=db.ref('rooms/'+state.room+'/players');
+    // 偵測「新加入」的賓客 → 播報 + 頭像飛入
+    let firstLoad=true;
+    pref.on('child_added', snap=>{
+      const p=snap.val(); const id=snap.key;
+      addPlayerToLobby(p,id,!firstLoad);   // 第一次載入不播報(避免重整時洗版)
+    });
+    pref.on('child_removed', snap=>{
+      const el=document.querySelector('.pl[data-id="'+snap.key+'"]');
+      if(el) el.remove();
+      updateLobbyCount();
+    });
+    setTimeout(()=>{ firstLoad=false; }, 800);
+    // 主持端持續監聽祝福/照片/點歌(供投影頁即時更新)
+    hostWatchInteractions();
+    // 預覽模式:塞入範例賓客與互動,讓大廳/投影頁不空
+    if(DEMO){
+      const fakePlayers=[{name:'王小明',table:'1',score:2400},{name:'李美華',table:'1',score:1800},{name:'張大同',table:'2',score:3100},{name:'陳怡君',table:'2',score:900}];
+      fakePlayers.forEach(p=>db.ref('rooms/'+state.room+'/players').push({...p,avatar:'',joinedAt:Date.now()}));
+      ['新婚快樂,白頭偕老! 💕','終於等到這一天,祝福你們!','願你們永遠像今天一樣幸福 🥂','恭喜!記得要請客 😆'].forEach((t,i)=>{
+        db.ref('rooms/'+state.room+'/wishes').push({name:fakePlayers[i].name,avatar:'',table:fakePlayers[i].table,text:t,at:Date.now()+i});
+      });
+      db.ref('rooms/'+state.room+'/queue').push({title:'小幸運',artist:'田馥甄',vid:'0pwAfp9NgjU',by:'李美華',at:Date.now(),played:false});
+      db.ref('rooms/'+state.room+'/queue').push({title:'告白氣球',artist:'周杰倫',vid:'bu7nU9Mhpyo',by:'張大同',at:Date.now()+1,played:false});
+    }
+  }).catch(e=>toast('建立失敗:'+e.message));
+}
+
+function buildLobby(){
+  document.getElementById('lobbyTitle').textContent=state.title;
+  document.getElementById('lobbyCode').textContent=state.room;
+  const url=location.origin+location.pathname+'?room='+state.room;
+  document.getElementById('lobbyUrl').textContent=url;
+  const box=document.getElementById('qrcanvas'); box.innerHTML='';
+  new QRCode(box,{text:url,width:200,height:200,colorDark:'#8e3a52',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+}
+
+// 產生每位賓客的專屬席位卡(含個人 QR)
+function openSeatCards(){
+  const grid=document.getElementById('seatCardGrid'); grid.innerHTML='';
+  if(!state.guests.length){ grid.innerHTML='<p class="muted noprint" style="text-align:center;width:100%">尚未設定賓客名單。請回上一步在「席位卡名單」貼上賓客。</p>'; show('s-seatcards'); return; }
+  const baseUrl=location.origin+location.pathname;
+  state.guests.forEach(g=>{
+    const card=document.createElement('div'); card.className='seatcard';
+    const url=baseUrl+'?room='+state.room+'&g='+g.gid;
+    const qrId='qr_'+g.gid;
+    card.innerHTML=`
+      <div class="sc-deco">❀</div>
+      <div class="sc-title">${esc(state.title)}</div>
+      <div class="sc-name">${esc(g.name)}</div>
+      ${g.table?`<div class="sc-table">第 ${esc(g.table)} 桌</div>`:''}
+      <div class="sc-qr" id="${qrId}"></div>
+      <div class="sc-hint">📷 掃我 · 拍張自拍一起玩</div>`;
+    grid.appendChild(card);
+    new QRCode(document.getElementById(qrId),{text:url,width:150,height:150,colorDark:'#8e3a52',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  });
+  show('s-seatcards');
+}
+
+function addPlayerToLobby(p,id,announce){
+  const list=document.getElementById('plList');
+  if(document.querySelector('.pl[data-id="'+id+'"]')) return; // 防重複
+  const d=document.createElement('div'); d.className='pl'; d.dataset.id=id;
+  if(announce) d.classList.add('flyin');
+  const tableTag=p.table?`<em class="ptable">第${esc(p.table)}桌</em>`:'';
+  d.innerHTML=avatarHTML(p,'')+`<small>${esc(p.name)}</small>${tableTag}`;
+  list.appendChild(d);
+  updateLobbyCount();
+  if(announce){
+    announceJoin(p);     // 頂端快報橫幅
+    joinSound();         // 輕快音效
+  }
+}
+
+function updateLobbyCount(){
+  const n=document.querySelectorAll('#plList .pl').length;
+  const cnt=document.getElementById('plCount');
+  // 數字翻動效果
+  cnt.textContent=n; cnt.classList.remove('bump'); void cnt.offsetWidth; cnt.classList.add('bump');
+  document.getElementById('startBtn').disabled = n===0;
+}
+
+// 進場快報橫幅(像直播間)
+function announceJoin(p){
+  const banner=document.getElementById('joinBanner');
+  const tbl=p.table?` <span style="color:var(--gold-d);font-size:14px">(第${esc(p.table)}桌)</span>`:'';
+  banner.innerHTML=avatarHTML(p,'ba')+`<span><b>${esc(p.name)}</b>${tbl} 已加入!🎉</span>`;
+  banner.classList.remove('show'); void banner.offsetWidth; banner.classList.add('show');
+  clearTimeout(banner._t); banner._t=setTimeout(()=>banner.classList.remove('show'),3000);
+}
+
+// 輕快「叮」音效(Web Audio,可由主持端開關)
+let lobbyAudioOn=true, audioCtx=null;
+function joinSound(){
+  if(!lobbyAudioOn) return;
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const t=audioCtx.currentTime;
+    [880,1320].forEach((f,i)=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.type='sine'; o.frequency.value=f;
+      o.connect(g); g.connect(audioCtx.destination);
+      g.gain.setValueAtTime(0,t+i*.08); g.gain.linearRampToValueAtTime(.18,t+i*.08+.02);
+      g.gain.exponentialRampToValueAtTime(.001,t+i*.08+.25);
+      o.start(t+i*.08); o.stop(t+i*.08+.26);
+    });
+  }catch(e){}
+}
+function toggleLobbyAudio(btn){ lobbyAudioOn=!lobbyAudioOn; btn.textContent=lobbyAudioOn?'🔊 音效開':'🔇 音效關'; if(lobbyAudioOn) joinSound(); }
+
+function nextQuestion(){
+  if(!state.questions.length){ toast('這場沒有設定問答題目'); return; }
+  const nq=state.curQ+1;
+  if(nq>=state.questions.length){ endGame(); return; }
+  state.curQ=nq;
+  const q=state.questions[nq];
+  // 公開題目(不含正解)
+  db.ref('rooms/'+state.room).update({
+    state:{phase:'question', curQ:nq, quizStarted:true},
+    question:{idx:nq, text:q.text, opts:q.opts, time:state.qTime, startAt:TS()},
+    reveal:null
+  });
+  db.ref('rooms/'+state.room+'/answers/'+nq).remove();
+  // 主持端讀回 startAt 以計時
+  db.ref('rooms/'+state.room+'/question/startAt').once('value',s=>{
+    state.qStartAt=s.val(); hostRunQuestion(q,nq);
+  });
+  watchAnswers(nq, q.opts.length);
+}
+
+function hostRunQuestion(q,nq){
+  document.getElementById('hqProgress').textContent=`第 ${nq+1} / ${state.questions.length} 題`;
+  document.getElementById('hqText').textContent=q.text;
+  const ob=document.getElementById('hqOpts'); ob.innerHTML='';
+  q.opts.forEach((o,i)=>{ const b=document.createElement('div'); b.className='opt'; b.dataset.i=i;
+    b.innerHTML=`<span class="k">${['A','B','C','D'][i]}</span>${esc(o)}`; ob.appendChild(b); });
+  document.getElementById('hqTotal').textContent='?';
+  show('s-host-q');
+  startTimer('hqTimer');
+}
+
+let answersRef=null;
+function watchAnswers(nq, optCount){
+  if(answersRef) answersRef.off();
+  answersRef=db.ref('rooms/'+state.room+'/answers/'+nq);
+  const totalRef=db.ref('rooms/'+state.room+'/players');
+  totalRef.once('value',s=>{ document.getElementById('hqTotal').textContent=Object.keys(s.val()||{}).length; });
+  answersRef.on('value', s=>{ const a=s.val()||{}; document.getElementById('hqAnswered').textContent=Object.keys(a).length; });
+}
+
+function revealAnswer(){
+  stopTimer();
+  const nq=state.curQ, q=state.questions[nq];
+  Promise.all([
+    db.ref('rooms/'+state.room+'/answers/'+nq).once('value'),
+    db.ref('rooms/'+state.room+'/players').once('value'),
+    db.ref('rooms/'+state.room+'/question/startAt').once('value')
+  ]).then(([aSnap,pSnap,stSnap])=>{
+    const answers=aSnap.val()||{}, players=pSnap.val()||{}, startAt=stSnap.val();
+    const counts=[0,0,0,0];
+    const updates={};
+    Object.keys(players).forEach(pid=>{
+      const a=answers[pid];
+      let gained=0, correct=false, choice=-1;
+      if(a){ choice=a.choice; if(choice>=0&&choice<4) counts[choice]++;
+        correct = choice===q.ans;
+        if(correct){
+          const dt=Math.max(0,(a.at-startAt)/1000);
+          const frac=Math.max(0,1-dt/state.qTime);
+          gained=Math.round(500+500*frac);
+        }
+      }
+      const cur=players[pid].score||0;
+      updates['players/'+pid+'/score']=cur+gained;
+      updates['players/'+pid+'/last']={q:nq,correct,gained,choice};
+    });
+    updates['reveal']={idx:nq,ans:q.ans,mediaType:q.mediaType||'none',media:q.media||'',cap:q.cap||'',counts};
+    updates['state']={phase:'reveal',curQ:nq,quizStarted:true};
+    db.ref('rooms/'+state.room).update(updates).then(()=>hostShowReveal(q,counts));
+  });
+}
+
+function hostShowReveal(q,counts){
+  document.getElementById('hrText').textContent=q.text;
+  const ob=document.getElementById('hrOpts'); ob.innerHTML='';
+  q.opts.forEach((o,i)=>{ const b=document.createElement('div'); b.className='opt'; b.dataset.i=i;
+    if(i===q.ans) b.classList.add('right'); else b.classList.add('dim');
+    b.innerHTML=`<span class="k">${['A','B','C','D'][i]}</span>${esc(o)}<span class="cnt">${counts[i]||0} 票</span>`;
+    ob.appendChild(b); });
+  renderMedia('hrMedia','hrCaption',q.mediaType,q.media,q.cap);
+  show('s-host-reveal');
+  confetti();
+}
+
+function showLeaderboard(){
+  db.ref('rooms/'+state.room).update({state:{phase:'leaderboard',curQ:state.curQ,quizStarted:true}});
+  db.ref('rooms/'+state.room+'/players').once('value',s=>{
+    const players=s.val()||{};
+    renderLB('lbList',players,10,true);
+    renderTableLB('lbTableList',players);
+  });
+  document.getElementById('lbSub').textContent = (state.curQ+1>=state.questions.length)?'最 後 一 題 結 束':'目 前 排 名';
+  document.getElementById('lbNextBtn').textContent = (state.curQ+1>=state.questions.length)?'看最終結果 🎉':'下一題 ▶';
+  document.getElementById('lbNextBtn').style.display='';
+  document.getElementById('lbHubBtn').style.display='none';
+  switchLbTab('indiv');
+  show('s-lb');
+}
+
+function endGame(){
+  db.ref('rooms/'+state.room).update({state:{phase:'ended',curQ:state.curQ,quizStarted:true}});
+  db.ref('rooms/'+state.room+'/players').once('value',s=>{
+    const players=s.val()||{};
+    renderLB('endList',players,10,true);
+    renderTableLB('endTableList',players);
+  });
+  show('s-end'); confetti(); setTimeout(confetti,600); setTimeout(confetti,1200);
+}
+
+// 桌次榜切換
+function switchLbTab(tab){
+  state.lbTab=tab;
+  document.getElementById('tabIndiv').classList.toggle('active',tab==='indiv');
+  document.getElementById('tabTable').classList.toggle('active',tab==='table');
+  document.getElementById('lbCardIndiv').style.display = tab==='indiv'?'':'none';
+  document.getElementById('lbCardTable').style.display = tab==='table'?'':'none';
+}
+
+// 桌次總分排名
+function renderTableLB(elId,players){
+  const tables={};
+  Object.values(players).forEach(p=>{
+    const t=(p.table||'').trim(); if(!t) return;
+    if(!tables[t]) tables[t]={table:t,score:0,members:0};
+    tables[t].score+=(p.score||0); tables[t].members++;
+  });
+  const arr=Object.values(tables).sort((a,b)=>b.score-a.score);
+  const ol=document.getElementById(elId); ol.innerHTML='';
+  if(!arr.length){ ol.innerHTML='<p class="muted" style="text-align:center">名單未填桌號,無桌次排名</p>'; return; }
+  arr.slice(0,10).forEach((t,i)=>{
+    const li=document.createElement('li'); if(i<3) li.className='top'+(i+1);
+    li.style.animationDelay=(i*.06)+'s';
+    const medal=['🥇','🥈','🥉'][i]||(i+1);
+    li.innerHTML=`<span class="rank">${medal}</span>
+      <div class="ph" style="background:linear-gradient(135deg,var(--blush),var(--cream2))">🪑</div>
+      <span class="nm">第 ${esc(t.table)} 桌 <small style="color:var(--ink-soft);font-weight:400">· ${t.members}人</small></span>
+      <span class="sc">${t.score}</span>`;
+    ol.appendChild(li);
+  });
+}
+
+function renderLB(elId,players,limit,showDelta){
+  const arr=Object.values(players).map(p=>({name:p.name,avatar:p.avatar,score:p.score||0,gained:(p.last&&p.last.gained)||0}));
+  arr.sort((a,b)=>b.score-a.score);
+  const ol=document.getElementById(elId); ol.innerHTML='';
+  arr.slice(0,limit).forEach((p,i)=>{
+    const li=document.createElement('li'); if(i<3) li.className='top'+(i+1);
+    li.style.animationDelay=(i*.06)+'s';
+    const medal=['🥇','🥈','🥉'][i]||(i+1);
+    li.innerHTML=`<span class="rank">${medal}</span>${avatarHTML(p,'')}<span class="nm">${esc(p.name)}</span>
+      <span class="sc">${p.score}${showDelta&&p.gained?`<span class="delta">+${p.gained}</span>`:''}</span>`;
+    ol.appendChild(li);
+  });
+  if(!arr.length) ol.innerHTML='<p class="muted" style="text-align:center">尚無分數</p>';
+}
+
+/* ---------- 計時器 ---------- */
+function startTimer(elId){
+  stopTimer();
+  const el=document.getElementById(elId);
+  const tick=()=>{
+    const left=Math.max(0,state.qTime-(Date.now()-state.qStartAt)/1000);
+    el.textContent=Math.ceil(left);
+    el.classList.toggle('warn',left<=5);
+    if(left<=0) stopTimer();
+  };
+  tick(); state.timerInt=setInterval(tick,200);
+}
+function stopTimer(){ if(state.timerInt){ clearInterval(state.timerInt); state.timerInt=null; } }
+
+/* ---------- 媒體渲染 ---------- */
+function ytId(u){ const m=(u||'').match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/); return m?m[1]:(/^[\w-]{11}$/.test(u)?u:''); }
+function renderMedia(mediaEl,capEl,type,val,cap){
+  const m=document.getElementById(mediaEl), c=document.getElementById(capEl);
+  m.innerHTML=''; m.style.display='none'; c.textContent=cap||'';
+  if(type==='image'&&val){ m.innerHTML=`<img src="${val}">`; m.style.display='block'; }
+  else if(type==='youtube'){ const id=ytId(val); if(id){ m.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" allow="autoplay" allowfullscreen></iframe>`; m.style.display='block'; } }
+  else if(type==='video'&&val){ m.innerHTML=`<video src="${val}" controls autoplay playsinline></video>`; m.style.display='block'; }
+}
+
+/* ============================================================
+   賓客端
+   ============================================================ */
+function enterRoom(){
+  const code=document.getElementById('joinCode').value.trim().toUpperCase();
+  if(!code){ toast('請輸入房號'); return; }
+  if(!fbReady){ show('s-config'); return; }
+  db.ref('rooms/'+code+'/meta').once('value').then(s=>{
+    if(!s.val()){ toast('找不到這個房號 😢'); return; }
+    state.room=code; state.title=s.val().title;
+    prepProfile(null); // 手動輸入房號 → 需自填暱稱
+  });
+}
+
+// 準備個人資料頁。gid 有值 → 從名單帶出姓名/桌號
+function prepProfile(gid){
+  document.getElementById('profRoom').textContent='房號 '+state.room;
+  if(gid){
+    db.ref('rooms/'+state.room+'/roster/'+gid).once('value').then(s=>{
+      const g=s.val();
+      if(!g){ // 名單沒這個人 → 退回自填
+        showManualProfile(); show('s-profile'); return;
+      }
+      state.gid=gid; state.name=g.name; state.table=g.table||'';
+      document.getElementById('profHi').textContent='歡迎你!';
+      document.getElementById('profNamed').style.display='block';
+      document.getElementById('profName').textContent=g.name;
+      document.getElementById('profTable').textContent=g.table?('第 '+g.table+' 桌'):'';
+      document.getElementById('profTable').style.display=g.table?'inline-block':'none';
+      document.getElementById('nickWrap').style.display='none';
+      show('s-profile');
+    });
+  }else{
+    showManualProfile(); show('s-profile');
+  }
+}
+function showManualProfile(){
+  document.getElementById('profHi').textContent='準備加入';
+  document.getElementById('profNamed').style.display='none';
+  document.getElementById('nickWrap').style.display='block';
+}
+
+function pickAvatar(ev){ compress(ev.target.files[0],300,.75,d=>{ state.avatar=d;
+  document.getElementById('avPreview').innerHTML=`<img src="${d}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+  document.getElementById('selfieHint').textContent='✅ 照片已準備好,可以加入了!';
+}); }
+
+function joinGame(){
+  // 必須上傳自拍(預覽模式可略過)
+  if(!state.avatar && !DEMO){ toast('請先上傳一張自拍照 📷'); return; }
+  let name=state.name;
+  if(!name){ // 手動模式
+    name=document.getElementById('nick').value.trim();
+    if(!name){ toast('請輸入暱稱'); return; }
+  }
+  state.role='player'; state.name=name;
+  const ref=db.ref('rooms/'+state.room+'/players').push();
+  state.pid=ref.key;
+  ref.set({name, avatar:state.avatar, table:state.table||'', score:0, joinedAt:TS()}).then(()=>{
+    enterHub();
+    watchGameAsPlayer();
+  }).catch(e=>toast('加入失敗:'+e.message));
+}
+
+// 進入互動大廳
+function enterHub(){
+  document.getElementById('hubTitle').textContent=state.title;
+  document.getElementById('hubName').textContent=state.table?('你是 '+state.name+' · 第 '+state.table+' 桌'):('你是 '+state.name);
+  show('s-hub');
+}
+
+const HUB_SCREENS=['s-hub','s-wish','s-song','s-photo','s-quiz-soon'];
+function onHubScreen(){ const a=document.querySelector('.screen.active'); return a && HUB_SCREENS.includes(a.id); }
+
+function watchGameAsPlayer(){
+  const root=db.ref('rooms/'+state.room);
+  root.child('state').on('value', s=>{
+    const st=s.val(); if(!st) return;
+    const prevPhase=state.phase;
+    state.phase=st.phase; state.curQ=st.curQ; state.quizStarted=!!st.quizStarted;
+    // 更新 Hub 上「快問快答」卡片的副標
+    const sub=document.getElementById('quizCardSub');
+    if(sub) sub.textContent = st.quizStarted ? '進行中 · 點我加入 🔴' : '尚未開始';
+
+    if(st.phase==='question'){
+      // 題目是即時同步、時間敏感 → 一律拉進題目
+      loadPlayerQuestion();
+    }
+    else if(st.phase==='reveal'){
+      // 只有正在玩問答的人才看公布;在 Hub 逛的人不打擾
+      if(!onHubScreen()) showPlayerResult();
+    }
+    else if(st.phase==='leaderboard'){
+      if(!onHubScreen()){ root.child('players').once('value',ps=>{ const pl=ps.val()||{}; renderLB('lbList',pl,10,true); renderTableLB('lbTableList',pl); document.getElementById('lbSub').textContent='目 前 排 名'; document.getElementById('lbNextBtn').style.display='none'; document.getElementById('lbHubBtn').style.display=''; switchLbTab('indiv'); show('s-lb'); }); }
+    }
+    else if(st.phase==='ended'){
+      if(!onHubScreen()){ root.child('players').once('value',ps=>{ const pl=ps.val()||{}; renderLB('endList',pl,10,true); renderTableLB('endTableList',pl); show('s-end'); }); }
+    }
+    // phase==='lobby' → 不動,讓賓客自由待在 Hub
+  });
+}
+
+// 從 Hub 點「快問快答」
+function openQuizFromHub(){
+  if(state.phase==='question'){ loadPlayerQuestion(); }
+  else if(state.phase==='reveal'){ showPlayerResult(); }
+  else if(state.phase==='leaderboard'||state.phase==='ended'){
+    db.ref('rooms/'+state.room+'/players').once('value',ps=>{ const pl=ps.val()||{};
+      if(state.phase==='ended'){ renderLB('endList',pl,10,true); renderTableLB('endTableList',pl); show('s-end'); }
+      else { renderLB('lbList',pl,10,true); renderTableLB('lbTableList',pl); document.getElementById('lbSub').textContent='目 前 排 名'; document.getElementById('lbNextBtn').style.display='none'; document.getElementById('lbHubBtn').style.display=''; switchLbTab('indiv'); show('s-lb'); }
+    });
+  }
+  else { show('s-quiz-soon'); }  // 還沒開始
+}
+
+function loadPlayerQuestion(){
+  state.answered=false;
+  db.ref('rooms/'+state.room+'/question').once('value',s=>{
+    const q=s.val(); if(!q) return;
+    state.qStartAt=q.startAt;
+    document.getElementById('pqProgress').textContent=`第 ${q.idx+1} 題`;
+    document.getElementById('pqText').textContent=q.text;
+    const ob=document.getElementById('pqOpts'); ob.innerHTML='';
+    q.opts.forEach((o,i)=>{ const b=document.createElement('button'); b.className='opt'; b.dataset.i=i;
+      b.innerHTML=`<span class="k">${['A','B','C','D'][i]}</span>${esc(o)}`;
+      b.onclick=()=>submitAnswer(i,q.idx); ob.appendChild(b); });
+    show('s-play');
+    startTimer('pqTimer');
+  });
+}
+
+function submitAnswer(choice,qidx){
+  if(state.answered) return; state.answered=true; stopTimer();
+  db.ref('rooms/'+state.room+'/answers/'+qidx+'/'+state.pid).set({choice, at:TS()});
+  show('s-answered');
+}
+
+function showPlayerResult(){
+  db.ref('rooms/'+state.room+'/players/'+state.pid).once('value',ps=>{
+    const me=ps.val()||{}; const last=me.last||{};
+    db.ref('rooms/'+state.room+'/reveal').once('value',rs=>{
+      const rv=rs.val()||{};
+      const correct=last.q===state.curQ && last.correct;
+      const answered=last.q===state.curQ && last.choice>=0;
+      const box=document.getElementById('resultBox');
+      if(correct){
+        box.innerHTML=`<div class="em">🎯</div><h2>答對了!</h2>
+          <div class="gain">+${last.gained}</div>
+          <p class="mytotal">目前總分 <b>${me.score}</b> 分</p>`;
+        confetti();
+      }else{
+        box.innerHTML=`<div class="em">${answered?'😅':'⏰'}</div><h2>${answered?'可惜,答錯了':'這題沒答到'}</h2>
+          <div class="gain miss">+0</div>
+          <p class="mytotal">目前總分 <b>${me.score}</b> 分</p>`;
+      }
+      show('s-result');
+    });
+  });
+}
+
+/* ============================================================
+   💌 祝福留言
+   ============================================================ */
+function openWish(){ show('s-wish'); renderMyWishes(); }
+function sendWish(){
+  const t=document.getElementById('wishText').value.trim();
+  if(!t){ toast('請先寫點什麼 💕'); return; }
+  db.ref('rooms/'+state.room+'/wishes').push({
+    name:state.name, avatar:state.avatar||'', table:state.table||'', text:t, at:TS()
+  }).then(()=>{
+    document.getElementById('wishText').value='';
+    if(!state._myWishes) state._myWishes=[];
+    state._myWishes.unshift(t); renderMyWishes();
+    toast('祝福已送出 ✨'); confetti();
+  });
+}
+function renderMyWishes(){
+  const box=document.getElementById('myWishes'); box.innerHTML='';
+  (state._myWishes||[]).forEach(w=>{ const d=document.createElement('div'); d.className='mw'; d.textContent='💕 '+w; box.appendChild(d); });
+}
+
+/* ============================================================
+   🎵 點歌
+   ============================================================ */
+function openSongPick(){
+  // 載入精選歌單
+  db.ref('rooms/'+state.room).child('songbook').once('value',s=>{
+    const sb=s.val()||{}; const menu=document.getElementById('songMenu'); menu.innerHTML='';
+    const ids=Object.keys(sb);
+    if(!ids.length){ menu.innerHTML='<p class="muted">尚無精選歌單</p>'; }
+    ids.forEach(sid=>{ const song=sb[sid];
+      const row=document.createElement('div'); row.className='songrow'; row.onclick=()=>requestSong(song.title,song.artist,song.vid);
+      row.innerHTML=`<div class="sic">🎵</div><div class="sinfo"><div class="stitle">${esc(song.title)}</div><div class="sartist">${esc(song.artist||'')}</div></div><div class="splay">點播 ▶</div>`;
+      menu.appendChild(row);
+    });
+  });
+  // 是否允許自訂連結
+  db.ref('rooms/'+state.room+'/meta/allowCustomSong').once('value',s=>{
+    document.getElementById('customSongCard').style.display = s.val()? '' : 'none';
+  });
+  show('s-song');
+}
+function requestSong(title,artist,vid){
+  db.ref('rooms/'+state.room+'/queue').push({title, artist:artist||'', vid, by:state.name, at:TS(), played:false})
+    .then(()=>{ toast('已加入點歌佇列 🎶'); show('s-hub'); });
+}
+function sendCustomSong(){
+  const url=document.getElementById('customSongUrl').value.trim();
+  const vid=ytId(url);
+  if(!vid){ toast('請貼有效的 YouTube 連結'); return; }
+  const nm=document.getElementById('customSongName').value.trim()||'賓客點播';
+  document.getElementById('customSongUrl').value=''; document.getElementById('customSongName').value='';
+  requestSong(nm,'',vid);
+}
+
+/* ============================================================
+   📸 照片上傳
+   ============================================================ */
+function openPhotoUpload(){ state.photoData=null; document.getElementById('photoSendBtn').style.display='none';
+  document.getElementById('photoPreview').innerHTML='📷<br><small>點此選擇照片</small>'; renderMyPhotos(); show('s-photo'); }
+function pickPhoto(ev){ compress(ev.target.files[0],1100,.78,d=>{ state.photoData=d;
+  document.getElementById('photoPreview').innerHTML=`<img src="${d}" style="width:100%;height:100%;object-fit:cover;border-radius:16px">`;
+  document.getElementById('photoSendBtn').style.display='';
+}); }
+function sendPhoto(){
+  if(!state.photoData){ toast('請先選一張照片'); return; }
+  db.ref('rooms/'+state.room+'/photos').push({ img:state.photoData, by:state.name, at:TS() }).then(()=>{
+    if(!state._myPhotos) state._myPhotos=[];
+    state._myPhotos.unshift(state.photoData); renderMyPhotos();
+    state.photoData=null; document.getElementById('photoSendBtn').style.display='none';
+    document.getElementById('photoPreview').innerHTML='📷<br><small>再傳一張</small>';
+    toast('照片已上傳 🌟'); confetti();
+  }).catch(e=>toast('上傳失敗:'+e.message));
+}
+function renderMyPhotos(){ const box=document.getElementById('myPhotos'); box.innerHTML='';
+  (state._myPhotos||[]).forEach(p=>{ const i=document.createElement('img'); i.src=p; box.appendChild(i); }); }
+
+/* ============================================================
+   主持端 — 投影頁(祝福牆 / 點歌 / 照片牆)即時監聽
+   ============================================================ */
+let hostWatching=false;
+function hostWatchInteractions(){
+  if(hostWatching) return; hostWatching=true;
+  const root=db.ref('rooms/'+state.room);
+  // 祝福
+  root.child('wishes').on('value', s=>{ renderWishWall(s.val()||{}); });
+  // 照片
+  root.child('photos').on('value', s=>{ renderPhotoWall(s.val()||{}); });
+  // 點歌佇列
+  root.child('queue').on('value', s=>{ state._queue=s.val()||{}; renderQueue(); });
+}
+
+function renderWishWall(wishes){
+  const grid=document.getElementById('wallGrid'); if(!grid) return;
+  const arr=Object.values(wishes).sort((a,b)=>(b.at||0)-(a.at||0));
+  grid.innerHTML='';
+  arr.forEach(w=>{ const d=document.createElement('div'); d.className='wishnote';
+    d.innerHTML=`<div class="wtop">${avatarHTML(w,'')}<span class="wn">${esc(w.name)}${w.table?(' · 第'+esc(w.table)+'桌'):''}</span></div><div class="wt">${esc(w.text)}</div>`;
+    grid.appendChild(d);
+  });
+  if(!arr.length) grid.innerHTML='<p class="muted" style="text-align:center;width:100%">還沒有祝福,快邀請賓客留言吧 💌</p>';
+}
+function hostOpenWall(){ show('s-host-wall'); }
+
+function renderPhotoWall(photos){
+  const grid=document.getElementById('photoGrid'); if(!grid) return;
+  const arr=Object.values(photos).sort((a,b)=>(b.at||0)-(a.at||0));
+  grid.innerHTML='';
+  arr.forEach(p=>{ const w=document.createElement('div'); w.className='pwrap';
+    w.innerHTML=`<img src="${p.img}"><div class="pby">📸 ${esc(p.by)}</div>`; grid.appendChild(w);
+  });
+  if(!arr.length) grid.innerHTML='<p class="muted" style="text-align:center;width:100%">還沒有照片,邀請賓客上傳現場美照 📸</p>';
+}
+function hostOpenPhotos(){ show('s-host-photos'); }
+
+/* ---- 點歌播放器 ---- */
+function hostOpenSongs(){ renderQueue(); show('s-host-songs'); }
+function queueArr(){ const q=state._queue||{}; return Object.keys(q).map(k=>({key:k,...q[k]})).sort((a,b)=>(a.at||0)-(b.at||0)); }
+function renderQueue(){
+  const arr=queueArr();
+  const ol=document.getElementById('queueList'); if(!ol) return;
+  document.getElementById('queueCount').textContent=arr.length;
+  ol.innerHTML='';
+  arr.forEach((s,i)=>{ const li=document.createElement('li'); if(s.key===state._nowKey) li.classList.add('playing');
+    li.innerHTML=`<span class="qn">${s.key===state._nowKey?'▶':(i+1)}</span><span class="qt">${esc(s.title)}</span><span class="qby">點播:${esc(s.by||'')}</span>`;
+    ol.appendChild(li);
+  });
+  if(!arr.length) ol.innerHTML='<p class="muted" style="text-align:center">尚無點播</p>';
+  // 若沒有正在播的,自動播第一首未播的
+  if(!state._nowKey){ const next=arr.find(s=>!s.played); if(next) playSong(next); }
+}
+function playSong(s){
+  state._nowKey=s.key;
+  const box=document.getElementById('ytPlayer');
+  box.innerHTML=`<iframe src="https://www.youtube.com/embed/${s.vid}?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+  document.getElementById('nowPlaying').textContent='♪ '+s.title+(s.artist?(' - '+s.artist):'');
+  renderQueue();
+}
+function playerNext(){
+  const arr=queueArr();
+  // 標記目前為已播
+  if(state._nowKey){ db.ref('rooms/'+state.room+'/queue/'+state._nowKey+'/played').set(true); }
+  const idx=arr.findIndex(s=>s.key===state._nowKey);
+  const next=arr.slice(idx+1).find(s=>true) || arr.find(s=>!s.played && s.key!==state._nowKey);
+  state._nowKey=null;
+  if(next){ playSong(next); }
+  else { document.getElementById('ytPlayer').innerHTML='<div class="ytplaceholder">佇列已播完,等待新點歌…</div>'; document.getElementById('nowPlaying').textContent=''; }
+}
+function playerPrev(){
+  const arr=queueArr();
+  const idx=arr.findIndex(s=>s.key===state._nowKey);
+  if(idx>0){ playSong(arr[idx-1]); }
+}
+
+/* ============================================================
+   彩帶動畫
+   ============================================================ */
+function confetti(){
+  const c=document.createElement('canvas'); c.className='confetti'; document.body.appendChild(c);
+  const x=c.getContext('2d'); c.width=innerWidth; c.height=innerHeight;
+  const cols=['#b5566b','#c8a04e','#e7cd92','#d98ca0','#7c9b72'];
+  const P=Array.from({length:120},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height,r:5+Math.random()*7,
+    c:cols[Math.floor(Math.random()*cols.length)],s:2+Math.random()*4,a:Math.random()*6.28,sp:Math.random()*.2-.1}));
+  let t=0;
+  (function loop(){ t++; x.clearRect(0,0,c.width,c.height);
+    P.forEach(p=>{ p.y+=p.s; p.x+=Math.sin(p.a)*1.5; p.a+=p.sp;
+      x.fillStyle=p.c; x.beginPath(); x.ellipse(p.x,p.y,p.r,p.r*.5,p.a,0,6.28); x.fill(); });
+    if(t<150) requestAnimationFrame(loop); else c.remove();
+  })();
+}
+
+/* ============================================================
+   啟動:若網址有 ?room= 直接進入賓客流程
+   ============================================================ */
+(function init(){
+  const params=new URLSearchParams(location.search);
+  const r=params.get('room');
+  const g=params.get('g');
+  if(r){
+    if(!fbReady){ show('s-config'); return; }
+    const code=r.toUpperCase();
+    document.getElementById('joinCode').value=code;
+    db.ref('rooms/'+code+'/meta').once('value').then(s=>{
+      if(s.val()){ state.room=code; state.title=s.val().title;
+        prepProfile(g||null); }   // 有 g → 直接帶出本人;沒有 → 自填暱稱
+      else { toast('房號不存在,請手動輸入'); show('s-join'); }
+    });
+  }
+})();
+</script>
+</body>
+</html>
