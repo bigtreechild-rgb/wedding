@@ -388,6 +388,17 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       </div>
     </div>
 
+    <div class="card">
+      <span class="tag">💾 設定存檔</span>
+      <h2>匯出 / 匯入活動設定</h2>
+      <p class="muted">把目前的標題、題目、名單、歌單存成一個檔案。下次(或換電腦)按「匯入」選回那個檔,就不用重打了。</p>
+      <div class="row">
+        <button class="btn gold" onclick="exportConfig()">⬇️ 匯出設定檔</button>
+        <button class="btn ghost" onclick="document.getElementById('importFile').click()">⬆️ 匯入設定檔</button>
+      </div>
+      <input id="importFile" type="file" accept="application/json,.json" hidden onchange="importConfig(event)">
+    </div>
+
     <div class="setup-sec"><span class="setup-h">🎮 快問快答題目</span></div>
     <div id="qlist"></div>
     <div class="row" style="margin-top:14px">
@@ -415,7 +426,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     </div>
 
     <button class="btn primary" style="margin-top:18px" onclick="createRoom()">🚀 建立活動 · 開放掃碼</button>
-    <p class="hint" style="text-align:center">所有設定會自動存在這台裝置,下次開啟還在。</p>
+    <p class="hint" style="text-align:center">所有設定會自動存在這台裝置。換電腦或想備份,記得用上面的「匯出設定檔」。</p>
   </section>
 
   <!-- ================= 主持人:大廳(QR + 賓客) ================= -->
@@ -860,6 +871,50 @@ function delQuestion(qi){ if(confirm('確定刪除這題?')){ state.questions.sp
 function loadSample(){ state.questions=JSON.parse(JSON.stringify(SAMPLE)); renderEditor(); toast('已載入 5 題範例'); }
 function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state.questions)); }catch(e){} }
 function pickMedia(ev,qi){ const file=ev.target.files[0]; ev.target.value=''; if(!file) return; compress(file,1000,.82,d=>{ state.questions[qi].media=d; renderEditor(); toast('照片已加入'); }); }
+
+/* ============================================================
+   設定匯出 / 匯入(存檔)
+   ============================================================ */
+function exportConfig(){
+  const cfg={
+    _type:'wedding-hub-config', _version:1,
+    title:document.getElementById('gameTitle').value,
+    qTime:parseInt(document.getElementById('qTime').value)||20,
+    allowCustomSong:document.getElementById('allowCustomSong').checked,
+    questions:state.questions,
+    guestList:document.getElementById('guestList').value,
+    songList:document.getElementById('songList').value
+  };
+  const blob=new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const safe=(cfg.title||'wedding').replace(/[^\w\u4e00-\u9fa5-]/g,'_').slice(0,30);
+  a.href=url; a.download='婚禮設定_'+safe+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('設定檔已下載 💾');
+}
+
+function importConfig(ev){
+  const file=ev.target.files[0]; ev.target.value=''; if(!file) return;
+  const fr=new FileReader();
+  fr.onload=e=>{
+    try{
+      const cfg=JSON.parse(e.target.result);
+      if(cfg._type!=='wedding-hub-config'){ toast('這不是有效的婚禮設定檔'); return; }
+      if(cfg.title!=null) document.getElementById('gameTitle').value=cfg.title;
+      if(cfg.qTime!=null) document.getElementById('qTime').value=cfg.qTime;
+      document.getElementById('allowCustomSong').checked = cfg.allowCustomSong!==false;
+      if(Array.isArray(cfg.questions)) state.questions=cfg.questions;
+      if(cfg.guestList!=null){ document.getElementById('guestList').value=cfg.guestList; try{localStorage.setItem(LS_GUESTS,cfg.guestList);}catch(e){} }
+      if(cfg.songList!=null){ document.getElementById('songList').value=cfg.songList; try{localStorage.setItem(LS_SONGS,cfg.songList);}catch(e){} }
+      saveLocal();
+      renderEditor();
+      toast('設定已匯入 ✅');
+    }catch(err){ toast('讀取失敗,檔案可能損毀'); }
+  };
+  fr.readAsText(file);
+}
 
 function goHostSetup(){
   if(!fbReady){ show('s-config'); return; }
