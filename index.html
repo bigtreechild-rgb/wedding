@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>婚禮互動大廳 · Wedding Hub</title>
+<title>宇童 ❤ 懷筑 婚禮互動大廳</title>
 
 <!-- ===== 字型 ===== -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -376,7 +376,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 <div class="petals" id="petals"></div>
 <div class="wrap">
 
-  <!-- ================= 角色選擇 ================= -->
+  <!-- ================= 載入中(init 會立刻路由到賓客或主持) ================= -->
   <section id="s-home" class="screen active">
     <div class="brand">
       <div class="ring">💍</div>
@@ -384,18 +384,9 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       <div class="sub">婚 禮 互 動 大 廳</div>
       <div class="rule"></div>
     </div>
-    <div class="card">
-      <h2>準備好一起同樂了嗎?</h2>
-      <p class="muted">掃描座位上的 QR Code,就能留祝福、點歌、上傳照片,還有快問快答小遊戲!</p>
-      <div class="roles">
-        <div class="role" onclick="goHostSetup()">
-          <div class="ic">🎙️</div><b>我是主持人</b><span>建立活動 · 投影大螢幕</span>
-        </div>
-        <div class="role" onclick="show('s-join')">
-          <div class="ic">📱</div><b>我是賓客</b><span>輸入房號加入</span>
-        </div>
-      </div>
-      <p class="hint" style="text-align:center;margin-top:16px">還沒設定好 Firebase?<a href="javascript:void(0)" onclick="startDemo('host')" style="color:var(--rose);font-weight:700">先用預覽模式逛一圈 👀</a></p>
+    <div class="bigstate">
+      <div class="em">💕</div>
+      <h2>載入中…</h2>
     </div>
   </section>
 
@@ -415,13 +406,6 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       </ol>
       <p class="hint">⚠️ 婚禮當天為求方便,Realtime Database 規則設為公開讀寫即可(遊戲結束後可關閉)。要我幫你產生規則就跟我說。</p>
     </div>
-    <div class="card" style="text-align:center">
-      <span class="tag">👀 想先看看內容?</span>
-      <h2>先用預覽模式逛一圈</h2>
-      <p class="muted">還沒設定 Firebase 也沒關係。預覽模式會用範例資料讓你把所有畫面點過一遍(祝福牆、點歌、照片牆、問答…),只是不會跨裝置即時同步。</p>
-      <button class="btn gold" onclick="startDemo('host')">🎙️ 預覽主持端</button>
-      <button class="btn ghost" style="margin-top:10px" onclick="startDemo('guest')">📱 預覽賓客端</button>
-    </div>
   </section>
 
   <!-- ================= 主持人:建立遊戲 + 題目編輯 ================= -->
@@ -429,7 +413,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     <div class="brand"><h1>婚禮互動大廳</h1><div class="sub">H O S T  ·  主 持 端 設 定</div><div class="rule"></div></div>
     <div class="card">
       <label>活動標題(顯示在大螢幕)</label>
-      <input id="gameTitle" type="text" value="俊宏 ❤ 怡君 的婚禮">
+      <input id="gameTitle" type="text" value="宇童 ❤ 懷筑 的婚禮">
       <div class="grid2">
         <div><label>每題作答秒數</label><input id="qTime" type="number" value="20" min="5" max="120"></div>
         <div><label>房號(自動產生)</label><input id="roomCode" type="text" readonly></div>
@@ -467,7 +451,8 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       </label>
     </div>
 
-    <button class="btn primary" style="margin-top:18px" onclick="createRoom()">🚀 建立活動 · 開放掃碼</button>
+    <button class="btn primary" id="setupSaveBtn" style="margin-top:18px" onclick="submitSetup()">🚀 建立活動 · 開放掃碼</button>
+    <button class="btn ghost" id="setupBackBtn" style="margin-top:10px;display:none" onclick="openHostLobby()">← 返回控制台(不儲存)</button>
     <p class="hint" style="text-align:center">所有設定會自動存在這台裝置。換電腦或想備份,記得用上面的「匯出設定檔」。</p>
   </section>
 
@@ -506,6 +491,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     </div>
 
     <button class="btn primary" id="startBtn" onclick="startQuiz()" disabled>🎮 開始快問快答(第一題)</button>
+    <button class="btn ghost" style="margin-top:10px" onclick="goHostSetup()">⚙️ 編輯題目與設定</button>
   </section>
 
   <!-- ================= 主持人:祝福牆(投影) ================= -->
@@ -853,6 +839,10 @@ function enableDemo(){
 
 const TS = ()=> DEMO ? Date.now() : firebase.database.ServerValue.TIMESTAMP;
 
+/* ---------- 這場婚禮的固定設定 ---------- */
+const ROOM='WEDDING';            // 固定房間,不用每次建立
+const HOST_KEY='yutong1003';     // 主持人專屬網址參數 ?host=yutong1003
+
 /* ---------- 全域狀態 ---------- */
 const state = {
   role:null, room:null, pid:null, name:null, avatar:null, table:null, gid:null,
@@ -906,6 +896,8 @@ const SAMPLE=[
 const LS_KEY='weddingQuizQuestions_v1';
 const LS_GUESTS='weddingQuizGuests_v1';
 const LS_SONGS='weddingQuizSongs_v1';
+const LS_TITLE='weddingQuizTitle_v1';
+const LS_QTIME='weddingQuizQtime_v1';
 const LS_SESSION='weddingHubSession_v1';
 
 function blankQ(){ return {text:"",opts:["","","",""],ans:0,mediaType:"none",media:"",cap:""}; }
@@ -984,8 +976,8 @@ function importConfig(ev){
     try{
       const cfg=JSON.parse(e.target.result);
       if(cfg._type!=='wedding-hub-config'){ toast('這不是有效的婚禮設定檔'); return; }
-      if(cfg.title!=null) document.getElementById('gameTitle').value=cfg.title;
-      if(cfg.qTime!=null) document.getElementById('qTime').value=cfg.qTime;
+      if(cfg.title!=null){ document.getElementById('gameTitle').value=cfg.title; try{localStorage.setItem(LS_TITLE,cfg.title);}catch(e){} }
+      if(cfg.qTime!=null){ document.getElementById('qTime').value=cfg.qTime; try{localStorage.setItem(LS_QTIME,cfg.qTime);}catch(e){} }
       document.getElementById('allowCustomSong').checked = cfg.allowCustomSong!==false;
       if(Array.isArray(cfg.questions)) state.questions=cfg.questions;
       if(cfg.guestList!=null){ document.getElementById('guestList').value=cfg.guestList; try{localStorage.setItem(LS_GUESTS,cfg.guestList);}catch(e){} }
@@ -1003,6 +995,13 @@ function goHostSetup(){
   let saved=null; try{ saved=JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){}
   state.questions = (saved&&saved.length)? saved : JSON.parse(JSON.stringify(SAMPLE));
   document.getElementById('roomCode').value = rid(4);
+  // 還原標題與秒數
+  try{ const t=localStorage.getItem(LS_TITLE); if(t) document.getElementById('gameTitle').value=t; }catch(e){}
+  try{ const qt=localStorage.getItem(LS_QTIME); if(qt) document.getElementById('qTime').value=qt; }catch(e){}
+  const gt=document.getElementById('gameTitle');
+  gt.oninput=()=>{ try{ localStorage.setItem(LS_TITLE, gt.value); }catch(e){} };
+  const qt=document.getElementById('qTime');
+  qt.oninput=()=>{ try{ localStorage.setItem(LS_QTIME, qt.value); }catch(e){} };
   // 還原賓客名單
   try{ const g=localStorage.getItem(LS_GUESTS); if(g) document.getElementById('guestList').value=g; }catch(e){}
   const gl=document.getElementById('guestList');
@@ -1012,47 +1011,20 @@ function goHostSetup(){
   const sl=document.getElementById('songList');
   sl.oninput=()=>{ try{ localStorage.setItem(LS_SONGS, sl.value); }catch(e){} };
   renderEditor();
+  // 依房間是否已建立,切換按鈕文字
+  db.ref('rooms/'+ROOM+'/meta').once('value').then(s=>{
+    const exists=!!s.val();
+    document.getElementById('setupSaveBtn').textContent = exists?'💾 儲存設定':'🚀 建立活動 · 開放掃碼';
+    document.getElementById('setupBackBtn').style.display = exists?'':'none';
+  });
   show('s-host-setup');
 }
 
-/* ============================================================
-   預覽模式啟動:開啟記憶體模擬資料庫 + 塞入範例資料
-   ============================================================ */
-function startDemo(which){
-  enableDemo();
-  toast('已進入預覽模式 👀(資料僅供瀏覽,不會同步)');
-  if(which==='host'){
-    // 預先填好設定頁的範例,並直接建立一間 demo 房,塞入範例互動資料
-    goHostSetup();
-    document.getElementById('guestList').value='王小明,1\n李美華,1\n張大同,2\n陳怡君,2';
-    document.getElementById('songList').value='小幸運 - 田馥甄,https://youtu.be/0pwAfp9NgjU\n告白氣球 - 周杰倫,https://youtu.be/bu7nU9Mhpyo\nMarry You - Bruno Mars,https://youtu.be/aEParqGfDoE';
-    toast('範例已帶入,按「建立活動」就能看大廳');
-  }else{
-    // 賓客端:先建一間 demo 房(背景),再走賓客加入流程
-    seedDemoRoom('DEMO');
-    state.room='DEMO'; state.title='俊宏 ❤ 怡君 的婚禮';
-    document.getElementById('joinCode').value='DEMO';
-    prepProfile();
-    setTimeout(()=>toast('預覽:輸入名字、選個頭像就能加入'),400);
-  }
-}
-
-// 在 demo 資料庫裡塞一間範例房 + 範例祝福/照片/點歌
-function seedDemoRoom(code){
-  const songbook={s0:{title:'小幸運',artist:'田馥甄',vid:'0pwAfp9NgjU'},s1:{title:'告白氣球',artist:'周杰倫',vid:'bu7nU9Mhpyo'},s2:{title:'Marry You',artist:'Bruno Mars',vid:'aEParqGfDoE'}};
-  db.ref('rooms/'+code).set({
-    meta:{title:'俊宏 ❤ 怡君 的婚禮',qTime:20,total:5,hasQuiz:true,allowCustomSong:true,createdAt:Date.now()},
-    roster:{g0:{name:'王小明',table:'1'},g1:{name:'李美華',table:'1'},g2:{name:'張大同',table:'2'},g3:{name:'陳怡君',table:'2'}},
-    songbook:songbook,
-    state:{phase:'lobby',curQ:-1,quizStarted:false}
+/* 設定頁送出:第一次→建立;之後→更新 */
+function submitSetup(){
+  db.ref('rooms/'+ROOM+'/meta').once('value').then(s=>{
+    saveRoomSettings(!s.val());
   });
-  // 範例祝福
-  ['新婚快樂,白頭偕老! 💕','終於等到這一天,祝福你們!','願你們永遠像今天一樣幸福 🥂','恭喜恭喜!記得要請客 😆'].forEach((t,i)=>{
-    db.ref('rooms/'+code+'/wishes').push({name:['李美華','張大同','陳怡君','王小明'][i],avatar:'',table:['1','2','2','1'][i],text:t,at:Date.now()+i});
-  });
-  // 範例點歌
-  db.ref('rooms/'+code+'/queue').push({title:'小幸運',artist:'田馥甄',vid:'0pwAfp9NgjU',by:'李美華',at:Date.now(),played:false});
-  db.ref('rooms/'+code+'/queue').push({title:'告白氣球',artist:'周杰倫',vid:'bu7nU9Mhpyo',by:'張大同',at:Date.now()+1,played:false});
 }
 
 // 解析名單文字 → [{name,table,gid}]
@@ -1104,61 +1076,78 @@ function compress(file,max,q,cb){
 }
 
 /* ============================================================
-   主持人 — 建立房間 & 流程控制
+   主持人 — 固定房間管理(不用每次建立)
    ============================================================ */
-function createRoom(){
-  // 題目可有可無(問答只是 Hub 的一個功能);若有,過濾不完整的
+
+// 主持人入口:房間存在 → 直接進控制台;不存在 → 進設定頁做第一次設定
+function enterHostConsole(){
+  state.role='host'; state.room=ROOM;
+  db.ref('rooms/'+ROOM+'/meta').once('value').then(s=>{
+    if(s.val()){
+      // 已建好 → 載入設定,進控制台
+      loadRoomConfig().then(()=>openHostLobby());
+    }else{
+      // 第一次 → 進設定頁
+      goHostSetup();
+      toast('第一次設定:填好題目與歌單後,按下方按鈕建立');
+    }
+  });
+}
+
+// 從 DB 載入這場婚禮的設定到 state
+function loadRoomConfig(){
+  return new Promise(resolve=>{
+    db.ref('rooms/'+ROOM).once('value').then(s=>{
+      const r=s.val()||{};
+      state.title=(r.meta&&r.meta.title)||'婚禮互動大廳';
+      state.qTime=(r.meta&&r.meta.qTime)||20;
+      state.allowCustomSong=!(r.meta&&r.meta.allowCustomSong===false);
+      state.songs=Object.values(r.songbook||{});
+      let saved=null; try{ saved=JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){}
+      state.questions=(saved&&saved.length)?saved:[];
+      state.curQ=(r.state&&typeof r.state.curQ==='number')?r.state.curQ:-1;
+      resolve();
+    });
+  });
+}
+
+// 進入主持控制台(大廳),掛上即時監聽
+let hostLobbyReady=false;
+function openHostLobby(){
+  buildLobby(); show('s-host-lobby');
+  if(!hostLobbyReady){
+    hostLobbyReady=true;
+    const pref=db.ref('rooms/'+ROOM+'/players');
+    document.getElementById('plList').innerHTML='';
+    let firstLoad=true;
+    pref.on('child_added', snap=>addPlayerToLobby(snap.val(),snap.key,!firstLoad));
+    pref.on('child_removed', snap=>{ const el=document.querySelector('.pl[data-id="'+snap.key+'"]'); if(el) el.remove(); updateLobbyCount(); });
+    setTimeout(()=>{ firstLoad=false; }, 1000);
+    hostWatchInteractions();
+  }
+}
+
+// 儲存設定到固定房間(保留既有賓客/留言/照片資料,不覆蓋)
+function saveRoomSettings(isFirstTime){
   state.questions = state.questions.filter(q=>q.text.trim() && q.opts.filter(o=>o.trim()).length>=2);
-  state.role='host';
-  state.room=document.getElementById('roomCode').value;
   state.qTime=parseInt(document.getElementById('qTime').value)||20;
   state.title=document.getElementById('gameTitle').value||'婚禮互動大廳';
-  state.guests=parseGuests(document.getElementById('guestList').value);
   state.songs=parseSongs(document.getElementById('songList').value);
   state.allowCustomSong=document.getElementById('allowCustomSong').checked;
-
-  // 名單轉成物件存進 DB(賓客掃碼時據此認人)
-  const roster={};
-  state.guests.forEach(g=>{ roster[g.gid]={name:g.name, table:g.table||''}; });
-  // 精選歌單存進 DB
   const songbook={};
   state.songs.forEach(s=>{ songbook[s.sid]={title:s.title, artist:s.artist, vid:s.vid}; });
 
-  const base={
-    meta:{title:state.title, qTime:state.qTime, total:state.questions.length,
-          hasQuiz:state.questions.length>0, allowCustomSong:state.allowCustomSong, createdAt:TS()},
-    roster:roster,
-    songbook:songbook,
-    state:{phase:'lobby', curQ:-1, quizStarted:false}
+  const updates={
+    'meta':{title:state.title, qTime:state.qTime, total:state.questions.length,
+            hasQuiz:state.questions.length>0, allowCustomSong:state.allowCustomSong, updatedAt:TS()},
+    'songbook':songbook
   };
-  db.ref('rooms/'+state.room).set(base).then(()=>{
-    buildLobby(); show('s-host-lobby');
-    const pref=db.ref('rooms/'+state.room+'/players');
-    // 偵測「新加入」的賓客 → 播報 + 頭像飛入
-    let firstLoad=true;
-    pref.on('child_added', snap=>{
-      const p=snap.val(); const id=snap.key;
-      addPlayerToLobby(p,id,!firstLoad);   // 第一次載入不播報(避免重整時洗版)
-    });
-    pref.on('child_removed', snap=>{
-      const el=document.querySelector('.pl[data-id="'+snap.key+'"]');
-      if(el) el.remove();
-      updateLobbyCount();
-    });
-    setTimeout(()=>{ firstLoad=false; }, 800);
-    // 主持端持續監聽祝福/照片/點歌(供投影頁即時更新)
-    hostWatchInteractions();
-    // 預覽模式:塞入範例賓客與互動,讓大廳/投影頁不空
-    if(DEMO){
-      const fakePlayers=[{name:'王小明',avatar:'emoji:🦊',score:2400},{name:'李美華',avatar:'emoji:🐰',score:1800},{name:'張大同',avatar:'emoji:🐻',score:3100},{name:'怡君',avatar:'emoji:🐱',score:900}];
-      fakePlayers.forEach(p=>db.ref('rooms/'+state.room+'/players').push({...p,joinedAt:Date.now()}));
-      ['新婚快樂,白頭偕老! 💕','終於等到這一天,祝福你們!','願你們永遠像今天一樣幸福 🥂','恭喜!記得要請客 😆'].forEach((t,i)=>{
-        db.ref('rooms/'+state.room+'/wishes').push({name:fakePlayers[i].name,avatar:fakePlayers[i].avatar,text:t,at:Date.now()+i});
-      });
-      db.ref('rooms/'+state.room+'/queue').push({title:'小幸運',artist:'田馥甄',vid:'0pwAfp9NgjU',by:'李美華',at:Date.now(),played:false});
-      db.ref('rooms/'+state.room+'/queue').push({title:'告白氣球',artist:'周杰倫',vid:'bu7nU9Mhpyo',by:'張大同',at:Date.now()+1,played:false});
-    }
-  }).catch(e=>toast('建立失敗:'+e.message));
+  // 第一次建立時,初始化 state 節點;之後保留現場進度不動
+  const op = isFirstTime
+    ? db.ref('rooms/'+ROOM).update({...updates, state:{phase:'lobby', curQ:-1, quizStarted:false}})
+    : db.ref('rooms/'+ROOM).update(updates);
+  return op.then(()=>{ openHostLobby(); toast(isFirstTime?'婚禮活動已建立 🎉':'設定已更新 ✅'); })
+           .catch(e=>toast('儲存失敗:'+e.message));
 }
 
 function buildLobby(){
@@ -1169,6 +1158,7 @@ function buildLobby(){
   const box=document.getElementById('qrcanvas'); box.innerHTML='';
   new QRCode(box,{text:url,width:200,height:200,colorDark:'#8e3a52',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
 }
+
 
 // 產生每位賓客的專屬席位卡(含個人 QR)
 function openSeatCards(){
@@ -1964,22 +1954,27 @@ function fallbackToJoin(roomFromUrl){
 }
 
 (function init(){
+  if(!fbReady){ show('s-config'); return; }
   const params=new URLSearchParams(location.search);
-  const r=params.get('room');
-  const code=r?r.toUpperCase():null;
-  if(code) document.getElementById('joinCode').value=code;
+  const host=params.get('host');
 
-  // 先嘗試自動回到上次的身分(跳出免重登)
-  if(tryResumeSession(code)) return;
-
-  if(code){
-    if(!fbReady){ show('s-config'); return; }
-    db.ref('rooms/'+code+'/meta').once('value').then(s=>{
-      if(s.val()){ state.room=code; state.title=s.val().title; prepProfile(); }
-      else { toast('房號不存在,請手動輸入'); show('s-join'); }
-    });
+  if(host===HOST_KEY){
+    // 主持人:直接進控制台管理這場婚禮
+    state.role='host'; state.room=ROOM;
+    enterHostConsole();
+    return;
   }
+
+  // 賓客:固定進入這場婚禮
+  state.room=ROOM;
+  // 先嘗試自動回到上次的身分(跳出免重登)
+  if(tryResumeSession(ROOM)) return;
+  db.ref('rooms/'+ROOM+'/meta').once('value').then(s=>{
+    state.title=(s.val()&&s.val().title)||'婚禮互動大廳';
+    prepProfile();
+  });
 })();
+
 </script>
 </body>
 </html>
