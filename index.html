@@ -623,6 +623,9 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       <div class="hubcard" style="--hc:#b07cae" onclick="openMiniGames()">
         <div class="hi">🕹️</div><b>小遊戲</b><span>玩遊戲也能上榜</span>
       </div>
+      <div class="hubcard" style="--hc:#c8893c" onclick="openLeaderboard()">
+        <div class="hi">🏆</div><b>排行榜</b><span>看看誰最高分</span>
+      </div>
     </div>
     <p class="hint" style="text-align:center" id="hubName"></p>
     <p style="text-align:center"><a href="javascript:void(0)" onclick="logoutGuest()" style="color:var(--ink-soft);font-size:13px">換個身分</a></p>
@@ -630,20 +633,28 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 
   <!-- ================= 賓客:小遊戲選單 ================= -->
   <section id="s-games" class="screen">
-    <div class="brand"><h1>🕹️ 小遊戲</h1><div class="sub">分 數 計 入 排 行 榜</div><div class="rule"></div></div>
+    <div class="brand"><h1>🕹️ 小遊戲</h1><div class="sub">純 好 玩 · 不 影 響 抽 獎</div><div class="rule"></div></div>
     <div class="card" style="text-align:center">
-      <p class="muted">玩遊戲得到的分數會累加到你的總分,跟快問快答一起排名 🏆</p>
-      <p class="mytotal" id="gamesTotal"></p>
+      <p class="muted">小遊戲純粹好玩、看看照片,分數<b>不會</b>影響快問快答的抽獎排名。各遊戲各自比高分 🏆</p>
     </div>
-    <div class="hub">
-      <div class="hubcard" style="--hc:var(--rose)" onclick="startMatch()">
-        <div class="hi">🃏</div><b>配對翻牌</b><span>翻出成對的圖案</span>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span class="hi" style="font-size:22px">🃏</span> <b style="font-size:17px;color:var(--rose-deep)">配對翻牌</b></div>
+        <button class="btn primary sm" onclick="startMatch()">開始玩 ▶</button>
       </div>
-      <div class="hubcard" style="--hc:var(--gold-d)" onclick="startCatch()">
-        <div class="hi">🐱</div><b>抓貓貓</b><span>限時點擊抓貓咪</span>
-      </div>
+      <ol class="lb mini" id="matchTop3" style="margin-top:12px"></ol>
     </div>
-    <button class="btn ghost" style="margin-top:16px" onclick="show('s-hub')">← 返回大廳</button>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span class="hi" style="font-size:22px">🐱</span> <b style="font-size:17px;color:var(--gold-d)">抓貓貓</b></div>
+        <button class="btn gold sm" onclick="startCatch()">開始玩 ▶</button>
+      </div>
+      <ol class="lb mini" id="catchTop3" style="margin-top:12px"></ol>
+    </div>
+
+    <button class="btn ghost" style="margin-top:6px" onclick="show('s-hub')">← 返回大廳</button>
   </section>
 
   <!-- 配對翻牌 -->
@@ -1797,46 +1808,78 @@ function playerPrev(){
 }
 
 /* ============================================================
-   🕹️ 小遊戲(配對翻牌 + 抓貓貓),分數累加進總分
+   🕹️ 小遊戲(配對翻牌 + 抓貓貓)
+   分數獨立記錄,各遊戲各自比最高分,不影響快問快答抽獎排名
    ============================================================ */
 const game={};
 
-// 把得分加進玩家總分(原子遞增)
-function addScore(points){
-  if(!state.pid||!points) return Promise.resolve();
+// 把這次的分數存進小遊戲榜(只保留個人最佳),gameKey: 'match' 或 'catch'
+function saveMiniScore(gameKey, value){
+  if(!state.pid) return Promise.resolve();
   return new Promise(resolve=>{
     try{
-      const ref=db.ref('rooms/'+state.room+'/players/'+state.pid+'/score');
-      const r=ref.transaction(cur=>(cur||0)+points);
-      if(r&&typeof r.then==='function'){ r.then(()=>resolve()); }
-      else resolve();
+      const ref=db.ref('rooms/'+state.room+'/minigames/'+gameKey+'/'+state.pid);
+      const r=ref.transaction(cur=>{
+        if(cur && (cur.score||0)>=value) return cur;  // 沒破紀錄就不更新
+        return {name:state.name, avatar:state.avatar||'', score:value};
+      });
+      if(r&&typeof r.then==='function'){ r.then(()=>resolve()); } else resolve();
     }catch(e){ resolve(); }
   });
 }
 
 function openMiniGames(){
-  db.ref('rooms/'+state.room+'/players/'+state.pid).once('value').then(s=>{
-    const me=s.val()||{}; document.getElementById('gamesTotal').innerHTML='目前總分 <b>'+(me.score||0)+'</b> 分';
-  });
+  renderMiniTop3('match','matchTop3');
+  renderMiniTop3('catch','catchTop3');
   show('s-games');
 }
-function quitGame(){ stopGameTimers(); show('s-games'); openMiniGames(); }
+
+// 顯示某遊戲的前三名
+function renderMiniTop3(gameKey, elId){
+  db.ref('rooms/'+state.room+'/minigames/'+gameKey).once('value').then(s=>{
+    const data=s.val()||{};
+    const arr=Object.values(data).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,3);
+    const ol=document.getElementById(elId); if(!ol) return; ol.innerHTML='';
+    if(!arr.length){ ol.innerHTML='<p class="muted" style="text-align:center;font-size:13px">還沒有人玩,快來搶第一 🏅</p>'; return; }
+    arr.forEach((p,i)=>{
+      const li=document.createElement('li'); if(i<3) li.className='top'+(i+1);
+      const medal=['🥇','🥈','🥉'][i];
+      li.innerHTML='<span class="rank">'+medal+'</span>'+avatarHTML(p,'')+'<span class="nm">'+esc(p.name)+'</span><span class="sc">'+p.score+'</span>';
+      ol.appendChild(li);
+    });
+  });
+}
+
+// 大廳「🏆 排行榜」:顯示快問快答的正式排名(有獎品)
+function openLeaderboard(){
+  db.ref('rooms/'+state.room+'/players').once('value').then(s=>{
+    renderLB('lbList', s.val()||{}, 10, false);
+    document.getElementById('lbSub').textContent='快 問 快 答 排 名';
+    document.getElementById('lbNextBtn').style.display='none';
+    document.getElementById('lbHubBtn').style.display='';
+    show('s-lb');
+  });
+}
+
+function quitGame(){ stopGameTimers(); openMiniGames(); }
 function stopGameTimers(){ if(game.timer){clearInterval(game.timer);game.timer=null;} if(game.spawn){clearInterval(game.spawn);game.spawn=null;} }
 
-function showGameResult(title,gained,emoji){
+// 小遊戲結算。gameKey 用來存對應的榜
+function showGameResult(title,score,emoji,gameKey){
   stopGameTimers();
   const box=document.getElementById('gameResultBox');
   box.innerHTML=
     '<div class="em">'+emoji+'</div><h2>'+title+'</h2>'+
-    '<div class="gain">+'+gained+'</div>'+
-    '<p class="mytotal" id="gameResultTotal">分數計算中…</p>'+
-    '<button class="btn primary" style="margin-top:18px;width:auto;padding:14px 28px" onclick="show(\'s-games\');openMiniGames()">再玩一次 / 換遊戲</button>'+
+    '<div class="gain">'+score+' 分</div>'+
+    '<p class="mytotal" id="gameResultTotal">記錄中…</p>'+
+    '<button class="btn primary" style="margin-top:18px;width:auto;padding:14px 28px" onclick="openMiniGames()">再玩一次 / 換遊戲</button>'+
     '<button class="btn ghost" style="margin-top:10px;width:auto;padding:12px 24px" onclick="show(\'s-hub\')">← 返回大廳</button>';
   show('s-game-result'); confetti();
-  // 計分後更新總分顯示
-  addScore(gained).then(()=>{
-    db.ref('rooms/'+state.room+'/players/'+state.pid+'/score').once('value').then(s=>{
-      const el=document.getElementById('gameResultTotal'); if(el) el.innerHTML='目前總分 <b>'+(s.val()||gained)+'</b> 分';
+  saveMiniScore(gameKey, score).then(()=>{
+    db.ref('rooms/'+state.room+'/minigames/'+gameKey+'/'+state.pid).once('value').then(s=>{
+      const best=(s.val()&&s.val().score)||score;
+      const el=document.getElementById('gameResultTotal');
+      if(el) el.innerHTML = (best>score)?('你的最佳:<b>'+best+'</b> 分'):('🎉 你的新紀錄:<b>'+best+'</b> 分');
     });
   });
 }
@@ -1871,7 +1914,7 @@ function flipCard(i,el,idx){
       if(game.matched===game.pairs){ // 全部配對完成
         const base=1000, timePen=Math.min(600,game.t*8), movePen=Math.max(0,(game.moves-game.pairs)*15);
         const gained=Math.max(200, base-timePen-movePen);
-        showGameResult('配對完成!',gained,'🃏');
+        showGameResult('配對完成!',gained,'🃏','match');
       }
     }else{
       game.lock=true;
@@ -1888,7 +1931,7 @@ function startCatch(){
   const area=document.getElementById('catchArea'); area.innerHTML='';
   stopGameTimers();
   game.timer=setInterval(()=>{ game.t--; document.getElementById('catchTimer').textContent=game.t+'s';
-    if(game.t<=0){ const gained=game.caught*50; showGameResult('時間到!抓到 '+game.caught+' 隻貓',gained,'🐱'); }
+    if(game.t<=0){ const gained=game.caught*50; showGameResult('時間到!抓到 '+game.caught+' 隻貓',gained,'🐱','catch'); }
   },1000);
   game.spawn=setInterval(spawnCat,750);
   show('s-catch'); spawnCat();
