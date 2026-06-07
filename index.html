@@ -143,6 +143,14 @@ textarea{resize:vertical;min-height:60px}
 .avatarpick{display:flex;flex-direction:column;align-items:center;gap:10px;margin:6px 0}
 .avatarpick .preview{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--gold-l);
   background:linear-gradient(135deg,var(--blush),var(--cream2));display:flex;align-items:center;justify-content:center;font-size:42px;cursor:pointer;box-shadow:var(--shadow)}
+.preview{width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid var(--gold-l);margin:0 auto;
+  background:linear-gradient(135deg,var(--blush),var(--cream2));display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer;box-shadow:var(--shadow)}
+.avatarchoose{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:6px}
+.avatarchoose .av{aspect-ratio:1;border-radius:50%;border:2px solid transparent;background:linear-gradient(135deg,var(--blush),var(--cream2));
+  display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:.15s}
+.avatarchoose .av:hover{transform:scale(1.1)}
+.avatarchoose .av.sel{border-color:var(--rose);box-shadow:0 0 0 3px rgba(181,86,107,.25);transform:scale(1.08)}
+@media(max-width:480px){.avatarchoose{grid-template-columns:repeat(5,1fr)}}
 
 /* 題目 */
 .qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:700;color:var(--ink-soft);font-size:14px}
@@ -179,6 +187,23 @@ textarea{resize:vertical;min-height:60px}
 .reveal-media img,.reveal-media video,.reveal-media iframe{display:block;width:100%;max-height:60vh;border:none;aspect-ratio:16/9;object-fit:contain;background:#000}
 .reveal-media img{aspect-ratio:auto;object-fit:cover;max-height:46vh}
 .caption{font-family:"Noto Serif TC",serif;font-size:17px;line-height:1.6;color:var(--ink);text-align:center;margin-top:6px}
+
+/* 答題長條圖 */
+.answerchart{display:flex;flex-direction:column;gap:14px;margin:18px 0}
+.barrow{opacity:.85}
+.barrow.correct{opacity:1}
+.barlabel{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-weight:700}
+.barlabel .bk{flex:0 0 26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:"Playfair Display",serif;font-weight:900;font-size:14px}
+.bk0{background:var(--A)} .bk1{background:var(--B)} .bk2{background:var(--C)} .bk3{background:var(--D)}
+.barlabel .bopt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.barlabel .bcheck{flex:0 0 auto;color:var(--ok);font-size:13px;font-weight:900}
+.bartrack{background:var(--cream2);border-radius:12px;height:34px;overflow:hidden}
+.barfill{height:100%;border-radius:12px;display:flex;align-items:center;justify-content:flex-end;padding:0 10px;
+  transition:width 1s cubic-bezier(.2,.8,.2,1);min-width:fit-content}
+.bf0{background:linear-gradient(90deg,#cf6f84,var(--A))} .bf1{background:linear-gradient(90deg,#d6ad53,var(--B))}
+.bf2{background:linear-gradient(90deg,#8fae85,var(--C))} .bf3{background:linear-gradient(90deg,#83a0bf,var(--D))}
+.barrow.correct .bartrack{box-shadow:0 0 0 3px var(--ok)}
+.barnum{color:#fff;font-weight:700;font-size:13px;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.25)}
 
 /* 排行榜 */
 .lb{list-style:none;margin:0;padding:0}
@@ -265,6 +290,25 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 .hubcard b{display:block;margin-top:8px;font-size:18px;color:var(--hc)}
 .hubcard span{font-size:12px;color:var(--ink-soft)}
 
+/* 配對翻牌 */
+.matchgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:420px;margin:0 auto}
+.mcard{aspect-ratio:1;border-radius:14px;cursor:pointer;position:relative;transform-style:preserve-3d;transition:transform .4s;background:transparent}
+.mcard.flipped,.mcard.matched{transform:rotateY(180deg)}
+.mcard .face{position:absolute;inset:0;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;backface-visibility:hidden}
+.mcard .back{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;font-size:24px}
+.mcard .front{background:var(--paper);border:2px solid var(--gold-l);transform:rotateY(180deg)}
+.mcard.matched .front{border-color:var(--ok);box-shadow:0 0 0 3px rgba(95,160,106,.4)}
+
+/* 抓貓貓 */
+.catcharea{position:relative;width:100%;height:62vh;max-height:520px;background:linear-gradient(160deg,#fff,var(--cream2));border-radius:14px;overflow:hidden}
+.catchcat{position:absolute;width:62px;height:62px;cursor:pointer;animation:catchpop .25s ease;will-change:transform}
+.catchcat img{width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 6px rgba(0,0,0,.2))}
+.catchcat.gone{animation:catchgone .3s forwards}
+@keyframes catchpop{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1)}}
+@keyframes catchgone{to{transform:scale(1.5);opacity:0}}
+.scorefloat{position:absolute;font-weight:900;color:var(--gold-d);font-family:"Playfair Display",serif;pointer-events:none;animation:floatup .7s forwards;font-size:22px}
+@keyframes floatup{to{transform:translateY(-40px);opacity:0}}
+
 /* 祝福牆(投影) */
 .wallgrid{columns:3;column-gap:16px}
 @media(max-width:700px){.wallgrid{columns:2}}
@@ -311,16 +355,20 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 .myphotos{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;justify-content:center}
 .myphotos img{width:70px;height:70px;border-radius:10px;object-fit:cover;border:2px solid var(--gold-l)}
 
-/* 列印:只印席位卡 */
+/* 列印:只印大廳的 QR 卡片 */
 @media print{
   body{background:#fff !important}
   .petals,.join-banner,.toast,.noprint{display:none !important}
   .wrap{padding:0}
   .screen{display:none !important}
-  #s-seatcards.active{display:block !important;max-width:none}
-  .seatgrid{grid-template-columns:repeat(2,1fr);gap:10px}
-  .seatcard{box-shadow:none;border:1px dashed #c8a04e}
+  #s-host-lobby.active{display:block !important}
+  /* 只留 QR 卡片,其餘隱藏 */
+  #s-host-lobby .brand{display:block !important;text-align:center}
+  #s-host-lobby > .card:not(:first-of-type){display:none !important}
+  #s-host-lobby .ctrlgrid,#s-host-lobby #startBtn{display:none !important}
+  .qrbox{flex-direction:column;gap:14px}
   .card::before{display:none}
+  .codepill{border-color:#c8a04e}
 }
 </style>
 </head>
@@ -406,13 +454,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       <button class="btn gold" onclick="loadSample()">載入範例題</button>
     </div>
 
-    <div class="setup-sec"><span class="setup-h">🪑 席位卡名單</span></div>
-    <div class="card">
-      <h2>賓客名單(每人一張專屬 QR)</h2>
-      <p class="muted">每行一位賓客,格式「<b>姓名,桌號</b>」。賓客掃自己座位上的 QR,系統就知道他是誰、坐哪桌,免輸入暱稱。</p>
-      <textarea id="guestList" style="min-height:140px;font-family:monospace;line-height:1.7" placeholder="王小明,1&#10;李美華,1&#10;張大同,2&#10;陳怡君,2"></textarea>
-      <p class="hint">桌號可以是數字或文字(如「主桌」「親友桌」)。留空桌號也可以,只是不參加桌次競賽。</p>
-    </div>
+    <textarea id="guestList" style="display:none"></textarea>
 
     <div class="setup-sec"><span class="setup-h">🎵 精選點歌歌單</span></div>
     <div class="card">
@@ -437,10 +479,10 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       <div class="qrbox">
         <div id="qrcanvas"></div>
         <div>
-          <div style="font-size:13px;color:var(--ink-soft);text-align:center;font-weight:700">通用房號(現場臨時加入用)</div>
+          <div style="font-size:13px;color:var(--ink-soft);text-align:center;font-weight:700">桌上放這張 QR · 大家掃同一張</div>
           <div class="codepill" id="lobbyCode">----</div>
           <div class="joinurl" id="lobbyUrl"></div>
-          <button class="btn gold sm" style="margin-top:12px;width:100%" onclick="openSeatCards()">🖨️ 列印賓客席位卡</button>
+          <button class="btn gold sm" style="margin-top:12px;width:100%" onclick="window.print()">🖨️ 列印這張 QR</button>
         </div>
       </div>
     </div>
@@ -464,19 +506,6 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     </div>
 
     <button class="btn primary" id="startBtn" onclick="startQuiz()" disabled>🎮 開始快問快答(第一題)</button>
-  </section>
-
-  <!-- ================= 主持人:席位卡列印頁 ================= -->
-  <section id="s-seatcards" class="screen host">
-    <div class="brand noprint"><h1>席位卡</h1><div class="sub">每 人 一 張 · 擺 到 座 位</div><div class="rule"></div></div>
-    <div class="card noprint" style="text-align:center">
-      <p class="muted">下方每張卡片對應一位賓客。按「列印」後,賓客掃自己那張就會直接以本人身分進場(免輸入暱稱),只需加一張自拍。建議用厚紙列印後對折立在座位上。</p>
-      <div class="row" style="margin-top:8px">
-        <button class="btn primary" onclick="window.print()">🖨️ 列印 / 存成 PDF</button>
-        <button class="btn ghost" onclick="show('s-host-lobby')">返回大廳</button>
-      </div>
-    </div>
-    <div id="seatCardGrid" class="seatgrid"></div>
   </section>
 
   <!-- ================= 主持人:祝福牆(投影) ================= -->
@@ -530,7 +559,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     <div class="brand"><div class="sub">正 確 答 案</div></div>
     <div class="card">
       <div class="qtext" id="hrText"></div>
-      <div class="opts" id="hrOpts"></div>
+      <div class="answerchart" id="hrChart"></div>
       <div class="reveal-media" id="hrMedia" style="display:none"></div>
       <div class="caption" id="hrCaption"></div>
     </div>
@@ -540,12 +569,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
   <!-- ================= 主持人 / 賓客 共用:排行榜 ================= -->
   <section id="s-lb" class="screen host">
     <div class="brand"><h1>🏆 排行榜</h1><div class="sub" id="lbSub">目 前 前 十 名</div><div class="rule"></div></div>
-    <div class="tabs">
-      <button class="tab active" id="tabIndiv" onclick="switchLbTab('indiv')">👤 個人榜</button>
-      <button class="tab" id="tabTable" onclick="switchLbTab('table')">🪑 桌次榜</button>
-    </div>
     <div class="card" id="lbCardIndiv"><ol class="lb" id="lbList"></ol></div>
-    <div class="card" id="lbCardTable" style="display:none"><ol class="lb tablelb" id="lbTableList"></ol></div>
     <button class="btn primary" id="lbNextBtn" onclick="nextQuestion()">下一題 ▶</button>
     <button class="btn ghost" id="lbHubBtn" style="display:none;margin-top:10px" onclick="show('s-hub')">← 返回大廳</button>
   </section>
@@ -554,11 +578,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
   <section id="s-end" class="screen host">
     <div class="brand"><h1>🎉 恭喜!</h1><div class="sub">最 終 排 行</div><div class="rule"></div></div>
     <div class="card">
-      <h2 style="text-align:center">🪑 冠軍桌</h2>
-      <ol class="lb tablelb" id="endTableList"></ol>
-    </div>
-    <div class="card">
-      <h2 style="text-align:center">👤 個人前十名</h2>
+      <h2 style="text-align:center">👤 冠軍排行榜</h2>
       <ol class="lb" id="endList"></ol>
     </div>
     <button class="btn primary" id="endHostBtn" onclick="hostBackToLobby()">← 回到控制台(活動繼續)</button>
@@ -581,22 +601,20 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
   <section id="s-profile" class="screen">
     <div class="brand"><h1 id="profHi">準備加入</h1><div class="sub" id="profRoom"></div><div class="rule"></div></div>
     <div class="card">
-      <div id="profNamed" style="display:none;text-align:center;margin-bottom:6px">
-        <div class="muted">你是</div>
-        <div style="font-family:'Noto Serif TC',serif;font-weight:900;font-size:26px;color:var(--rose-deep)" id="profName"></div>
-        <div class="tag" id="profTable" style="margin-top:6px"></div>
-      </div>
-      <div class="avatarpick">
+      <label>你的暱稱</label>
+      <input id="nick" type="text" maxlength="12" placeholder="輸入你的名字或暱稱">
+
+      <label style="margin-top:16px">選一個頭像</label>
+      <div class="avatarchoose" id="avatarChoose"></div>
+
+      <div style="text-align:center;margin-top:12px">
         <div class="preview" id="avPreview" onclick="document.getElementById('avFile').click()">📷</div>
-        <button class="btn ghost sm" onclick="document.getElementById('avFile').click()">📸 拍照 / 上傳自拍</button>
-        <input id="avFile" type="file" accept="image/*" capture="user" hidden onchange="pickAvatar(event)">
+        <button class="btn ghost sm" style="margin-top:8px" onclick="document.getElementById('avFile').click()">📸 或上傳自己的照片</button>
+        <input id="avFile" type="file" accept="image/*" hidden onchange="pickAvatar(event)">
       </div>
-      <div id="nickWrap">
-        <label>你的暱稱</label>
-        <input id="nick" type="text" maxlength="10" placeholder="例如 新郎的大學室友">
-      </div>
+
       <button class="btn primary" style="margin-top:18px" onclick="joinGame()">✋ 加入!</button>
-      <p class="hint" id="selfieHint" style="text-align:center">📷 加入前請先上傳一張自拍喔</p>
+      <p class="hint" id="selfieHint" style="text-align:center">選一個可愛頭像,或上傳自己的照片</p>
     </div>
   </section>
 
@@ -616,8 +634,53 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       <div class="hubcard" style="--hc:#6f8fb0" onclick="openQuizFromHub()">
         <div class="hi">🎮</div><b>快問快答</b><span id="quizCardSub">問答小遊戲</span>
       </div>
+      <div class="hubcard" style="--hc:#b07cae" onclick="openMiniGames()">
+        <div class="hi">🕹️</div><b>小遊戲</b><span>玩遊戲也能上榜</span>
+      </div>
     </div>
     <p class="hint" style="text-align:center" id="hubName"></p>
+    <p style="text-align:center"><a href="javascript:void(0)" onclick="logoutGuest()" style="color:var(--ink-soft);font-size:13px">換個身分</a></p>
+  </section>
+
+  <!-- ================= 賓客:小遊戲選單 ================= -->
+  <section id="s-games" class="screen">
+    <div class="brand"><h1>🕹️ 小遊戲</h1><div class="sub">分 數 計 入 排 行 榜</div><div class="rule"></div></div>
+    <div class="card" style="text-align:center">
+      <p class="muted">玩遊戲得到的分數會累加到你的總分,跟快問快答一起排名 🏆</p>
+      <p class="mytotal" id="gamesTotal"></p>
+    </div>
+    <div class="hub">
+      <div class="hubcard" style="--hc:var(--rose)" onclick="startMatch()">
+        <div class="hi">🃏</div><b>配對翻牌</b><span>翻出成對的圖案</span>
+      </div>
+      <div class="hubcard" style="--hc:var(--gold-d)" onclick="startCatch()">
+        <div class="hi">🐱</div><b>抓貓貓</b><span>限時點擊抓貓咪</span>
+      </div>
+    </div>
+    <button class="btn ghost" style="margin-top:16px" onclick="show('s-hub')">← 返回大廳</button>
+  </section>
+
+  <!-- 配對翻牌 -->
+  <section id="s-match" class="screen">
+    <div class="qhead"><span id="matchInfo">步數 0</span><span class="timer" id="matchTimer">0s</span></div>
+    <div class="card">
+      <div class="matchgrid" id="matchGrid"></div>
+    </div>
+    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
+  </section>
+
+  <!-- 抓貓貓 -->
+  <section id="s-catch" class="screen">
+    <div class="qhead"><span id="catchScore">抓到 0 隻</span><span class="timer" id="catchTimer">30s</span></div>
+    <div class="card" style="padding:10px">
+      <div class="catcharea" id="catchArea"></div>
+    </div>
+    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
+  </section>
+
+  <!-- 小遊戲結算 -->
+  <section id="s-game-result" class="screen">
+    <div class="bigstate" id="gameResultBox"></div>
   </section>
 
   <!-- 賓客:祝福留言 -->
@@ -781,6 +844,7 @@ function enableDemo(){
         else if(type==='child_added'){ const node=getNode(path);
           if(node&&typeof node==='object') Object.keys(node).forEach(k=>cb({val:()=>node[k],key:k})); }
         return cb; },
+      transaction(fn){ const cur=getNode(path); const next=fn(cur===undefined?null:cur); setNode(path,next); fire(path); return {then:cb=>{ if(cb)cb({committed:true,snapshot:snap(path)}); return {catch:()=>{}}; }, catch:()=>({then:()=>{}})}; },
       off(){ /* demo:略 */ }
     };
   }
@@ -802,7 +866,24 @@ function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.r
 function toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'),2200); }
 function rid(n){ const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s=""; for(let i=0;i<n;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
 function esc(s){ return (s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
-function avatarHTML(p,cls){ return p.avatar? `<img class="${cls}" src="${p.avatar}">` : `<div class="${cls} ph">${(p.name||'?').slice(0,1)}</div>`; }
+function avatarHTML(p,cls){
+  const a=p.avatar||'';
+  if(a.startsWith('emoji:')) return `<div class="${cls} ph">${a.slice(6)}</div>`;
+  if(a) return `<img class="${cls}" src="${a}">`;
+  return `<div class="${cls} ph">${(p.name||'?').slice(0,1)}</div>`;
+}
+const PRESET_AVATARS=['🐱','🐶','🦊','🐻','🐼','🐰','🦁','🐯','🐨','🐮','🐷','🐸','🐵','🦄','🐧','🦉','💐','🌸','🌷','🎀','👰','🤵'];
+function renderAvatarChoices(){
+  const box=document.getElementById('avatarChoose'); if(!box) return; box.innerHTML='';
+  PRESET_AVATARS.forEach(em=>{
+    const d=document.createElement('div'); d.className='av'; d.textContent=em;
+    d.onclick=()=>{ state.avatar='emoji:'+em; document.querySelectorAll('#avatarChoose .av').forEach(x=>x.classList.remove('sel')); d.classList.add('sel');
+      document.getElementById('avPreview').innerHTML=em;
+      document.getElementById('selfieHint').textContent='✅ 已選好頭像,可以加入了!';
+    };
+    box.appendChild(d);
+  });
+}
 
 /* 掉落的貓背景 */
 const CAT_IMGS=[
@@ -825,6 +906,7 @@ const SAMPLE=[
 const LS_KEY='weddingQuizQuestions_v1';
 const LS_GUESTS='weddingQuizGuests_v1';
 const LS_SONGS='weddingQuizSongs_v1';
+const LS_SESSION='weddingHubSession_v1';
 
 function blankQ(){ return {text:"",opts:["","","",""],ans:0,mediaType:"none",media:"",cap:""}; }
 
@@ -950,11 +1032,8 @@ function startDemo(which){
     seedDemoRoom('DEMO');
     state.room='DEMO'; state.title='俊宏 ❤ 怡君 的婚禮';
     document.getElementById('joinCode').value='DEMO';
-    prepProfile('g0');  // 直接以「王小明」身分,免打字
-    // 給個預設頭像,讓賓客能直接按加入
-    state.avatar='';
-    show('s-profile');
-    setTimeout(()=>toast('預覽:可直接上傳自拍,或留空按加入'),400);
+    prepProfile();
+    setTimeout(()=>toast('預覽:輸入名字、選個頭像就能加入'),400);
   }
 }
 
@@ -1071,10 +1150,10 @@ function createRoom(){
     hostWatchInteractions();
     // 預覽模式:塞入範例賓客與互動,讓大廳/投影頁不空
     if(DEMO){
-      const fakePlayers=[{name:'王小明',table:'1',score:2400},{name:'李美華',table:'1',score:1800},{name:'張大同',table:'2',score:3100},{name:'陳怡君',table:'2',score:900}];
-      fakePlayers.forEach(p=>db.ref('rooms/'+state.room+'/players').push({...p,avatar:'',joinedAt:Date.now()}));
+      const fakePlayers=[{name:'王小明',avatar:'emoji:🦊',score:2400},{name:'李美華',avatar:'emoji:🐰',score:1800},{name:'張大同',avatar:'emoji:🐻',score:3100},{name:'怡君',avatar:'emoji:🐱',score:900}];
+      fakePlayers.forEach(p=>db.ref('rooms/'+state.room+'/players').push({...p,joinedAt:Date.now()}));
       ['新婚快樂,白頭偕老! 💕','終於等到這一天,祝福你們!','願你們永遠像今天一樣幸福 🥂','恭喜!記得要請客 😆'].forEach((t,i)=>{
-        db.ref('rooms/'+state.room+'/wishes').push({name:fakePlayers[i].name,avatar:'',table:fakePlayers[i].table,text:t,at:Date.now()+i});
+        db.ref('rooms/'+state.room+'/wishes').push({name:fakePlayers[i].name,avatar:fakePlayers[i].avatar,text:t,at:Date.now()+i});
       });
       db.ref('rooms/'+state.room+'/queue').push({title:'小幸運',artist:'田馥甄',vid:'0pwAfp9NgjU',by:'李美華',at:Date.now(),played:false});
       db.ref('rooms/'+state.room+'/queue').push({title:'告白氣球',artist:'周杰倫',vid:'bu7nU9Mhpyo',by:'張大同',at:Date.now()+1,played:false});
@@ -1118,7 +1197,7 @@ function addPlayerToLobby(p,id,announce){
   if(document.querySelector('.pl[data-id="'+id+'"]')) return; // 防重複
   const d=document.createElement('div'); d.className='pl'; d.dataset.id=id;
   if(announce) d.classList.add('flyin');
-  const tableTag=p.table?`<em class="ptable">第${esc(p.table)}桌</em>`:'';
+  const tableTag='';
   d.innerHTML=avatarHTML(p,'')+`<small>${esc(p.name)}</small>${tableTag}`;
   list.appendChild(d);
   updateLobbyCount();
@@ -1139,7 +1218,7 @@ function updateLobbyCount(){
 // 進場快報橫幅(像直播間)
 function announceJoin(p){
   const banner=document.getElementById('joinBanner');
-  const tbl=p.table?` <span style="color:var(--gold-d);font-size:14px">(第${esc(p.table)}桌)</span>`:'';
+  const tbl='';
   banner.innerHTML=avatarHTML(p,'ba')+`<span><b>${esc(p.name)}</b>${tbl} 已加入!🎉</span>`;
   banner.classList.remove('show'); void banner.offsetWidth; banner.classList.add('show');
   clearTimeout(banner._t); banner._t=setTimeout(()=>banner.classList.remove('show'),3000);
@@ -1238,14 +1317,33 @@ function revealAnswer(){
 
 function hostShowReveal(q,counts){
   document.getElementById('hrText').textContent=q.text;
-  const ob=document.getElementById('hrOpts'); ob.innerHTML='';
-  q.opts.forEach((o,i)=>{ const b=document.createElement('div'); b.className='opt'; b.dataset.i=i;
-    if(i===q.ans) b.classList.add('right'); else b.classList.add('dim');
-    b.innerHTML=`<span class="k">${['A','B','C','D'][i]}</span>${esc(o)}<span class="cnt">${counts[i]||0} 票</span>`;
-    ob.appendChild(b); });
+  renderAnswerChart('hrChart',q,counts);
   renderMedia('hrMedia','hrCaption',q.mediaType,q.media,q.cap);
   show('s-host-reveal');
   confetti();
+}
+
+// 長條圖:各選項得票,正解高亮
+function renderAnswerChart(elId,q,counts){
+  const box=document.getElementById(elId); if(!box) return;
+  const total=counts.reduce((a,b)=>a+(b||0),0);
+  const max=Math.max(1,...counts);
+  const K=['A','B','C','D'];
+  box.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const n=counts[i]||0;
+    const pct=total? Math.round(n/total*100):0;
+    const row=document.createElement('div');
+    row.className='barrow'+(i===q.ans?' correct':'');
+    row.innerHTML=`
+      <div class="barlabel"><span class="bk bk${i}">${K[i]}</span><span class="bopt">${esc(o)}</span>${i===q.ans?'<span class="bcheck">✓ 正解</span>':''}</div>
+      <div class="bartrack"><div class="barfill bf${i}" style="width:0%"><span class="barnum">${n} 票 · ${pct}%</span></div></div>`;
+    box.appendChild(row);
+    // 動畫:下一個 frame 再撐開寬度
+    const fill=row.querySelector('.barfill');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ fill.style.width=Math.max(6,Math.round((n/max)*100))+'%'; }));
+  });
+  if(!total){ const p=document.createElement('p'); p.className='muted'; p.style.textAlign='center'; p.textContent='這題沒有人作答'; box.appendChild(p); }
 }
 
 function showLeaderboard(){
@@ -1253,13 +1351,12 @@ function showLeaderboard(){
   db.ref('rooms/'+state.room+'/players').once('value',s=>{
     const players=s.val()||{};
     renderLB('lbList',players,10,true);
-    renderTableLB('lbTableList',players);
-  });
+    });
   document.getElementById('lbSub').textContent = (state.curQ+1>=state.questions.length)?'最 後 一 題 結 束':'目 前 排 名';
   document.getElementById('lbNextBtn').textContent = (state.curQ+1>=state.questions.length)?'看最終結果 🎉':'下一題 ▶';
   document.getElementById('lbNextBtn').style.display='';
   document.getElementById('lbHubBtn').style.display='none';
-  switchLbTab('indiv');
+  
   show('s-lb');
 }
 
@@ -1268,8 +1365,7 @@ function endGame(){
   db.ref('rooms/'+state.room+'/players').once('value',s=>{
     const players=s.val()||{};
     renderLB('endList',players,10,true);
-    renderTableLB('endTableList',players);
-  });
+    });
   show('s-end');
   document.getElementById('endHostBtn').style.display='';   // 回到控制台
   document.getElementById('endReplayBtn').style.display=''; // 再玩一輪問答
@@ -1390,65 +1486,63 @@ function enterRoom(){
   db.ref('rooms/'+code+'/meta').once('value').then(s=>{
     if(!s.val()){ toast('找不到這個房號 😢'); return; }
     state.room=code; state.title=s.val().title;
-    prepProfile(null); // 手動輸入房號 → 需自填暱稱
+    prepProfile();
   });
 }
 
-// 準備個人資料頁。gid 有值 → 從名單帶出姓名/桌號
-function prepProfile(gid){
+// 準備個人資料頁:大家掃同一張 QR,自己取名、自己選頭像
+function prepProfile(){
   document.getElementById('profRoom').textContent='房號 '+state.room;
-  if(gid){
-    db.ref('rooms/'+state.room+'/roster/'+gid).once('value').then(s=>{
-      const g=s.val();
-      if(!g){ // 名單沒這個人 → 退回自填
-        showManualProfile(); show('s-profile'); return;
-      }
-      state.gid=gid; state.name=g.name; state.table=g.table||'';
-      document.getElementById('profHi').textContent='歡迎你!';
-      document.getElementById('profNamed').style.display='block';
-      document.getElementById('profName').textContent=g.name;
-      document.getElementById('profTable').textContent=g.table?('第 '+g.table+' 桌'):'';
-      document.getElementById('profTable').style.display=g.table?'inline-block':'none';
-      document.getElementById('nickWrap').style.display='none';
-      show('s-profile');
-    });
-  }else{
-    showManualProfile(); show('s-profile');
-  }
-}
-function showManualProfile(){
   document.getElementById('profHi').textContent='準備加入';
-  document.getElementById('profNamed').style.display='none';
-  document.getElementById('nickWrap').style.display='block';
+  state.name=null; state.avatar=null;
+  document.getElementById('nick').value='';
+  document.getElementById('avPreview').innerHTML='📷';
+  renderAvatarChoices();
+  show('s-profile');
 }
 
 function pickAvatar(ev){ const file=ev.target.files[0]; ev.target.value=''; if(!file) return;
   compress(file,300,.75,d=>{ state.avatar=d;
+  document.querySelectorAll('#avatarChoose .av').forEach(x=>x.classList.remove('sel'));
   document.getElementById('avPreview').innerHTML=`<img src="${d}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
   document.getElementById('selfieHint').textContent='✅ 照片已準備好,可以加入了!';
 }); }
 
 function joinGame(){
-  // 必須上傳自拍(預覽模式可略過)
-  if(!state.avatar && !DEMO){ toast('請先上傳一張自拍照 📷'); return; }
-  let name=state.name;
-  if(!name){ // 手動模式
-    name=document.getElementById('nick').value.trim();
-    if(!name){ toast('請輸入暱稱'); return; }
-  }
+  const name=document.getElementById('nick').value.trim();
+  if(!name){ toast('請先輸入你的暱稱'); return; }
+  if(!state.avatar){ toast('請選一個頭像,或上傳照片 🙂'); return; }
   state.role='player'; state.name=name;
   const ref=db.ref('rooms/'+state.room+'/players').push();
   state.pid=ref.key;
-  ref.set({name, avatar:state.avatar, table:state.table||'', score:0, joinedAt:TS()}).then(()=>{
+  ref.set({name, avatar:state.avatar, score:0, joinedAt:TS()}).then(()=>{
+    saveSession();           // 記住身分,跳出後免重登
     enterHub();
     watchGameAsPlayer();
   }).catch(e=>toast('加入失敗:'+e.message));
 }
 
+// 把賓客身分存起來(同一房號,跳出後可自動回來)
+function saveSession(){
+  if(DEMO) return;  // 預覽模式不記
+  try{ localStorage.setItem(LS_SESSION, JSON.stringify({
+    room:state.room, pid:state.pid, name:state.name, avatar:state.avatar
+  })); }catch(e){}
+}
+function clearSession(){ try{ localStorage.removeItem(LS_SESSION); }catch(e){} }
+
+// 換身分/登出:清掉紀錄,回到輸入名字頁
+function logoutGuest(){
+  if(!confirm('要換一個身分嗎?目前的名字和頭像會清除,但你之前送出的祝福、照片、分數仍會留著。')) return;
+  clearSession();
+  state.pid=null; state.name=null; state.avatar=null;
+  prepProfile();
+}
+
 // 進入互動大廳
 function enterHub(){
   document.getElementById('hubTitle').textContent=state.title;
-  document.getElementById('hubName').textContent=state.table?('你是 '+state.name+' · 第 '+state.table+' 桌'):('你是 '+state.name);
+  document.getElementById('hubName').textContent='你是 '+state.name;
   show('s-hub');
 }
 
@@ -1474,10 +1568,10 @@ function watchGameAsPlayer(){
       if(!onHubScreen()) showPlayerResult();
     }
     else if(st.phase==='leaderboard'){
-      if(!onHubScreen()){ root.child('players').once('value',ps=>{ const pl=ps.val()||{}; renderLB('lbList',pl,10,true); renderTableLB('lbTableList',pl); document.getElementById('lbSub').textContent='目 前 排 名'; document.getElementById('lbNextBtn').style.display='none'; document.getElementById('lbHubBtn').style.display=''; switchLbTab('indiv'); show('s-lb'); }); }
+      if(!onHubScreen()){ root.child('players').once('value',ps=>{ const pl=ps.val()||{}; renderLB('lbList',pl,10,true); document.getElementById('lbSub').textContent='目 前 排 名'; document.getElementById('lbNextBtn').style.display='none'; document.getElementById('lbHubBtn').style.display=''; show('s-lb'); }); }
     }
     else if(st.phase==='ended'){
-      if(!onHubScreen()){ root.child('players').once('value',ps=>{ const pl=ps.val()||{}; renderLB('endList',pl,10,true); renderTableLB('endTableList',pl); document.getElementById('endHostBtn').style.display='none'; document.getElementById('endReplayBtn').style.display='none'; document.getElementById('endHubBtn').style.display=''; show('s-end'); }); }
+      if(!onHubScreen()){ root.child('players').once('value',ps=>{ const pl=ps.val()||{}; renderLB('endList',pl,10,true); document.getElementById('endHostBtn').style.display='none'; document.getElementById('endReplayBtn').style.display='none'; document.getElementById('endHubBtn').style.display=''; show('s-end'); }); }
     }
     // phase==='lobby' → 不動,讓賓客自由待在 Hub
   });
@@ -1489,8 +1583,8 @@ function openQuizFromHub(){
   else if(state.phase==='reveal'){ showPlayerResult(); }
   else if(state.phase==='leaderboard'||state.phase==='ended'){
     db.ref('rooms/'+state.room+'/players').once('value',ps=>{ const pl=ps.val()||{};
-      if(state.phase==='ended'){ renderLB('endList',pl,10,true); renderTableLB('endTableList',pl); document.getElementById('endHostBtn').style.display='none'; document.getElementById('endReplayBtn').style.display='none'; document.getElementById('endHubBtn').style.display=''; show('s-end'); }
-      else { renderLB('lbList',pl,10,true); renderTableLB('lbTableList',pl); document.getElementById('lbSub').textContent='目 前 排 名'; document.getElementById('lbNextBtn').style.display='none'; document.getElementById('lbHubBtn').style.display=''; switchLbTab('indiv'); show('s-lb'); }
+      if(state.phase==='ended'){ renderLB('endList',pl,10,true); document.getElementById('endHostBtn').style.display='none'; document.getElementById('endReplayBtn').style.display='none'; document.getElementById('endHubBtn').style.display=''; show('s-end'); }
+      else { renderLB('lbList',pl,10,true); document.getElementById('lbSub').textContent='目 前 排 名'; document.getElementById('lbNextBtn').style.display='none'; document.getElementById('lbHubBtn').style.display=''; show('s-lb'); }
     });
   }
   else { show('s-quiz-soon'); }  // 還沒開始
@@ -1549,7 +1643,7 @@ function sendWish(){
   const t=document.getElementById('wishText').value.trim();
   if(!t){ toast('請先寫點什麼 💕'); return; }
   db.ref('rooms/'+state.room+'/wishes').push({
-    name:state.name, avatar:state.avatar||'', table:state.table||'', text:t, at:TS()
+    name:state.name, avatar:state.avatar||'', text:t, at:TS()
   }).then(()=>{
     document.getElementById('wishText').value='';
     if(!state._myWishes) state._myWishes=[];
@@ -1644,7 +1738,7 @@ function renderWishWall(wishes){
   const arr=Object.values(wishes).sort((a,b)=>(b.at||0)-(a.at||0));
   grid.innerHTML='';
   arr.forEach(w=>{ const d=document.createElement('div'); d.className='wishnote';
-    d.innerHTML=`<div class="wtop">${avatarHTML(w,'')}<span class="wn">${esc(w.name)}${w.table?(' · 第'+esc(w.table)+'桌'):''}</span></div><div class="wt">${esc(w.text)}</div>`;
+    d.innerHTML=`<div class="wtop">${avatarHTML(w,'')}<span class="wn">${esc(w.name)}</span></div><div class="wt">${esc(w.text)}</div>`;
     grid.appendChild(d);
   });
   if(!arr.length) grid.innerHTML='<p class="muted" style="text-align:center;width:100%">還沒有祝福,快邀請賓客留言吧 💌</p>';
@@ -1702,6 +1796,122 @@ function playerPrev(){
 }
 
 /* ============================================================
+   🕹️ 小遊戲(配對翻牌 + 抓貓貓),分數累加進總分
+   ============================================================ */
+const game={};
+
+// 把得分加進玩家總分(原子遞增)
+function addScore(points){
+  if(!state.pid||!points) return Promise.resolve();
+  return new Promise(resolve=>{
+    try{
+      const ref=db.ref('rooms/'+state.room+'/players/'+state.pid+'/score');
+      const r=ref.transaction(cur=>(cur||0)+points);
+      if(r&&typeof r.then==='function'){ r.then(()=>resolve()); }
+      else resolve();
+    }catch(e){ resolve(); }
+  });
+}
+
+function openMiniGames(){
+  db.ref('rooms/'+state.room+'/players/'+state.pid).once('value').then(s=>{
+    const me=s.val()||{}; document.getElementById('gamesTotal').innerHTML='目前總分 <b>'+(me.score||0)+'</b> 分';
+  });
+  show('s-games');
+}
+function quitGame(){ stopGameTimers(); show('s-games'); openMiniGames(); }
+function stopGameTimers(){ if(game.timer){clearInterval(game.timer);game.timer=null;} if(game.spawn){clearInterval(game.spawn);game.spawn=null;} }
+
+function showGameResult(title,gained,emoji){
+  stopGameTimers();
+  const box=document.getElementById('gameResultBox');
+  box.innerHTML=
+    '<div class="em">'+emoji+'</div><h2>'+title+'</h2>'+
+    '<div class="gain">+'+gained+'</div>'+
+    '<p class="mytotal" id="gameResultTotal">分數計算中…</p>'+
+    '<button class="btn primary" style="margin-top:18px;width:auto;padding:14px 28px" onclick="show(\'s-games\');openMiniGames()">再玩一次 / 換遊戲</button>'+
+    '<button class="btn ghost" style="margin-top:10px;width:auto;padding:12px 24px" onclick="show(\'s-hub\')">← 返回大廳</button>';
+  show('s-game-result'); confetti();
+  // 計分後更新總分顯示
+  addScore(gained).then(()=>{
+    db.ref('rooms/'+state.room+'/players/'+state.pid+'/score').once('value').then(s=>{
+      const el=document.getElementById('gameResultTotal'); if(el) el.innerHTML='目前總分 <b>'+(s.val()||gained)+'</b> 分';
+    });
+  });
+}
+
+/* ---------- 配對翻牌 ---------- */
+function startMatch(){
+  const icons=['💍','💐','🥂','🎂','💕','🐱','👰','🎁'];  // 8 對
+  let deck=icons.concat(icons);
+  for(let i=deck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+  game.deck=deck; game.flipped=[]; game.matched=0; game.moves=0; game.t=0; game.lock=false;
+  const grid=document.getElementById('matchGrid'); grid.innerHTML='';
+  deck.forEach((ic,i)=>{
+    const c=document.createElement('div'); c.className='mcard'; c.dataset.i=i;
+    c.innerHTML='<div class="face back">❤</div><div class="face front">'+ic+'</div>';
+    c.onclick=()=>flipCard(i,c,ic); grid.appendChild(c);
+  });
+  document.getElementById('matchInfo').textContent='步數 0';
+  document.getElementById('matchTimer').textContent='0s';
+  stopGameTimers();
+  game.timer=setInterval(()=>{ game.t++; document.getElementById('matchTimer').textContent=game.t+'s'; },1000);
+  show('s-match');
+}
+function flipCard(i,el,ic){
+  if(game.lock||el.classList.contains('flipped')||el.classList.contains('matched')) return;
+  el.classList.add('flipped'); game.flipped.push({i,el,ic});
+  if(game.flipped.length===2){
+    game.moves++; document.getElementById('matchInfo').textContent='步數 '+game.moves;
+    const [a,b]=game.flipped;
+    if(a.ic===b.ic){
+      a.el.classList.add('matched'); b.el.classList.add('matched'); game.flipped=[]; game.matched++;
+      if(game.matched===8){ // 完成
+        const base=1000, timePen=Math.min(600,game.t*8), movePen=Math.max(0,(game.moves-8)*15);
+        const gained=Math.max(200, base-timePen-movePen);
+        showGameResult('配對完成!',gained,'🃏');
+      }
+    }else{
+      game.lock=true;
+      setTimeout(()=>{ a.el.classList.remove('flipped'); b.el.classList.remove('flipped'); game.flipped=[]; game.lock=false; },800);
+    }
+  }
+}
+
+/* ---------- 抓貓貓 ---------- */
+function startCatch(){
+  game.caught=0; game.t=30;
+  document.getElementById('catchScore').textContent='抓到 0 隻';
+  document.getElementById('catchTimer').textContent='30s';
+  const area=document.getElementById('catchArea'); area.innerHTML='';
+  stopGameTimers();
+  game.timer=setInterval(()=>{ game.t--; document.getElementById('catchTimer').textContent=game.t+'s';
+    if(game.t<=0){ const gained=game.caught*50; showGameResult('時間到!抓到 '+game.caught+' 隻貓',gained,'🐱'); }
+  },1000);
+  game.spawn=setInterval(spawnCat,750);
+  show('s-catch'); spawnCat();
+}
+function spawnCat(){
+  const area=document.getElementById('catchArea'); if(!area) return;
+  const w=area.clientWidth, h=area.clientHeight; if(!w) return;
+  const cat=document.createElement('div'); cat.className='catchcat';
+  const img=CAT_IMGS[Math.floor(Math.random()*Math.min(2,CAT_IMGS.length))]; // 用前兩隻貓
+  cat.innerHTML='<img src="'+img+'">';
+  cat.style.left=(Math.random()*(w-62))+'px';
+  cat.style.top=(Math.random()*(h-62))+'px';
+  const caught=()=>{
+    if(cat._done) return; cat._done=true;
+    game.caught++; document.getElementById('catchScore').textContent='抓到 '+game.caught+' 隻';
+    const f=document.createElement('div'); f.className='scorefloat'; f.textContent='+1';
+    f.style.left=cat.style.left; f.style.top=cat.style.top; area.appendChild(f); setTimeout(()=>f.remove(),700);
+    cat.classList.add('gone'); setTimeout(()=>cat.remove(),300);
+  };
+  cat.addEventListener('click',caught); cat.addEventListener('touchstart',e=>{e.preventDefault();caught();},{passive:false});
+  area.appendChild(cat);
+  setTimeout(()=>{ if(!cat._done) cat.remove(); },1300);  // 沒抓到自己消失
+}
+
+/* ============================================================
    彩帶動畫
    ============================================================ */
 function confetti(){
@@ -1719,19 +1929,53 @@ function confetti(){
 }
 
 /* ============================================================
-   啟動:若網址有 ?room= 直接進入賓客流程
+   啟動:自動記住身分 / 若網址有 ?room= 直接進入賓客流程
    ============================================================ */
+// 嘗試用儲存的身分自動回到大廳。成功回傳 true。
+function tryResumeSession(roomFromUrl){
+  if(!fbReady || DEMO) return false;
+  let sess=null; try{ sess=JSON.parse(localStorage.getItem(LS_SESSION)); }catch(e){}
+  if(!sess || !sess.room || !sess.pid) return false;
+  // 若網址指定了房號,且跟記住的不同 → 不沿用(換場活動)
+  if(roomFromUrl && roomFromUrl!==sess.room){ clearSession(); return false; }
+  // 確認這個房間與玩家在資料庫裡都還在
+  db.ref('rooms/'+sess.room+'/meta').once('value').then(ms=>{
+    if(!ms.val()){ clearSession(); fallbackToJoin(roomFromUrl); return; }
+    db.ref('rooms/'+sess.room+'/players/'+sess.pid).once('value').then(ps=>{
+      if(!ps.val()){ clearSession(); fallbackToJoin(roomFromUrl); return; }
+      // 一切還在 → 直接以同一身分回到大廳
+      const p=ps.val();
+      state.role='player'; state.room=sess.room; state.pid=sess.pid;
+      state.name=p.name||sess.name; state.avatar=p.avatar||sess.avatar;
+      state.title=ms.val().title||'';
+      enterHub();
+      watchGameAsPlayer();
+    });
+  });
+  return true;
+}
+function fallbackToJoin(roomFromUrl){
+  if(roomFromUrl){
+    db.ref('rooms/'+roomFromUrl+'/meta').once('value').then(s=>{
+      if(s.val()){ state.room=roomFromUrl; state.title=s.val().title; prepProfile(); }
+      else { show('s-join'); }
+    });
+  }
+}
+
 (function init(){
   const params=new URLSearchParams(location.search);
   const r=params.get('room');
-  const g=params.get('g');
-  if(r){
+  const code=r?r.toUpperCase():null;
+  if(code) document.getElementById('joinCode').value=code;
+
+  // 先嘗試自動回到上次的身分(跳出免重登)
+  if(tryResumeSession(code)) return;
+
+  if(code){
     if(!fbReady){ show('s-config'); return; }
-    const code=r.toUpperCase();
-    document.getElementById('joinCode').value=code;
     db.ref('rooms/'+code+'/meta').once('value').then(s=>{
-      if(s.val()){ state.room=code; state.title=s.val().title;
-        prepProfile(g||null); }   // 有 g → 直接帶出本人;沒有 → 自填暱稱
+      if(s.val()){ state.room=code; state.title=s.val().title; prepProfile(); }
       else { toast('房號不存在,請手動輸入'); show('s-join'); }
     });
   }
