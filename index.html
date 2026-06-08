@@ -349,6 +349,66 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 .scorefloat{position:absolute;font-weight:900;color:var(--gold-d);font-family:"Playfair Display",serif;pointer-events:none;animation:floatup .7s forwards;font-size:22px}
 @keyframes floatup{to{transform:translateY(-40px);opacity:0}}
 
+/* 這個要看哪一科?(問答) */
+.deptask{font-family:"Noto Serif TC",serif;font-weight:900;font-size:22px;color:#2f6d97;margin:16px 0 20px;line-height:1.5}
+.deptopts{display:grid;gap:12px}
+.deptopt{padding:16px;border-radius:14px;background:linear-gradient(135deg,#eef4f8,#dce8f0);border:2px solid #c5d7e2;
+  font-size:17px;font-weight:700;color:var(--ink);cursor:pointer;transition:.12s;user-select:none}
+.deptopt:active{transform:scale(.97)}
+.deptopt.right{background:#d7f0db;border-color:#5fc86a}
+.deptopt.wrong{background:#fbe0e0;border-color:#e7556b}
+
+/* 薪水小偷(接物) */
+.salaryarea{position:relative;width:100%;height:60vh;max-height:500px;background:linear-gradient(180deg,#fff,#f3ece0);border-radius:14px;overflow:hidden;touch-action:none}
+.fallitem{position:absolute;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:30px;will-change:transform;user-select:none;pointer-events:none}
+.briefcase{position:absolute;bottom:8px;width:74px;height:54px;display:flex;align-items:center;justify-content:center;font-size:42px;
+  pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
+
+/* 電錶判讀王(指針電錶) */
+.meterdials{display:flex;justify-content:center;gap:6px;margin:10px 0 4px;flex-wrap:nowrap}
+.dial{width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#fff,#eef0e8);border:3px solid #444;position:relative;flex:0 0 auto}
+.dial .dlabel{position:absolute;width:100%;text-align:center;font-size:9px;color:#888;font-weight:700}
+.dial .dlabel.t{top:1px} .dial .dlabel.b{bottom:1px}
+.dial .dnum{position:absolute;font-size:8px;color:#666;font-weight:700;transform:translate(-50%,-50%)}
+.dial .needle{position:absolute;left:50%;top:50%;width:3px;height:26px;background:#c0392b;transform-origin:bottom center;border-radius:2px}
+.dial .hub{position:absolute;left:50%;top:50%;width:8px;height:8px;background:#333;border-radius:50%;transform:translate(-50%,-50%)}
+
+/* 愛的心跳發電廠 */
+.heartline{position:relative;height:160px;background:linear-gradient(180deg,#1c2330,#0f1420);border-radius:14px;overflow:hidden}
+.heartZone{position:absolute;left:50%;top:0;bottom:0;width:74px;transform:translateX(-50%);background:rgba(95,200,120,.18);border-left:2px dashed rgba(95,200,120,.7);border-right:2px dashed rgba(95,200,120,.7)}
+.heartWave{position:absolute;top:50%;left:100%;transform:translateY(-50%);font-size:34px;will-change:left;filter:drop-shadow(0 0 6px rgba(231,85,107,.8))}
+.heartJudge{position:absolute;left:50%;top:14px;transform:translateX(-50%);font-weight:900;font-family:"Playfair Display",serif;font-size:24px;opacity:0}
+.heartJudge.show{animation:judgepop .5s}
+@keyframes judgepop{0%{opacity:0;transform:translateX(-50%) scale(.5)}40%{opacity:1;transform:translateX(-50%) scale(1.2)}100%{opacity:0;transform:translateX(-50%) scale(1)}}
+
+/* 接電路大師 */
+.wiregrid{display:grid;gap:4px;max-width:340px;margin:0 auto;background:#cfe3d6;padding:6px;border-radius:14px}
+.wcell{aspect-ratio:1;background:#eef6f0;border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:transform .18s;user-select:none}
+.wcell:active{transform:scale(.92)}
+.wcell.fixed{cursor:default}
+.wcell .wsvg{width:100%;height:100%;transition:transform .2s ease}
+.wcell.lit .wpipe{stroke:#d98e00}
+.wcell .wpipe{stroke:#9aa7ad;stroke-width:9;fill:none;stroke-linecap:round}
+.wcell .wend{font-size:22px}
+.wiregrid.win .wcell{animation:wireflash .5s}
+@keyframes wireflash{50%{background:#fff6d6}}
+
+/* 妙手手術房 */
+.patient{font-size:72px;margin:6px 0 4px;transition:transform .2s}
+.patient.ok{animation:patientok .5s}
+@keyframes patientok{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.surgeryask{font-family:"Noto Serif TC",serif;font-weight:900;font-size:20px;color:#2f6d97;margin:8px 0 14px;min-height:28px}
+.surgeryask b{color:#c0395b}
+.toolrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tool{aspect-ratio:1;border-radius:14px;background:linear-gradient(135deg,#eef4f8,#dce8f0);border:2px solid #c5d7e2;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:30px;cursor:pointer;transition:.12s;user-select:none}
+.tool:active{transform:scale(.92)}
+.tool .tname{font-size:11px;color:var(--ink-soft);font-weight:700}
+.tool.right{animation:toolright .4s}
+.tool.wrong{animation:toolwrong .4s}
+@keyframes toolright{50%{background:#d7f0db;border-color:#5fc86a}}
+@keyframes toolwrong{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
 /* 祝福牆(投影) */
 .wallgrid{columns:3;column-gap:16px}
 @media(max-width:700px){.wallgrid{columns:2}}
@@ -711,6 +771,60 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       <ol class="lb mini" id="catchTop3" style="margin-top:12px"></ol>
     </div>
 
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span class="hi" style="font-size:22px">🩺</span> <b style="font-size:17px;color:#5a8fbf">這個要看哪一科?</b></div>
+        <button class="btn sm" style="background:#5a8fbf;color:#fff" onclick="startDept()">開始玩 ▶</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin:6px 0 0">護理師考考你!看症狀選對的科別,答對 +分、答越快越高</p>
+      <ol class="lb mini" id="deptTop3" style="margin-top:10px"></ol>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span class="hi" style="font-size:22px">💼</span> <b style="font-size:17px;color:#9a7b4f">揪出薪水小偷</b></div>
+        <button class="btn sm" style="background:#9a7b4f;color:#fff" onclick="startSalary()">開始玩 ▶</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin:6px 0 0">用公事包接好員工!認真加班 +500,薪水小偷 -300</p>
+      <ol class="lb mini" id="salaryTop3" style="margin-top:10px"></ol>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span class="hi" style="font-size:22px">⚡</span> <b style="font-size:17px;color:#d98e00">電錶判讀王</b></div>
+        <button class="btn sm" style="background:#d98e00;color:#fff" onclick="startMeter()">開始玩 ▶</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin:6px 0 0">台電讀錶員上身!看懂指針電錶讀出度數,越快越準分越高</p>
+      <ol class="lb mini" id="meterTop3" style="margin-top:10px"></ol>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span class="hi" style="font-size:22px">💓</span> <b style="font-size:17px;color:#c0395b">愛的急救電擊</b></div>
+        <button class="btn sm" style="background:#c0395b;color:#fff" onclick="startHeart()">開始玩 ▶</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin:6px 0 0">心跳到判定框就電擊救病人!越準救活越多,連擊加倍 💓</p>
+      <ol class="lb mini" id="heartTop3" style="margin-top:10px"></ol>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span class="hi" style="font-size:22px">🔌</span> <b style="font-size:17px;color:#3b7d5a">接電路大師</b></div>
+        <button class="btn sm" style="background:#3b7d5a;color:#fff" onclick="startWire()">開始玩 ▶</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin:6px 0 0">旋轉管線把電廠 ⚡ 接到房子 🏠!接通一關得分,過越多關越高</p>
+      <ol class="lb mini" id="wireTop3" style="margin-top:10px"></ol>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span class="hi" style="font-size:22px">🔪</span> <b style="font-size:17px;color:#4a90c0">妙手手術房</b></div>
+        <button class="btn sm" style="background:#4a90c0;color:#fff" onclick="startSurgery()">開始玩 ▶</button>
+      </div>
+      <p class="muted" style="font-size:12px;margin:6px 0 0">照螢幕提示點對手術工具!順利完成手術救病人 ❤️</p>
+      <ol class="lb mini" id="surgeryTop3" style="margin-top:10px"></ol>
+    </div>
+
     <button class="btn ghost" style="margin-top:6px" onclick="show('s-hub')">← 返回大廳</button>
   </section>
 
@@ -738,7 +852,76 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     <div class="bigstate" id="gameResultBox"></div>
   </section>
 
-  <!-- 賓客:祝福留言 -->
+  <!-- 這個要看哪一科? -->
+  <section id="s-dept" class="screen">
+    <div class="qhead"><span id="deptScore">0 分</span><span id="deptProgress" style="font-size:13px;color:var(--ink-soft)">第 1 / 10 題</span><span class="timer" id="deptTimer">10s</span></div>
+    <div class="card" style="text-align:center">
+      <div class="deptask" id="deptAsk">準備中…</div>
+      <div class="deptopts" id="deptOpts"></div>
+    </div>
+    <p class="hint" style="text-align:center;font-size:11px">※ 僅供趣味參考,身體不適請就醫,由專業醫師判斷</p>
+    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
+  </section>
+
+  <!-- 揪出薪水小偷 -->
+  <section id="s-salary" class="screen">
+    <div class="qhead"><span id="salaryScore">0 元</span><span class="timer" id="salaryTimer">30s</span></div>
+    <div class="card" style="padding:10px">
+      <p class="muted" style="margin:2px 0 8px;text-align:center;font-size:13px">💼 滑動公事包接住好員工 +500,別接到薪水小偷 -300!</p>
+      <div class="salaryarea" id="salaryArea"></div>
+    </div>
+    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
+  </section>
+
+  <!-- 電錶判讀王 -->
+  <section id="s-meter" class="screen">
+    <div class="qhead"><span id="meterScore">0 分</span><span id="meterProgress" style="font-size:13px;color:var(--ink-soft)">第 1 / 5 題</span><span class="timer" id="meterTimer">--</span></div>
+    <div class="card" style="text-align:center">
+      <p class="muted" style="margin:0 0 6px;font-size:13px">⚡ 讀出這個指針電錶的度數(相鄰指針轉向相反!)</p>
+      <div class="meterdials" id="meterDials"></div>
+      <input id="meterInput" type="tel" inputmode="numeric" placeholder="輸入度數" style="text-align:center;font-size:24px;letter-spacing:4px;margin-top:14px">
+      <button class="btn" id="meterBtn" style="background:#d98e00;color:#fff;width:100%;margin-top:12px" onclick="meterSubmit()">送出 ⚡</button>
+      <div id="meterFeedback" style="margin-top:10px;font-weight:800;min-height:22px"></div>
+    </div>
+    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
+  </section>
+
+  <!-- 愛的急救電擊 -->
+  <section id="s-heart" class="screen">
+    <div class="qhead"><span id="heartScore">救活 0</span><span id="heartCombo" style="font-size:14px;color:var(--rose-deep);font-weight:800"></span><span class="timer" id="heartTimer">30s</span></div>
+    <div class="card" style="padding:14px">
+      <p class="muted" style="margin:0 0 4px;text-align:center;font-size:13px">💓 心跳波峰進到綠框時按電擊,把病人救回來!</p>
+      <p style="margin:0 0 10px;text-align:center;font-size:13px;font-weight:800;color:#c0395b">目前心律:<span id="heartRhythm">—</span></p>
+      <div class="heartline" id="heartLine">
+        <div class="heartZone"></div>
+        <div class="heartWave" id="heartWave">💓</div>
+        <div class="heartJudge" id="heartJudge"></div>
+      </div>
+      <button class="btn" id="heartBtn" style="background:#c0395b;color:#fff;width:100%;margin-top:14px;font-size:20px;padding:18px" onclick="heartHit()">⚡ 電擊!</button>
+    </div>
+    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
+  </section>
+
+  <!-- 接電路大師 -->
+  <section id="s-wire" class="screen">
+    <div class="qhead"><span id="wireScore">第 1 關 · 0 分</span><span class="timer" id="wireTimer">--</span></div>
+    <div class="card" style="padding:14px">
+      <p class="muted" style="margin:2px 0 10px;text-align:center;font-size:13px">🔌 點管線轉方向,把 ⚡ 電廠接到 🏠 房子,全部接通就過關!</p>
+      <div class="wiregrid" id="wireGrid"></div>
+    </div>
+    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
+  </section>
+
+  <!-- 妙手手術房 -->
+  <section id="s-surgery" class="screen">
+    <div class="qhead"><span id="surgeryScore">0 分</span><span class="timer" id="surgeryTimer">--</span></div>
+    <div class="card" style="padding:14px;text-align:center">
+      <div class="patient" id="surgeryPatient">😷</div>
+      <div class="surgeryask" id="surgeryAsk">準備中…</div>
+      <div class="toolrow" id="surgeryTools"></div>
+    </div>
+    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
+  </section>
   <section id="s-wish" class="screen">
     <div class="brand"><h1>💌 祝福留言</h1><div class="rule"></div></div>
     <div class="card">
@@ -2015,6 +2198,12 @@ function saveMiniScore(gameKey, value){
 function openMiniGames(){
   renderMiniTop3('match','matchTop3');
   renderMiniTop3('catch','catchTop3');
+  renderMiniTop3('dept','deptTop3');
+  renderMiniTop3('salary','salaryTop3');
+  renderMiniTop3('meter','meterTop3');
+  renderMiniTop3('heart','heartTop3');
+  renderMiniTop3('wire','wireTop3');
+  renderMiniTop3('surgery','surgeryTop3');
   show('s-games');
 }
 
@@ -2059,7 +2248,11 @@ function hostOpenLeaderboard(){
 }
 
 function quitGame(){ stopGameTimers(); openMiniGames(); }
-function stopGameTimers(){ if(game.timer){clearInterval(game.timer);game.timer=null;} if(game.spawn){clearInterval(game.spawn);game.spawn=null;} }
+function stopGameTimers(){
+  if(game.timer){clearInterval(game.timer);game.timer=null;}
+  if(game.spawn){clearInterval(game.spawn);game.spawn=null;}
+  if(game.raf){cancelAnimationFrame(game.raf);game.raf=null;}
+}
 
 // 小遊戲結算。gameKey 用來存對應的榜
 function showGameResult(title,score,emoji,gameKey){
@@ -2165,6 +2358,510 @@ function spawnCat(){
   area.appendChild(cat);
   setTimeout(()=>{ if(!cat._done) cat.remove(); },1300);  // 沒點到自己消失
 }
+
+/* ---------- 這個要看哪一科?(症狀對應科別問答) ---------- */
+const DEPT_BANK=[
+  {q:'脊椎側彎、長期腰痠背痛',a:'骨科',w:['皮膚科','眼科','牙科']},
+  {q:'白內障、視力模糊看不清',a:'眼科',w:['耳鼻喉科','骨科','心臟內科']},
+  {q:'蛀牙、牙齦腫痛',a:'牙科',w:['腸胃科','骨科','皮膚科']},
+  {q:'長期咳嗽、呼吸喘',a:'胸腔內科',w:['骨科','眼科','泌尿科']},
+  {q:'皮膚紅疹、長痘痘、濕疹',a:'皮膚科',w:['骨科','牙科','心臟內科']},
+  {q:'胃痛、拉肚子、消化不良',a:'腸胃科',w:['眼科','骨科','皮膚科']},
+  {q:'孕婦產檢、生產',a:'婦產科',w:['小兒科','骨科','泌尿科']},
+  {q:'小朋友發燒、打疫苗',a:'小兒科',w:['婦產科','骨科','眼科']},
+  {q:'耳朵痛、流鼻水、喉嚨發炎',a:'耳鼻喉科',w:['骨科','皮膚科','腸胃科']},
+  {q:'心悸、胸悶、高血壓',a:'心臟內科',w:['骨科','眼科','皮膚科']},
+  {q:'頻尿、結石、排尿困難',a:'泌尿科',w:['婦產科','眼科','牙科']},
+  {q:'情緒低落、長期失眠焦慮',a:'身心科',w:['骨科','皮膚科','腸胃科']},
+  {q:'中風、手腳麻、頭痛癲癇',a:'神經內科',w:['皮膚科','牙科','眼科']},
+  {q:'糖尿病、甲狀腺問題',a:'新陳代謝科',w:['骨科','眼科','耳鼻喉科']},
+  {q:'運動扭傷、骨折、關節痛',a:'骨科',w:['皮膚科','腸胃科','眼科']}
+];
+function startDept(){
+  game.score=0; game.qi=0; game.total=10;
+  // 隨機抽 10 題
+  game.deptQs=[...DEPT_BANK].sort(()=>Math.random()-0.5).slice(0,game.total);
+  nextDeptQ();
+  show('s-dept');
+}
+function nextDeptQ(){
+  if(game.qi>=game.total){
+    stopGameTimers();
+    showGameResult('問診結束!得 '+game.score+' 分',game.score,'🩺','dept');
+    return;
+  }
+  const item=game.deptQs[game.qi];
+  document.getElementById('deptProgress').textContent='第 '+(game.qi+1)+' / '+game.total+' 題';
+  document.getElementById('deptAsk').textContent=item.q;
+  // 選項:正解 + 3 干擾,洗牌
+  const opts=[item.a,...item.w].sort(()=>Math.random()-0.5);
+  const box=document.getElementById('deptOpts'); box.innerHTML='';
+  game.deptStart=Date.now(); game.deptLocked=false;
+  opts.forEach(o=>{
+    const d=document.createElement('div'); d.className='deptopt'; d.textContent=o;
+    d.onclick=()=>deptPick(o,d,item.a);
+    box.appendChild(d);
+  });
+  // 每題限時 10 秒
+  game.t=10; document.getElementById('deptTimer').textContent='10s';
+  stopGameTimers();
+  game.timer=setInterval(()=>{ game.t--; document.getElementById('deptTimer').textContent=game.t+'s';
+    if(game.t<=0){ stopGameTimers(); deptTimeout(); }
+  },1000);
+}
+function deptPick(picked,el,correct){
+  if(game.deptLocked) return; game.deptLocked=true; stopGameTimers();
+  const allOpts=document.querySelectorAll('#deptOpts .deptopt');
+  if(picked===correct){
+    const sec=(Date.now()-game.deptStart)/1000;
+    const speed=Math.max(0,Math.round((10-sec)*10)); // 越快加越多,最多+100
+    const add=100+speed;
+    game.score+=add; el.classList.add('right');
+    document.getElementById('deptScore').textContent=game.score+' 分';
+  }else{
+    el.classList.add('wrong');
+    // 把正解也標綠
+    allOpts.forEach(o=>{ if(o.textContent===correct) o.classList.add('right'); });
+  }
+  game.qi++;
+  setTimeout(nextDeptQ, 1000);
+}
+function deptTimeout(){
+  if(game.deptLocked) return; game.deptLocked=true;
+  const item=game.deptQs[game.qi];
+  document.querySelectorAll('#deptOpts .deptopt').forEach(o=>{ if(o.textContent===item.a) o.classList.add('right'); });
+  game.qi++;
+  setTimeout(nextDeptQ, 1000);
+}
+// 在某元素上冒出分數浮字
+function floatScore(el,txt,color){
+  const host=el.offsetParent||el.parentElement; if(!host) return;
+  const f=document.createElement('div'); f.className='scorefloat'; f.textContent=txt; if(color) f.style.color=color;
+  f.style.left=(el.offsetLeft+el.offsetWidth/2-12)+'px'; f.style.top=(el.offsetTop)+'px';
+  host.appendChild(f); setTimeout(()=>f.remove(),700);
+}
+
+/* ---------- 揪出薪水小偷(接物) ---------- */
+function startSalary(){
+  game.score=0; game.t=30; game.items=[];
+  document.getElementById('salaryScore').textContent='0 元';
+  document.getElementById('salaryTimer').textContent='30s';
+  const area=document.getElementById('salaryArea'); area.innerHTML='';
+  // 公事包
+  const bag=document.createElement('div'); bag.className='briefcase'; bag.textContent='💼';
+  area.appendChild(bag); game.bag=bag;
+  const W=area.clientWidth||340;
+  game.bagX=W/2-37; bag.style.left=game.bagX+'px';
+  // 滑動控制公事包
+  const move=(clientX)=>{ const rect=area.getBoundingClientRect(); let x=clientX-rect.left-37;
+    x=Math.max(0,Math.min((area.clientWidth-74),x)); game.bagX=x; bag.style.left=x+'px'; };
+  area.ontouchmove=e=>{ move(e.touches[0].clientX); };
+  area.onmousemove=e=>{ if(e.buttons||e.type==='mousemove') move(e.clientX); };
+  area.onclick=e=>move(e.clientX);
+  const GOOD=[{e:'💰',t:'認真加班'},{e:'📑',t:'準時交件'},{e:'⭐',t:'績效滿分'},{e:'🤝',t:'熱心助人'}];
+  const BAD=[{e:'💩',t:'上班追劇'},{e:'💣',t:'蹲廁所1hr'},{e:'😴',t:'會議睡覺'}];
+  game.fall=[];  // 掉落物 {el,x,y,good}
+  stopGameTimers();
+  game.timer=setInterval(()=>{ game.t--; document.getElementById('salaryTimer').textContent=game.t+'s';
+    if(game.t<=0){ const final=Math.max(0,game.score); stopGameTimers(); document.getElementById('salaryArea').onmousemove=null; showGameResult('發薪完成!有效薪水 '+final+' 元',final,'💼','salary'); }
+  },1000);
+  // 每 0.8 秒生一個掉落物
+  game.spawn=setInterval(()=>{
+    const area=document.getElementById('salaryArea'); if(!area) return;
+    const good=Math.random()<0.62;
+    const set=good?GOOD:BAD; const pick=set[Math.floor(Math.random()*set.length)];
+    const el=document.createElement('div'); el.className='fallitem'; el.textContent=pick.e;
+    const x=Math.random()*((area.clientWidth||340)-52);
+    el.style.left=x+'px'; el.style.top='-52px';
+    area.appendChild(el);
+    game.fall.push({el, x, y:-52, good, speed:2.5+Math.random()*2});
+  }, 800);
+  // 動畫迴圈:掉落 + 碰撞偵測
+  (function loop(){
+    const area=document.getElementById('salaryArea');
+    if(!area || game.t<=0){ return; }
+    const H=area.clientHeight, bagY=H-54;
+    for(let i=game.fall.length-1;i>=0;i--){
+      const it=game.fall[i]; it.y+=it.speed; it.el.style.top=it.y+'px';
+      // 碰到公事包高度,且 x 重疊 → 接到
+      if(it.y+52>=bagY && it.y<=H-10){
+        if(it.x+52>game.bagX && it.x<game.bagX+74){
+          if(it.good){ game.score+=500; floatAt(area,it.x,bagY,'+500','#2e7d32'); }
+          else { game.score-=300; floatAt(area,it.x,bagY,'-300','#c0392b'); }
+          document.getElementById('salaryScore').textContent=Math.max(0,game.score)+' 元';
+          it.el.remove(); game.fall.splice(i,1); continue;
+        }
+      }
+      // 掉出底部 → 移除
+      if(it.y>H){ it.el.remove(); game.fall.splice(i,1); }
+    }
+    game.raf=requestAnimationFrame(loop);
+  })();
+  show('s-salary');
+}
+function floatAt(host,x,y,txt,color){
+  const f=document.createElement('div'); f.className='scorefloat'; f.textContent=txt; if(color) f.style.color=color;
+  f.style.left=x+'px'; f.style.top=(y-20)+'px'; host.appendChild(f); setTimeout(()=>f.remove(),700);
+}
+
+/* ---------- 電錶判讀王(傳統機械指針電錶) ----------
+   N 個轉盤,最左為最高位。相鄰轉盤轉向相反(個位順時針)。
+   用「數值→角度」生成,答案必為原值。 */
+function startMeter(){
+  game.score=0; game.qi=0; game.total=5;
+  nextMeterQ();
+  show('s-meter');
+}
+function nextMeterQ(){
+  if(game.qi>=game.total){
+    stopGameTimers();
+    showGameResult('讀錶完成!得 '+game.score+' 分',game.score,'⚡','meter');
+    return;
+  }
+  const N=5; // 5 個指針(萬位)
+  const value=Math.floor(Math.random()*90000)+10000; // 10000~99999
+  game.meterValue=value; game.meterN=N;
+  document.getElementById('meterProgress').textContent='第 '+(game.qi+1)+' / '+game.total+' 題';
+  renderMeter(value,N);
+  document.getElementById('meterInput').value='';
+  document.getElementById('meterFeedback').textContent='';
+  game.meterStart=Date.now(); game.meterLocked=false;
+  game.t=20; document.getElementById('meterTimer').textContent='20s';
+  stopGameTimers();
+  game.timer=setInterval(()=>{ game.t--; document.getElementById('meterTimer').textContent=game.t+'s';
+    if(game.t<=0){ stopGameTimers(); meterReveal(false); }
+  },1000);
+}
+function renderMeter(value,N){
+  const s=String(value).padStart(N,'0').slice(-N);
+  const digits=s.split('').map(Number);
+  const box=document.getElementById('meterDials'); box.innerHTML='';
+  for(let pos=0;pos<N;pos++){
+    const digit=digits[pos];
+    const fromRight=(N-1)-pos;
+    const clockwise=(fromRight%2===0); // 個位順時針
+    // 角度(從12點順時針為正):順時針錶 digit*36;逆時針錶 360-digit*36
+    const angle = clockwise ? digit*36 : (360-digit*36)%360;
+    const dial=document.createElement('div'); dial.className='dial';
+    // 標示位數權重與轉向
+    const place=['萬','千','百','十','個'][pos] || '';
+    dial.innerHTML='<div class="dlabel t">'+place+'位</div>'+
+      '<div class="dlabel b">'+(clockwise?'↻順':'↺逆')+'</div>'+
+      meterDialNums(clockwise)+
+      '<div class="needle" style="transform:translate(-50%,-100%) rotate('+angle+'deg)"></div>'+
+      '<div class="hub"></div>';
+    box.appendChild(dial);
+  }
+}
+// 錶盤上 0-9 的刻度數字
+function meterDialNums(clockwise){
+  let html='';
+  for(let d=0;d<10;d++){
+    const ang=(clockwise? d*36 : (360-d*36)%360) * Math.PI/180;
+    const x=50+Math.sin(ang)*26, y=50-Math.cos(ang)*26;
+    html+='<div class="dnum" style="left:'+x+'%;top:'+y+'%">'+d+'</div>';
+  }
+  return html;
+}
+function meterSubmit(){
+  if(game.meterLocked) return;
+  const val=parseInt(document.getElementById('meterInput').value,10);
+  if(isNaN(val)){ document.getElementById('meterFeedback').textContent='請先輸入數字'; document.getElementById('meterFeedback').style.color='#c0392b'; return; }
+  meterReveal(val===game.meterValue);
+}
+function meterReveal(correct){
+  if(game.meterLocked) return; game.meterLocked=true; stopGameTimers();
+  const fb=document.getElementById('meterFeedback');
+  if(correct){
+    const sec=(Date.now()-game.meterStart)/1000;
+    const speed=Math.max(0,Math.round((20-sec)*8)); // 越快加越多
+    const add=100+speed;
+    game.score+=add;
+    fb.textContent='✅ 正確!+'+add+' 分'; fb.style.color='#2e7d32';
+    document.getElementById('meterScore').textContent=game.score+' 分';
+  }else{
+    fb.textContent='❌ 正解是 '+game.meterValue; fb.style.color='#c0392b';
+  }
+  game.qi++;
+  setTimeout(nextMeterQ, 1400);
+}
+
+/* ---------- 愛的急救電擊(多種心律,節奏點擊救病人) ---------- */
+const HEART_RHYTHMS=[
+  {name:'竇性心律',  emoji:'💓', speed:0.8},  // 正常,中速
+  {name:'心搏過緩',  emoji:'💙', speed:0.45}, // 慢
+  {name:'心跳過速',  emoji:'❤️‍🔥', speed:1.5}, // 快
+  {name:'心律不整',  emoji:'💗', speed:1.1},  // 偏快
+  {name:'心室顫動',  emoji:'🫀', speed:1.9}   // 超快(最難)
+];
+function startHeart(){
+  game.score=0; game.combo=0; game.t=30; game.over=false; game.saved=0;
+  document.getElementById('heartScore').textContent='救活 0';
+  document.getElementById('heartCombo').textContent='';
+  document.getElementById('heartTimer').textContent='30s';
+  stopGameTimers();
+  game.timer=setInterval(()=>{ game.t--; document.getElementById('heartTimer').textContent=game.t+'s';
+    if(game.t<=0){ game.over=true; stopGameTimers(); const final=Math.max(0,Math.round(game.score)); showGameResult('急救結束!救活 '+game.saved+' 人,得 '+final+' 分',final,'💓','heart'); }
+  },1000);
+  game.beat();  // 啟動第一輪(會隨機挑心律)
+  show('s-heart');
+}
+// 換一種心律(隨機波形+速度)
+function newRhythm(){
+  const r=HEART_RHYTHMS[Math.floor(Math.random()*HEART_RHYTHMS.length)];
+  game._rhythm=r;
+  game._wavePos=100;
+  const wave=document.getElementById('heartWave');
+  if(wave) wave.textContent=r.emoji;
+  // 顯示目前心律名稱(放在 combo 那欄左側不衝突,用 hint)
+  const tag=document.getElementById('heartRhythm');
+  if(tag) tag.textContent=r.name+'('+(r.speed>=1.5?'很快':r.speed>=1?'偏快':r.speed>=0.6?'正常':'慢')+')';
+}
+// 心跳波峰移動(每掃完一輪換一種心律)
+game.beat=function(){
+  newRhythm();
+  (function move(){
+    if(game.over) return;
+    const wave=document.getElementById('heartWave'); if(!wave){ game.raf=requestAnimationFrame(move); return; }
+    game._wavePos-=game._rhythm.speed;
+    if(game._wavePos<-6){ // 掃出左邊 → 沒按到,combo 重置,換新心律重來
+      game.combo=0; document.getElementById('heartCombo').textContent='';
+      newRhythm();
+    }
+    wave.style.left=game._wavePos+'%';
+    game.raf=requestAnimationFrame(move);
+  })();
+};
+function heartHit(){
+  if(game.over) return;
+  // 判定框在中央 50%,寬度對應 ±一定範圍。距離越近分越高
+  const dist=Math.abs(game._wavePos-50);
+  const judge=document.getElementById('heartJudge');
+  let label,color,base;
+  if(dist<=7){ label='完美救援!'; color='#5fc86a'; base=100; }
+  else if(dist<=15){ label='救回來了!'; color='#e7cd92'; base=60; }
+  else if(dist<=26){ label='勉強穩住'; color='#d98ca0'; base=30; }
+  else { // miss
+    label='差一點…'; color='#c0392b'; base=0; game.combo=0;
+    document.getElementById('heartCombo').textContent='';
+  }
+  if(base>0){
+    game.combo++; game.saved++;
+    const mult=1+Math.min(game.combo,10)*0.1;  // 連擊加成,最高 2 倍
+    game.score+=base*mult;
+    document.getElementById('heartCombo').textContent = game.combo>1 ? ('🔥 '+game.combo+' 連續救援 ×'+mult.toFixed(1)) : '';
+    // 命中後換下一種心律(波形+速度都變)
+    newRhythm();
+  }
+  document.getElementById('heartScore').textContent='救活 '+game.saved;
+  judge.textContent=label; judge.style.color=color;
+  judge.classList.remove('show'); void judge.offsetWidth; judge.classList.add('show');
+}
+
+/* ---------- 接電路大師(旋轉管線解謎) ----------
+   每格用 4 位元代表四邊是否開口:上1 右2 下4 左8。
+   旋轉 90°(順時針)= 位元循環。電廠/房子是端點。 */
+function startWire(){
+  game.level=1; game.score=0;
+  buildWireLevel();
+  show('s-wire');
+}
+function rotBits(b){ // 順時針轉90:上→右,右→下,下→左,左→上
+  let n=0; if(b&1)n|=2; if(b&2)n|=4; if(b&4)n|=8; if(b&8)n|=1; return n;
+}
+function buildWireLevel(){
+  // 隨關卡放大棋盤:第1-2關 3x3,第3-5關 4x4,之後 5x5
+  const N = game.level<=2 ? 3 : game.level<=5 ? 4 : 5;
+  game.N=N;
+  const cells=[]; for(let i=0;i<N*N;i++) cells.push({bits:0,end:null});
+
+  // 用「隨機 DFS」從電廠(0)走一條蜿蜒長路徑到房子(N*N-1)
+  const path = wireRandomPath(N);
+  // 沿路徑設定每格的開口
+  for(let k=0;k<path.length;k++){
+    const idx=path[k]; let bits=0;
+    if(k>0) bits|=dirTo(idx,path[k-1],N);
+    if(k<path.length-1) bits|=dirTo(idx,path[k+1],N);
+    cells[idx].bits=bits;
+  }
+  // 非路徑格:給隨機裝飾管(增加視覺干擾,但不影響解)
+  for(let i=0;i<N*N;i++){ if(cells[i].bits===0){ const opts=[3,6,12,9,5,10,7,11,13,14]; cells[i].bits=opts[Math.floor(Math.random()*opts.length)]; } }
+  cells[0].end='⚡'; cells[N*N-1].end='🏠';
+
+  // 打亂(端點不轉,確保可解)
+  game.wcells=cells;
+  for(let i=0;i<N*N;i++){
+    if(cells[i].end) continue;
+    let rot=1+Math.floor(Math.random()*3);  // 至少轉1次,確保不會一開始就對
+    for(let t=0;t<rot;t++) cells[i].bits=rotBits(cells[i].bits);
+  }
+  if(isWireSolved()){ // 萬一剛好還是通的,多轉一格路徑格
+    const mid=path[Math.floor(path.length/2)]; cells[mid].bits=rotBits(cells[mid].bits);
+  }
+
+  // 限時:格子越大、路徑越長,時間越多;但隨關卡縮短一點點增加挑戰
+  game.wireTime = Math.max(20, N*N*4 + path.length*2 - game.level*2);
+  game.wireLeft = game.wireTime;
+  stopGameTimers();
+  game.timer=setInterval(()=>{
+    game.wireLeft--;
+    document.getElementById('wireTimer').textContent=game.wireLeft+'s';
+    if(game.wireLeft<=0){ stopGameTimers(); const final=Math.max(0,game.score);
+      showGameResult('時間到!共過 '+(game.level-1)+' 關',final,'🔌','wire'); }
+  },1000);
+  document.getElementById('wireTimer').textContent=game.wireLeft+'s';
+  document.getElementById('wireScore').textContent='第 '+game.level+' 關 · '+game.score+' 分';
+  renderWire();
+}
+// 隨機 DFS 路徑:從 0 蜿蜒走到 N*N-1,盡量長
+function wireRandomPath(N){
+  const target=N*N-1;
+  const visited=new Set();
+  let best=null;
+  function neighbors(i){
+    const r=Math.floor(i/N),c=i%N,out=[];
+    if(r>0)out.push(i-N); if(r<N-1)out.push(i+N);
+    if(c>0)out.push(i-1); if(c<N-1)out.push(i+1);
+    // 洗牌,讓路徑隨機
+    for(let k=out.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[out[k],out[j]]=[out[j],out[k]];}
+    return out;
+  }
+  // DFS 找一條到終點的路徑(偏好較長)
+  const stackPath=[0]; visited.add(0);
+  (function dfs(i){
+    if(best) return;          // 找到就停
+    if(i===target){ best=stackPath.slice(); return; }
+    for(const n of neighbors(i)){
+      if(visited.has(n)) continue;
+      visited.add(n); stackPath.push(n);
+      dfs(n);
+      if(best) return;
+      stackPath.pop(); visited.delete(n);
+    }
+  })(0);
+  return best || [0,target];
+}
+function dirTo(from,to,N){ // from 看 to 在哪個方向,回傳該方向位元
+  const fr=Math.floor(from/N),fc=from%N,tr=Math.floor(to/N),tc=to%N;
+  if(tr<fr)return 1; if(tc>fc)return 2; if(tr>fr)return 4; if(tc<fc)return 8; return 0;
+}
+function renderWire(){
+  const N=game.N, grid=document.getElementById('wireGrid'); if(!grid) return;
+  grid.style.gridTemplateColumns='repeat('+N+',1fr)';
+  grid.className='wiregrid'; grid.innerHTML='';
+  const lit=wireLitSet();
+  game.wcells.forEach((cell,i)=>{
+    const d=document.createElement('div'); d.className='wcell'+(cell.end?' fixed':'')+(lit.has(i)?' lit':'');
+    d.innerHTML = wirePipeSVG(cell.bits) + (cell.end?('<span class="wend" style="position:absolute">'+cell.end+'</span>'):'');
+    if(!cell.end) d.onclick=()=>{ cell.bits=rotBits(cell.bits); renderWire(); checkWire(); };
+    grid.appendChild(d);
+  });
+}
+function wirePipeSVG(bits){
+  let lines='';
+  if(bits&1) lines+='<line class="wpipe" x1="50" y1="50" x2="50" y2="2"/>';
+  if(bits&2) lines+='<line class="wpipe" x1="50" y1="50" x2="98" y2="50"/>';
+  if(bits&4) lines+='<line class="wpipe" x1="50" y1="50" x2="50" y2="98"/>';
+  if(bits&8) lines+='<line class="wpipe" x1="50" y1="50" x2="2" y2="50"/>';
+  return '<svg class="wsvg" viewBox="0 0 100 100">'+lines+'<circle cx="50" cy="50" r="6" fill="#9aa7ad"/></svg>';
+}
+function wireLitSet(){
+  const N=game.N, cells=game.wcells, seen=new Set([0]), stack=[0];
+  while(stack.length){
+    const i=stack.pop(), r=Math.floor(i/N), c=i%N, b=cells[i].bits;
+    const nb=[[1,-N,4],[2,1,8],[4,N,1],[8,-1,2]];
+    nb.forEach(([mine,off,need])=>{
+      if(!(b&mine)) return;
+      if(mine===2 && c===N-1) return; if(mine===8 && c===0) return;
+      if(mine===1 && r===0) return; if(mine===4 && r===N-1) return;
+      const j=i+off; if(j<0||j>=N*N) return;
+      if((cells[j].bits&need) && !seen.has(j)){ seen.add(j); stack.push(j); }
+    });
+  }
+  return seen;
+}
+function isWireSolved(){ return wireLitSet().has(game.N*game.N-1); }
+function checkWire(){
+  if(isWireSolved()){
+    stopGameTimers();
+    // 計分:基礎100 + 剩餘時間×5(越快越高)+ 關卡加成
+    const bonus = game.wireLeft*5 + game.level*20;
+    game.score += 100 + bonus;
+    game.level++;
+    document.getElementById('wireGrid').classList.add('win');
+    document.getElementById('wireScore').textContent='接通!+'+(100+bonus)+' 分';
+    document.getElementById('wireTimer').textContent='✓';
+    setTimeout(()=>{ buildWireLevel(); }, 900);
+  }
+}
+
+/* ---------- 妙手手術房(照步驟點對工具) ---------- */
+function startSurgery(){
+  game.score=0; game.step=0;
+  const STEPS=[
+    {tool:'soap', ask:'消毒雙手與器械'},
+    {tool:'mask', ask:'戴上口罩'},
+    {tool:'knife',ask:'劃開切口'},
+    {tool:'scissors',ask:'修剪組織'},
+    {tool:'blood',ask:'止血'},
+    {tool:'thread',ask:'縫合傷口'},
+    {tool:'bandage',ask:'包紮固定'},
+    {tool:'pill',ask:'給予藥物'}
+  ];
+  const TOOLS={soap:{e:'🧼',n:'消毒'},mask:{e:'😷',n:'口罩'},knife:{e:'🔪',n:'手術刀'},
+    scissors:{e:'✂️',n:'剪刀'},blood:{e:'🩸',n:'止血'},thread:{e:'🧵',n:'縫線'},
+    bandage:{e:'🩹',n:'繃帶'},pill:{e:'💊',n:'藥物'},syringe:{e:'💉',n:'針筒'},glove:{e:'🧤',n:'手套'}};
+  game.steps=STEPS; game.toolsMap=TOOLS;
+  document.getElementById('surgeryScore').textContent='0 分';
+  document.getElementById('surgeryTimer').textContent='手術中';
+  document.getElementById('surgeryPatient').className='patient'; document.getElementById('surgeryPatient').textContent='😷';
+  nextSurgeryStep();
+  show('s-surgery');
+}
+function nextSurgeryStep(){
+  if(game.step>=game.steps.length){
+    // 完成手術!
+    document.getElementById('surgeryPatient').textContent='😊';
+    document.getElementById('surgeryPatient').classList.add('ok');
+    document.getElementById('surgeryAsk').innerHTML='手術成功!病人康復 ❤️';
+    document.getElementById('surgeryTools').innerHTML='';
+    setTimeout(()=>{ showGameResult('手術成功!病人康復 ❤️',game.score,'🔪','surgery'); }, 1200);
+    return;
+  }
+  const step=game.steps[game.step];
+  document.getElementById('surgeryAsk').innerHTML='現在需要:<b>'+step.ask+'</b>';
+  // 工具列:正解 + 5 個干擾,洗牌(6 選 1)
+  const wrongPool=Object.keys(game.toolsMap).filter(k=>k!==step.tool);
+  const picks=[step.tool];
+  while(picks.length<6){ const w=wrongPool[Math.floor(Math.random()*wrongPool.length)]; if(!picks.includes(w)) picks.push(w); }
+  for(let i=picks.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [picks[i],picks[j]]=[picks[j],picks[i]]; }
+  const row=document.getElementById('surgeryTools'); row.innerHTML='';
+  game.stepStart=Date.now();
+  picks.forEach(k=>{
+    const t=game.toolsMap[k];
+    const d=document.createElement('div'); d.className='tool';
+    d.innerHTML='<div>'+t.e+'</div><div class="tname">'+t.n+'</div>';
+    d.onclick=()=>surgeryPick(k,d,step.tool);
+    row.appendChild(d);
+  });
+}
+function surgeryPick(picked,el,correct){
+  if(picked===correct){
+    const fast=Date.now()-game.stepStart<1500;
+    const add=fast?150:100;
+    game.score+=add;
+    el.classList.add('right');
+    document.getElementById('surgeryScore').textContent=game.score+' 分';
+    game.step++;
+    setTimeout(nextSurgeryStep, 320);
+  }else{
+    game.score=Math.max(0,game.score-30);
+    el.classList.add('wrong');
+    document.getElementById('surgeryScore').textContent=game.score+' 分';
+    setTimeout(()=>el.classList.remove('wrong'), 400);
+  }
+}
+
 
 /* ============================================================
    彩帶動畫
