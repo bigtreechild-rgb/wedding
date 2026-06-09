@@ -1960,6 +1960,8 @@ function sendWish(){
     if(!state._myWishes) state._myWishes=[];
     state._myWishes.unshift(t); renderMyWishes();
     toast('祝福已送出 ✨'); confetti(720);
+    // 自動回大廳,讓賓客看到自己的祝福飄過彈幕、留在祝福牆上
+    setTimeout(()=>{ show('s-hub'); }, 700);
   });
 }
 function renderMyWishes(){
@@ -2451,7 +2453,7 @@ function startToss(){
   const ball=document.getElementById('tossBall');
   const aim=document.getElementById('tossAim');
   const tray=document.getElementById('tossTray');
-  if(tray && !tray.src && typeof TOSS_BIN_IMG!=='undefined') tray.src=TOSS_BIN_IMG;
+  if(tray && typeof TOSS_BIN_IMG!=='undefined' && !(tray.src||'').startsWith('data:')) tray.src=TOSS_BIN_IMG;
   resetTossBall();
   moveTray();
   let dragging=false, sx=0, sy=0;
