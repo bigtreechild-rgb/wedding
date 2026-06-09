@@ -230,6 +230,19 @@ textarea{resize:vertical;min-height:60px}
 .lb.mini .nm{font-size:14px}
 .lb.mini .sc{font-size:16px}
 
+/* 小遊戲:你上次的得分 */
+.mylast{margin-top:10px;padding:8px 12px;border-radius:10px;background:var(--cream2);border:1px solid var(--line);
+  font-size:14px;color:var(--ink-soft);text-align:center;font-weight:700}
+.mylast b{color:var(--gold-d);font-size:16px}
+
+/* 排行榜切換頁籤 */
+.lbtabs{display:flex;gap:8px;margin-bottom:14px}
+.lbtab{flex:1;padding:12px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:800;cursor:pointer;transition:.15s;font-size:15px;color:var(--ink-soft)}
+.lbtab.on{background:linear-gradient(135deg,#fff6e0,#ffe9b8);border-color:var(--gold);color:var(--gold-d)}
+.gamepicker{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;justify-content:center}
+.gpick{padding:7px 11px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+.gpick.on{background:var(--rose);color:#fff;border-color:var(--rose)}
+
 /* 題目編輯器 */
 .qedit{border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;background:#fff;position:relative}
 .qedit .qn{position:absolute;top:-11px;left:14px;background:var(--rose);color:#fff;font-size:12px;font-weight:700;padding:3px 12px;border-radius:20px}
@@ -349,37 +362,14 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 .scorefloat{position:absolute;font-weight:900;color:var(--gold-d);font-family:"Playfair Display",serif;pointer-events:none;animation:floatup .7s forwards;font-size:22px}
 @keyframes floatup{to{transform:translateY(-40px);opacity:0}}
 
-/* 這個要看哪一科?(問答) */
-.deptask{font-family:"Noto Serif TC",serif;font-weight:900;font-size:22px;color:#2f6d97;margin:16px 0 20px;line-height:1.5}
-.deptopts{display:grid;gap:12px}
-.deptopt{padding:16px;border-radius:14px;background:linear-gradient(135deg,#eef4f8,#dce8f0);border:2px solid #c5d7e2;
-  font-size:17px;font-weight:700;color:var(--ink);cursor:pointer;transition:.12s;user-select:none}
-.deptopt:active{transform:scale(.97)}
-.deptopt.right{background:#d7f0db;border-color:#5fc86a}
-.deptopt.wrong{background:#fbe0e0;border-color:#e7556b}
-
-/* 薪水小偷(接物) */
-.salaryarea{position:relative;width:100%;height:60vh;max-height:500px;background:linear-gradient(180deg,#fff,#f3ece0);border-radius:14px;overflow:hidden;touch-action:none}
-.fallitem{position:absolute;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:30px;will-change:transform;user-select:none;pointer-events:none}
-.briefcase{position:absolute;bottom:8px;width:74px;height:54px;display:flex;align-items:center;justify-content:center;font-size:42px;
-  pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25))}
-
 /* 電錶判讀王(指針電錶) */
-.meterdials{display:flex;justify-content:center;gap:6px;margin:10px 0 4px;flex-wrap:nowrap}
-.dial{width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#fff,#eef0e8);border:3px solid #444;position:relative;flex:0 0 auto}
-.dial .dlabel{position:absolute;width:100%;text-align:center;font-size:9px;color:#888;font-weight:700}
-.dial .dlabel.t{top:1px} .dial .dlabel.b{bottom:1px}
-.dial .dnum{position:absolute;font-size:8px;color:#666;font-weight:700;transform:translate(-50%,-50%)}
-.dial .needle{position:absolute;left:50%;top:50%;width:3px;height:26px;background:#c0392b;transform-origin:bottom center;border-radius:2px}
-.dial .hub{position:absolute;left:50%;top:50%;width:8px;height:8px;background:#333;border-radius:50%;transform:translate(-50%,-50%)}
-
-/* 愛的心跳發電廠 */
-.heartline{position:relative;height:160px;background:linear-gradient(180deg,#1c2330,#0f1420);border-radius:14px;overflow:hidden}
-.heartZone{position:absolute;left:50%;top:0;bottom:0;width:74px;transform:translateX(-50%);background:rgba(95,200,120,.18);border-left:2px dashed rgba(95,200,120,.7);border-right:2px dashed rgba(95,200,120,.7)}
-.heartWave{position:absolute;top:50%;left:100%;transform:translateY(-50%);font-size:34px;will-change:left;filter:drop-shadow(0 0 6px rgba(231,85,107,.8))}
-.heartJudge{position:absolute;left:50%;top:14px;transform:translateX(-50%);font-weight:900;font-family:"Playfair Display",serif;font-size:24px;opacity:0}
-.heartJudge.show{animation:judgepop .5s}
-@keyframes judgepop{0%{opacity:0;transform:translateX(-50%) scale(.5)}40%{opacity:1;transform:translateX(-50%) scale(1.2)}100%{opacity:0;transform:translateX(-50%) scale(1)}}
+.meterdials{display:flex;justify-content:center;gap:10px;margin:10px 0 4px;flex-wrap:wrap;max-width:300px;margin-left:auto;margin-right:auto}
+.dial{width:88px;height:88px;border-radius:50%;background:radial-gradient(circle,#fff,#eef0e8);border:3px solid #444;position:relative;flex:0 0 auto}
+.dial .dlabel{position:absolute;width:100%;text-align:center;font-size:11px;color:#888;font-weight:700}
+.dial .dlabel.t{top:3px} .dial .dlabel.b{bottom:3px}
+.dial .dnum{position:absolute;font-size:10px;color:#666;font-weight:700;transform:translate(-50%,-50%)}
+.dial .needle{position:absolute;left:50%;top:50%;width:3.5px;height:38px;background:#c0392b;transform-origin:bottom center;border-radius:2px}
+.dial .hub{position:absolute;left:50%;top:50%;width:10px;height:10px;background:#333;border-radius:50%;transform:translate(-50%,-50%)}
 
 /* 接電路大師 */
 .wiregrid{display:grid;gap:4px;max-width:340px;margin:0 auto;background:#cfe3d6;padding:6px;border-radius:14px}
@@ -393,21 +383,20 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 .wiregrid.win .wcell{animation:wireflash .5s}
 @keyframes wireflash{50%{background:#fff6d6}}
 
-/* 妙手手術房 */
-.patient{font-size:72px;margin:6px 0 4px;transition:transform .2s}
-.patient.ok{animation:patientok .5s}
-@keyframes patientok{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-.surgeryask{font-family:"Noto Serif TC",serif;font-weight:900;font-size:20px;color:#2f6d97;margin:8px 0 14px;min-height:28px}
-.surgeryask b{color:#c0395b}
-.toolrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.tool{aspect-ratio:1;border-radius:14px;background:linear-gradient(135deg,#eef4f8,#dce8f0);border:2px solid #c5d7e2;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:30px;cursor:pointer;transition:.12s;user-select:none}
-.tool:active{transform:scale(.92)}
-.tool .tname{font-size:11px;color:var(--ink-soft);font-weight:700}
-.tool.right{animation:toolright .4s}
-.tool.wrong{animation:toolwrong .4s}
-@keyframes toolright{50%{background:#d7f0db;border-color:#5fc86a}}
-@keyframes toolwrong{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+/* 神準丟紗布 */
+/* 神準丟紗布(側面平推) */
+.tossarea{position:relative;width:100%;height:54vh;max-height:440px;background:linear-gradient(180deg,#eaf6f4,#d3ebe7);border-radius:14px;overflow:hidden;touch-action:none}
+.tossnurse{position:absolute;bottom:18px;left:14px;font-size:46px;z-index:2;user-select:none}
+.tosstray{position:absolute;font-size:58px;transition:top .3s ease, left .3s ease;filter:drop-shadow(0 3px 4px rgba(0,0,0,.2));z-index:1;user-select:none}
+.tossball{position:absolute;width:30px;height:30px;cursor:grab;user-select:none;z-index:3;will-change:left,top}
+/* CSS 畫的方形白紗布:白底 + 編織格紋 + 微陰影 */
+.gauze{width:100%;height:100%;border-radius:4px;background:
+  repeating-linear-gradient(0deg,rgba(170,170,170,.4) 0 1px,transparent 1px 5px),
+  repeating-linear-gradient(90deg,rgba(170,170,170,.4) 0 1px,transparent 1px 5px),
+  linear-gradient(135deg,#fff,#eee);
+  border:1px solid #d6d6d6;box-shadow:0 2px 4px rgba(0,0,0,.18);transform:rotate(-8deg)}
+.tossaim{position:absolute;width:4px;background:linear-gradient(to top,rgba(58,163,154,.75),rgba(58,163,154,0));transform-origin:bottom center;border-radius:2px;height:0;pointer-events:none;z-index:2}
+.tossfloat{position:absolute;font-weight:900;font-family:"Playfair Display",serif;pointer-events:none;animation:floatup .8s forwards;font-size:24px;z-index:5}
 
 /* 祝福牆(投影) */
 .wallgrid{columns:3;column-gap:16px}
@@ -599,6 +588,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 
     <button class="btn primary" id="startBtn" onclick="startQuiz()" disabled>🎮 開始快問快答(第一題)</button>
     <button class="btn ghost" style="margin-top:10px" onclick="goHostSetup()">⚙️ 編輯題目與設定</button>
+    <button class="btn ghost" style="margin-top:10px;color:#c0392b" onclick="resetQuiz()">🧹 重置快問快答(分數歸零)</button>
   </section>
 
   <!-- ================= 主持人:祝福牆(投影) ================= -->
@@ -662,6 +652,13 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
   <!-- ================= 主持人 / 賓客 共用:排行榜 ================= -->
   <section id="s-lb" class="screen host">
     <div class="brand"><h1>🏆 排行榜</h1><div class="sub" id="lbSub">目 前 前 十 名</div><div class="rule"></div></div>
+    <!-- 賓客模式才顯示的切換頁籤(主持端公布快問快答時會隱藏) -->
+    <div class="lbtabs" id="lbTabs" style="display:none">
+      <div class="lbtab on" id="lbTabQuiz" onclick="lbSwitch('quiz')">🎮 快問快答</div>
+      <div class="lbtab" id="lbTabMini" onclick="lbSwitch('mini')">🕹️ 小遊戲</div>
+    </div>
+    <!-- 小遊戲模式:選哪個遊戲的榜 -->
+    <div class="gamepicker" id="lbGamePicker" style="display:none"></div>
     <div class="card" id="lbCardIndiv"><ol class="lb" id="lbList"></ol></div>
     <button class="btn primary" id="lbNextBtn" onclick="nextQuestion()">下一題 ▶</button>
     <button class="btn ghost" id="lbHubBtn" style="display:none;margin-top:10px" onclick="show('s-hub')">← 返回大廳</button>
@@ -760,7 +757,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
         <div><span class="hi" style="font-size:22px">🃏</span> <b style="font-size:17px;color:var(--rose-deep)">配對翻牌</b></div>
         <button class="btn primary sm" onclick="startMatch()">開始玩 ▶</button>
       </div>
-      <ol class="lb mini" id="matchTop3" style="margin-top:12px"></ol>
+      <div class="mylast" id="matchLast">尚未挑戰過</div>
     </div>
 
     <div class="card">
@@ -768,25 +765,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
         <div><span class="hi" style="font-size:22px">🐱</span> <b style="font-size:17px;color:var(--gold-d)">抓貓貓</b></div>
         <button class="btn gold sm" onclick="startCatch()">開始玩 ▶</button>
       </div>
-      <ol class="lb mini" id="catchTop3" style="margin-top:12px"></ol>
-    </div>
-
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><span class="hi" style="font-size:22px">🩺</span> <b style="font-size:17px;color:#5a8fbf">這個要看哪一科?</b></div>
-        <button class="btn sm" style="background:#5a8fbf;color:#fff" onclick="startDept()">開始玩 ▶</button>
-      </div>
-      <p class="muted" style="font-size:12px;margin:6px 0 0">護理師考考你!看症狀選對的科別,答對 +分、答越快越高</p>
-      <ol class="lb mini" id="deptTop3" style="margin-top:10px"></ol>
-    </div>
-
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><span class="hi" style="font-size:22px">💼</span> <b style="font-size:17px;color:#9a7b4f">揪出薪水小偷</b></div>
-        <button class="btn sm" style="background:#9a7b4f;color:#fff" onclick="startSalary()">開始玩 ▶</button>
-      </div>
-      <p class="muted" style="font-size:12px;margin:6px 0 0">用公事包接好員工!認真加班 +500,薪水小偷 -300</p>
-      <ol class="lb mini" id="salaryTop3" style="margin-top:10px"></ol>
+      <div class="mylast" id="catchLast">尚未挑戰過</div>
     </div>
 
     <div class="card">
@@ -795,16 +774,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
         <button class="btn sm" style="background:#d98e00;color:#fff" onclick="startMeter()">開始玩 ▶</button>
       </div>
       <p class="muted" style="font-size:12px;margin:6px 0 0">台電讀錶員上身!看懂指針電錶讀出度數,越快越準分越高</p>
-      <ol class="lb mini" id="meterTop3" style="margin-top:10px"></ol>
-    </div>
-
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><span class="hi" style="font-size:22px">💓</span> <b style="font-size:17px;color:#c0395b">愛的急救電擊</b></div>
-        <button class="btn sm" style="background:#c0395b;color:#fff" onclick="startHeart()">開始玩 ▶</button>
-      </div>
-      <p class="muted" style="font-size:12px;margin:6px 0 0">心跳到判定框就電擊救病人!越準救活越多,連擊加倍 💓</p>
-      <ol class="lb mini" id="heartTop3" style="margin-top:10px"></ol>
+      <div class="mylast" id="meterLast">尚未挑戰過</div>
     </div>
 
     <div class="card">
@@ -813,16 +783,16 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
         <button class="btn sm" style="background:#3b7d5a;color:#fff" onclick="startWire()">開始玩 ▶</button>
       </div>
       <p class="muted" style="font-size:12px;margin:6px 0 0">旋轉管線把電廠 ⚡ 接到房子 🏠!接通一關得分,過越多關越高</p>
-      <ol class="lb mini" id="wireTop3" style="margin-top:10px"></ol>
+      <div class="mylast" id="wireLast">尚未挑戰過</div>
     </div>
 
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><span class="hi" style="font-size:22px">🔪</span> <b style="font-size:17px;color:#4a90c0">妙手手術房</b></div>
-        <button class="btn sm" style="background:#4a90c0;color:#fff" onclick="startSurgery()">開始玩 ▶</button>
+        <div><span class="hi" style="font-size:22px">🩹</span> <b style="font-size:17px;color:#3aa39a">神準丟紗布</b></div>
+        <button class="btn sm" style="background:#3aa39a;color:#fff" onclick="startToss()">開始玩 ▶</button>
       </div>
-      <p class="muted" style="font-size:12px;margin:6px 0 0">照螢幕提示點對手術工具!順利完成手術救病人 ❤️</p>
-      <ol class="lb mini" id="surgeryTop3" style="margin-top:10px"></ol>
+      <p class="muted" style="font-size:12px;margin:6px 0 0">手指往上滑瞄準,鬆手把紗布丟進收納盤!10 顆進越多、越快分越高</p>
+      <div class="mylast" id="tossLast">尚未挑戰過</div>
     </div>
 
     <button class="btn ghost" style="margin-top:6px" onclick="show('s-hub')">← 返回大廳</button>
@@ -852,52 +822,15 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     <div class="bigstate" id="gameResultBox"></div>
   </section>
 
-  <!-- 這個要看哪一科? -->
-  <section id="s-dept" class="screen">
-    <div class="qhead"><span id="deptScore">0 分</span><span id="deptProgress" style="font-size:13px;color:var(--ink-soft)">第 1 / 10 題</span><span class="timer" id="deptTimer">10s</span></div>
-    <div class="card" style="text-align:center">
-      <div class="deptask" id="deptAsk">準備中…</div>
-      <div class="deptopts" id="deptOpts"></div>
-    </div>
-    <p class="hint" style="text-align:center;font-size:11px">※ 僅供趣味參考,身體不適請就醫,由專業醫師判斷</p>
-    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
-  </section>
-
-  <!-- 揪出薪水小偷 -->
-  <section id="s-salary" class="screen">
-    <div class="qhead"><span id="salaryScore">0 元</span><span class="timer" id="salaryTimer">30s</span></div>
-    <div class="card" style="padding:10px">
-      <p class="muted" style="margin:2px 0 8px;text-align:center;font-size:13px">💼 滑動公事包接住好員工 +500,別接到薪水小偷 -300!</p>
-      <div class="salaryarea" id="salaryArea"></div>
-    </div>
-    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
-  </section>
-
   <!-- 電錶判讀王 -->
   <section id="s-meter" class="screen">
     <div class="qhead"><span id="meterScore">0 分</span><span id="meterProgress" style="font-size:13px;color:var(--ink-soft)">第 1 / 5 題</span><span class="timer" id="meterTimer">--</span></div>
     <div class="card" style="text-align:center">
-      <p class="muted" style="margin:0 0 6px;font-size:13px">⚡ 讀出這個指針電錶的度數(相鄰指針轉向相反!)</p>
+      <p class="muted" style="margin:0 0 6px;font-size:13px">⚡ 機械電錶讀法:指針若停在兩數之間,取<b>較小</b>的那個數字!相鄰指針轉向相反</p>
       <div class="meterdials" id="meterDials"></div>
       <input id="meterInput" type="tel" inputmode="numeric" placeholder="輸入度數" style="text-align:center;font-size:24px;letter-spacing:4px;margin-top:14px">
       <button class="btn" id="meterBtn" style="background:#d98e00;color:#fff;width:100%;margin-top:12px" onclick="meterSubmit()">送出 ⚡</button>
       <div id="meterFeedback" style="margin-top:10px;font-weight:800;min-height:22px"></div>
-    </div>
-    <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
-  </section>
-
-  <!-- 愛的急救電擊 -->
-  <section id="s-heart" class="screen">
-    <div class="qhead"><span id="heartScore">救活 0</span><span id="heartCombo" style="font-size:14px;color:var(--rose-deep);font-weight:800"></span><span class="timer" id="heartTimer">30s</span></div>
-    <div class="card" style="padding:14px">
-      <p class="muted" style="margin:0 0 4px;text-align:center;font-size:13px">💓 心跳波峰進到綠框時按電擊,把病人救回來!</p>
-      <p style="margin:0 0 10px;text-align:center;font-size:13px;font-weight:800;color:#c0395b">目前心律:<span id="heartRhythm">—</span></p>
-      <div class="heartline" id="heartLine">
-        <div class="heartZone"></div>
-        <div class="heartWave" id="heartWave">💓</div>
-        <div class="heartJudge" id="heartJudge"></div>
-      </div>
-      <button class="btn" id="heartBtn" style="background:#c0395b;color:#fff;width:100%;margin-top:14px;font-size:20px;padding:18px" onclick="heartHit()">⚡ 電擊!</button>
     </div>
     <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
   </section>
@@ -912,16 +845,21 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
   </section>
 
-  <!-- 妙手手術房 -->
-  <section id="s-surgery" class="screen">
-    <div class="qhead"><span id="surgeryScore">0 分</span><span class="timer" id="surgeryTimer">--</span></div>
-    <div class="card" style="padding:14px;text-align:center">
-      <div class="patient" id="surgeryPatient">😷</div>
-      <div class="surgeryask" id="surgeryAsk">準備中…</div>
-      <div class="toolrow" id="surgeryTools"></div>
+  <!-- 神準丟紗布 -->
+  <section id="s-toss" class="screen">
+    <div class="qhead"><span id="tossScore">0 分</span><span id="tossBalls" style="font-size:13px;color:var(--ink-soft)">剩 10 顆</span><span id="tossIn" style="font-size:13px;color:#3aa39a;font-weight:800">進 0</span></div>
+    <div class="card" style="padding:10px">
+      <p class="muted" style="margin:2px 0 8px;text-align:center;font-size:13px">🩹 從護理師那往右拖:拖越遠力道越大,上下決定角度,鬆手丟進盤子!</p>
+      <div class="tossarea" id="tossArea">
+        <div class="tosstray" id="tossTray">🗑️</div>
+        <div class="tossnurse" id="tossNurse">👩‍⚕️</div>
+        <div class="tossball" id="tossBall"><div class="gauze"></div></div>
+        <div class="tossaim" id="tossAim"></div>
+      </div>
     </div>
     <button class="btn ghost" onclick="quitGame()">← 放棄返回</button>
   </section>
+
   <section id="s-wish" class="screen">
     <div class="brand"><h1>💌 祝福留言</h1><div class="rule"></div></div>
     <div class="card">
@@ -1647,7 +1585,9 @@ function showLeaderboard(){
   document.getElementById('lbNextBtn').textContent = (state.curQ+1>=state.questions.length)?'看最終結果 🎉':'下一題 ▶';
   document.getElementById('lbNextBtn').style.display='';
   document.getElementById('lbHubBtn').style.display='none';
-  
+  const tabs=document.getElementById('lbTabs'); if(tabs) tabs.style.display='none';
+  const gp=document.getElementById('lbGamePicker'); if(gp) gp.style.display='none';
+
   show('s-lb');
 }
 
@@ -1681,6 +1621,24 @@ function replayQuiz(){
       state.curQ=-1;
       db.ref('rooms/'+state.room+'/state').update({phase:'lobby',curQ:-1});
       toast('分數已歸零,可重新開始問答');
+      show('s-host-lobby');
+    });
+  });
+}
+
+// 主持人:重置快問快答(分數歸零 + 退回「還沒開始」,賓客會看到敬請期待)
+// 不影響:留言、照片、小遊戲分數、已設定的題目
+function resetQuiz(){
+  if(!confirm('確定要重置快問快答嗎?\n\n會把所有人的快問快答分數歸零、退回「尚未開始」狀態。\n(留言、照片、小遊戲分數、題目設定都不受影響)')) return;
+  db.ref('rooms/'+state.room+'/players').once('value',s=>{
+    const players=s.val()||{}; const updates={};
+    Object.keys(players).forEach(pid=>{ updates['players/'+pid+'/score']=0; updates['players/'+pid+'/last']=null; });
+    // 狀態退回未開始;清掉現場題目
+    updates['state']={phase:'lobby', curQ:-1, quizStarted:false};
+    updates['question']=null;
+    db.ref('rooms/'+state.room).update(updates).then(()=>{
+      state.curQ=-1; state.phase='lobby';
+      toast('已重置:分數歸零,快問快答回到尚未開始 ✨');
       show('s-host-lobby');
     });
   });
@@ -2196,42 +2154,66 @@ function saveMiniScore(gameKey, value){
 }
 
 function openMiniGames(){
-  renderMiniTop3('match','matchTop3');
-  renderMiniTop3('catch','catchTop3');
-  renderMiniTop3('dept','deptTop3');
-  renderMiniTop3('salary','salaryTop3');
-  renderMiniTop3('meter','meterTop3');
-  renderMiniTop3('heart','heartTop3');
-  renderMiniTop3('wire','wireTop3');
-  renderMiniTop3('surgery','surgeryTop3');
+  ['match','catch','meter','wire','toss'].forEach(g=>renderMyLast(g));
   show('s-games');
 }
 
-// 顯示某遊戲的前三名
-function renderMiniTop3(gameKey, elId){
-  db.ref('rooms/'+state.room+'/minigames/'+gameKey).once('value').then(s=>{
-    const data=s.val()||{};
-    const arr=Object.values(data).sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,3);
-    const ol=document.getElementById(elId); if(!ol) return; ol.innerHTML='';
-    if(!arr.length){ ol.innerHTML='<p class="muted" style="text-align:center;font-size:13px">還沒有人玩,快來搶第一 🏅</p>'; return; }
-    arr.forEach((p,i)=>{
-      const li=document.createElement('li'); if(i<3) li.className='top'+(i+1);
-      const medal=['🥇','🥈','🥉'][i];
-      li.innerHTML='<span class="rank">'+medal+'</span>'+avatarHTML(p,'')+'<span class="nm">'+esc(p.name)+'</span><span class="sc">'+p.score+'</span>';
-      ol.appendChild(li);
-    });
-  });
+// 顯示「你上次的得分」(個人最佳)
+function renderMyLast(gameKey){
+  const el=document.getElementById(gameKey+'Last'); if(!el) return;
+  db.ref('rooms/'+state.room+'/minigames/'+gameKey+'/'+state.pid).once('value').then(s=>{
+    const me=s.val();
+    if(me && (me.score||me.score===0)){
+      el.innerHTML='你的最佳成績:<b>'+me.score+'</b> 分';
+    }else{
+      el.textContent='尚未挑戰過,快來玩!';
+    }
+  }).catch(()=>{ el.textContent='尚未挑戰過,快來玩!'; });
 }
 
-// 大廳「🏆 排行榜」:顯示快問快答的正式排名(有獎品)
+// 大廳「🏆 排行榜」:賓客可切換看 快問快答 / 小遊戲(各遊戲前10)
+const MINI_GAME_LIST=[
+  {key:'match',name:'🃏 配對翻牌'},{key:'catch',name:'🐱 抓貓貓'},
+  {key:'meter',name:'⚡ 電錶判讀'},{key:'wire',name:'🔌 接電路'},
+  {key:'toss',name:'🩹 丟紗布'}
+];
 function openLeaderboard(){
-  db.ref('rooms/'+state.room+'/players').once('value').then(s=>{
-    renderLB('lbList', s.val()||{}, 10, false);
+  document.getElementById('lbTabs').style.display='';      // 顯示頁籤
+  document.getElementById('lbNextBtn').style.display='none';
+  const back=document.getElementById('lbHubBtn');
+  back.style.display=''; back.textContent='← 返回大廳'; back.setAttribute('onclick',"show('s-hub')");
+  lbSwitch('quiz');  // 預設看快問快答
+  show('s-lb');
+}
+function lbSwitch(mode){
+  game.lbMode=mode;
+  document.getElementById('lbTabQuiz').classList.toggle('on', mode==='quiz');
+  document.getElementById('lbTabMini').classList.toggle('on', mode==='mini');
+  const picker=document.getElementById('lbGamePicker');
+  if(mode==='quiz'){
+    picker.style.display='none';
     document.getElementById('lbSub').textContent='快 問 快 答 排 名';
-    document.getElementById('lbNextBtn').style.display='none';
-    const back=document.getElementById('lbHubBtn');
-    back.style.display=''; back.textContent='← 返回大廳'; back.setAttribute('onclick',"show('s-hub')");
-    show('s-lb');
+    db.ref('rooms/'+state.room+'/players').once('value').then(s=>renderLB('lbList', s.val()||{}, 10, false));
+  }else{
+    // 小遊戲:顯示遊戲選擇器,預設第一個
+    picker.style.display='';
+    picker.innerHTML='';
+    MINI_GAME_LIST.forEach((g,i)=>{
+      const b=document.createElement('div'); b.className='gpick'+(i===0?' on':''); b.textContent=g.name;
+      b.onclick=()=>{ document.querySelectorAll('#lbGamePicker .gpick').forEach(x=>x.classList.remove('on')); b.classList.add('on'); renderMiniLeaderboard(g.key, g.name); };
+      picker.appendChild(b);
+    });
+    renderMiniLeaderboard(MINI_GAME_LIST[0].key, MINI_GAME_LIST[0].name);
+  }
+}
+function renderMiniLeaderboard(gameKey, name){
+  document.getElementById('lbSub').textContent=name.replace(/^.. /,'')+' 前 十 名';
+  db.ref('rooms/'+state.room+'/minigames/'+gameKey).once('value').then(s=>{
+    const data=s.val()||{};
+    // 物件轉陣列(含 name/avatar/score),取前 10
+    const players={};
+    Object.keys(data).forEach(pid=>{ players[pid]={name:data[pid].name,avatar:data[pid].avatar,score:data[pid].score||0}; });
+    renderLB('lbList', players, 10, false);
   });
 }
 
@@ -2241,6 +2223,8 @@ function hostOpenLeaderboard(){
     renderLB('lbList', s.val()||{}, 10, false);
     document.getElementById('lbSub').textContent='快 問 快 答 排 名';
     document.getElementById('lbNextBtn').style.display='none';
+    const tabs=document.getElementById('lbTabs'); if(tabs) tabs.style.display='none';
+    const gp=document.getElementById('lbGamePicker'); if(gp) gp.style.display='none';
     const back=document.getElementById('lbHubBtn');
     back.style.display=''; back.textContent='← 返回控制台'; back.setAttribute('onclick','openHostLobby()');
     show('s-lb');
@@ -2330,7 +2314,7 @@ function spawnCat(){
   const area=document.getElementById('catchArea'); if(!area) return;
   const w=area.clientWidth, h=area.clientHeight; if(!w) return;
   const CATS=(typeof NEW_CAT_IMGS!=='undefined'&&NEW_CAT_IMGS.length)?NEW_CAT_IMGS:CAT_IMGS;
-  const TRAPS=(typeof GROOM_TRAPS!=='undefined')?GROOM_TRAPS:[];
+  const TRAPS=(typeof CARD_IMGS!=='undefined' && CARD_IMGS.length)?CARD_IMGS:(typeof GROOM_TRAPS!=='undefined'?GROOM_TRAPS:[]);
   // 約 25% 機率出現新郎陷阱
   const isTrap = TRAPS.length>0 && Math.random()<0.25;
   const cat=document.createElement('div'); cat.className='catchcat'+(isTrap?' trap':'');
@@ -2359,149 +2343,12 @@ function spawnCat(){
   setTimeout(()=>{ if(!cat._done) cat.remove(); },1300);  // 沒點到自己消失
 }
 
-/* ---------- 這個要看哪一科?(症狀對應科別問答) ---------- */
-const DEPT_BANK=[
-  {q:'脊椎側彎、長期腰痠背痛',a:'骨科',w:['皮膚科','眼科','牙科']},
-  {q:'白內障、視力模糊看不清',a:'眼科',w:['耳鼻喉科','骨科','心臟內科']},
-  {q:'蛀牙、牙齦腫痛',a:'牙科',w:['腸胃科','骨科','皮膚科']},
-  {q:'長期咳嗽、呼吸喘',a:'胸腔內科',w:['骨科','眼科','泌尿科']},
-  {q:'皮膚紅疹、長痘痘、濕疹',a:'皮膚科',w:['骨科','牙科','心臟內科']},
-  {q:'胃痛、拉肚子、消化不良',a:'腸胃科',w:['眼科','骨科','皮膚科']},
-  {q:'孕婦產檢、生產',a:'婦產科',w:['小兒科','骨科','泌尿科']},
-  {q:'小朋友發燒、打疫苗',a:'小兒科',w:['婦產科','骨科','眼科']},
-  {q:'耳朵痛、流鼻水、喉嚨發炎',a:'耳鼻喉科',w:['骨科','皮膚科','腸胃科']},
-  {q:'心悸、胸悶、高血壓',a:'心臟內科',w:['骨科','眼科','皮膚科']},
-  {q:'頻尿、結石、排尿困難',a:'泌尿科',w:['婦產科','眼科','牙科']},
-  {q:'情緒低落、長期失眠焦慮',a:'身心科',w:['骨科','皮膚科','腸胃科']},
-  {q:'中風、手腳麻、頭痛癲癇',a:'神經內科',w:['皮膚科','牙科','眼科']},
-  {q:'糖尿病、甲狀腺問題',a:'新陳代謝科',w:['骨科','眼科','耳鼻喉科']},
-  {q:'運動扭傷、骨折、關節痛',a:'骨科',w:['皮膚科','腸胃科','眼科']}
-];
-function startDept(){
-  game.score=0; game.qi=0; game.total=10;
-  // 隨機抽 10 題
-  game.deptQs=[...DEPT_BANK].sort(()=>Math.random()-0.5).slice(0,game.total);
-  nextDeptQ();
-  show('s-dept');
-}
-function nextDeptQ(){
-  if(game.qi>=game.total){
-    stopGameTimers();
-    showGameResult('問診結束!得 '+game.score+' 分',game.score,'🩺','dept');
-    return;
-  }
-  const item=game.deptQs[game.qi];
-  document.getElementById('deptProgress').textContent='第 '+(game.qi+1)+' / '+game.total+' 題';
-  document.getElementById('deptAsk').textContent=item.q;
-  // 選項:正解 + 3 干擾,洗牌
-  const opts=[item.a,...item.w].sort(()=>Math.random()-0.5);
-  const box=document.getElementById('deptOpts'); box.innerHTML='';
-  game.deptStart=Date.now(); game.deptLocked=false;
-  opts.forEach(o=>{
-    const d=document.createElement('div'); d.className='deptopt'; d.textContent=o;
-    d.onclick=()=>deptPick(o,d,item.a);
-    box.appendChild(d);
-  });
-  // 每題限時 10 秒
-  game.t=10; document.getElementById('deptTimer').textContent='10s';
-  stopGameTimers();
-  game.timer=setInterval(()=>{ game.t--; document.getElementById('deptTimer').textContent=game.t+'s';
-    if(game.t<=0){ stopGameTimers(); deptTimeout(); }
-  },1000);
-}
-function deptPick(picked,el,correct){
-  if(game.deptLocked) return; game.deptLocked=true; stopGameTimers();
-  const allOpts=document.querySelectorAll('#deptOpts .deptopt');
-  if(picked===correct){
-    const sec=(Date.now()-game.deptStart)/1000;
-    const speed=Math.max(0,Math.round((10-sec)*10)); // 越快加越多,最多+100
-    const add=100+speed;
-    game.score+=add; el.classList.add('right');
-    document.getElementById('deptScore').textContent=game.score+' 分';
-  }else{
-    el.classList.add('wrong');
-    // 把正解也標綠
-    allOpts.forEach(o=>{ if(o.textContent===correct) o.classList.add('right'); });
-  }
-  game.qi++;
-  setTimeout(nextDeptQ, 1000);
-}
-function deptTimeout(){
-  if(game.deptLocked) return; game.deptLocked=true;
-  const item=game.deptQs[game.qi];
-  document.querySelectorAll('#deptOpts .deptopt').forEach(o=>{ if(o.textContent===item.a) o.classList.add('right'); });
-  game.qi++;
-  setTimeout(nextDeptQ, 1000);
-}
 // 在某元素上冒出分數浮字
 function floatScore(el,txt,color){
   const host=el.offsetParent||el.parentElement; if(!host) return;
   const f=document.createElement('div'); f.className='scorefloat'; f.textContent=txt; if(color) f.style.color=color;
   f.style.left=(el.offsetLeft+el.offsetWidth/2-12)+'px'; f.style.top=(el.offsetTop)+'px';
   host.appendChild(f); setTimeout(()=>f.remove(),700);
-}
-
-/* ---------- 揪出薪水小偷(接物) ---------- */
-function startSalary(){
-  game.score=0; game.t=30; game.items=[];
-  document.getElementById('salaryScore').textContent='0 元';
-  document.getElementById('salaryTimer').textContent='30s';
-  const area=document.getElementById('salaryArea'); area.innerHTML='';
-  // 公事包
-  const bag=document.createElement('div'); bag.className='briefcase'; bag.textContent='💼';
-  area.appendChild(bag); game.bag=bag;
-  const W=area.clientWidth||340;
-  game.bagX=W/2-37; bag.style.left=game.bagX+'px';
-  // 滑動控制公事包
-  const move=(clientX)=>{ const rect=area.getBoundingClientRect(); let x=clientX-rect.left-37;
-    x=Math.max(0,Math.min((area.clientWidth-74),x)); game.bagX=x; bag.style.left=x+'px'; };
-  area.ontouchmove=e=>{ move(e.touches[0].clientX); };
-  area.onmousemove=e=>{ if(e.buttons||e.type==='mousemove') move(e.clientX); };
-  area.onclick=e=>move(e.clientX);
-  const GOOD=[{e:'💰',t:'認真加班'},{e:'📑',t:'準時交件'},{e:'⭐',t:'績效滿分'},{e:'🤝',t:'熱心助人'}];
-  const BAD=[{e:'💩',t:'上班追劇'},{e:'💣',t:'蹲廁所1hr'},{e:'😴',t:'會議睡覺'}];
-  game.fall=[];  // 掉落物 {el,x,y,good}
-  stopGameTimers();
-  game.timer=setInterval(()=>{ game.t--; document.getElementById('salaryTimer').textContent=game.t+'s';
-    if(game.t<=0){ const final=Math.max(0,game.score); stopGameTimers(); document.getElementById('salaryArea').onmousemove=null; showGameResult('發薪完成!有效薪水 '+final+' 元',final,'💼','salary'); }
-  },1000);
-  // 每 0.8 秒生一個掉落物
-  game.spawn=setInterval(()=>{
-    const area=document.getElementById('salaryArea'); if(!area) return;
-    const good=Math.random()<0.62;
-    const set=good?GOOD:BAD; const pick=set[Math.floor(Math.random()*set.length)];
-    const el=document.createElement('div'); el.className='fallitem'; el.textContent=pick.e;
-    const x=Math.random()*((area.clientWidth||340)-52);
-    el.style.left=x+'px'; el.style.top='-52px';
-    area.appendChild(el);
-    game.fall.push({el, x, y:-52, good, speed:2.5+Math.random()*2});
-  }, 800);
-  // 動畫迴圈:掉落 + 碰撞偵測
-  (function loop(){
-    const area=document.getElementById('salaryArea');
-    if(!area || game.t<=0){ return; }
-    const H=area.clientHeight, bagY=H-54;
-    for(let i=game.fall.length-1;i>=0;i--){
-      const it=game.fall[i]; it.y+=it.speed; it.el.style.top=it.y+'px';
-      // 碰到公事包高度,且 x 重疊 → 接到
-      if(it.y+52>=bagY && it.y<=H-10){
-        if(it.x+52>game.bagX && it.x<game.bagX+74){
-          if(it.good){ game.score+=500; floatAt(area,it.x,bagY,'+500','#2e7d32'); }
-          else { game.score-=300; floatAt(area,it.x,bagY,'-300','#c0392b'); }
-          document.getElementById('salaryScore').textContent=Math.max(0,game.score)+' 元';
-          it.el.remove(); game.fall.splice(i,1); continue;
-        }
-      }
-      // 掉出底部 → 移除
-      if(it.y>H){ it.el.remove(); game.fall.splice(i,1); }
-    }
-    game.raf=requestAnimationFrame(loop);
-  })();
-  show('s-salary');
-}
-function floatAt(host,x,y,txt,color){
-  const f=document.createElement('div'); f.className='scorefloat'; f.textContent=txt; if(color) f.style.color=color;
-  f.style.left=x+'px'; f.style.top=(y-20)+'px'; host.appendChild(f); setTimeout(()=>f.remove(),700);
 }
 
 /* ---------- 電錶判讀王(傳統機械指針電錶) ----------
@@ -2533,17 +2380,16 @@ function nextMeterQ(){
   },1000);
 }
 function renderMeter(value,N){
-  const s=String(value).padStart(N,'0').slice(-N);
-  const digits=s.split('').map(Number);
   const box=document.getElementById('meterDials'); box.innerHTML='';
   for(let pos=0;pos<N;pos++){
-    const digit=digits[pos];
     const fromRight=(N-1)-pos;
+    // 真實機械錶:這個轉盤的指針位置 = 數值在這一位的「連續值」
+    // 例如 48217,十位盤指針在 1.7(被個位帶動),所以停在 1 和 2 中間偏 2
+    const contVal = (value / Math.pow(10,fromRight)) % 10;   // 0~10 的連續值
     const clockwise=(fromRight%2===0); // 個位順時針
-    // 角度(從12點順時針為正):順時針錶 digit*36;逆時針錶 360-digit*36
-    const angle = clockwise ? digit*36 : (360-digit*36)%360;
+    // 角度:每個數字 36 度;順時針錶 contVal*36;逆時針錶相反
+    const angle = clockwise ? contVal*36 : (360 - contVal*36)%360;
     const dial=document.createElement('div'); dial.className='dial';
-    // 標示位數權重與轉向
     const place=['萬','千','百','十','個'][pos] || '';
     dial.innerHTML='<div class="dlabel t">'+place+'位</div>'+
       '<div class="dlabel b">'+(clockwise?'↻順':'↺逆')+'</div>'+
@@ -2586,76 +2432,108 @@ function meterReveal(correct){
   setTimeout(nextMeterQ, 1400);
 }
 
-/* ---------- 愛的急救電擊(多種心律,節奏點擊救病人) ---------- */
-const HEART_RHYTHMS=[
-  {name:'竇性心律',  emoji:'💓', speed:0.8},  // 正常,中速
-  {name:'心搏過緩',  emoji:'💙', speed:0.45}, // 慢
-  {name:'心跳過速',  emoji:'❤️‍🔥', speed:1.5}, // 快
-  {name:'心律不整',  emoji:'💗', speed:1.1},  // 偏快
-  {name:'心室顫動',  emoji:'🫀', speed:1.9}   // 超快(最難)
-];
-function startHeart(){
-  game.score=0; game.combo=0; game.t=30; game.over=false; game.saved=0;
-  document.getElementById('heartScore').textContent='救活 0';
-  document.getElementById('heartCombo').textContent='';
-  document.getElementById('heartTimer').textContent='30s';
-  stopGameTimers();
-  game.timer=setInterval(()=>{ game.t--; document.getElementById('heartTimer').textContent=game.t+'s';
-    if(game.t<=0){ game.over=true; stopGameTimers(); const final=Math.max(0,Math.round(game.score)); showGameResult('急救結束!救活 '+game.saved+' 人,得 '+final+' 分',final,'💓','heart'); }
-  },1000);
-  game.beat();  // 啟動第一輪(會隨機挑心律)
-  show('s-heart');
+/* ---------- 神準丟紗布(側面平推:往右拖力道,上下角度) ---------- */
+function startToss(){
+  game.score=0; game.tossLeft=10; game.tossIn=0; game.tossStart=Date.now(); game.tossBusy=false;
+  document.getElementById('tossScore').textContent='0 分';
+  document.getElementById('tossBalls').textContent='剩 10 顆';
+  document.getElementById('tossIn').textContent='進 0';
+  const area=document.getElementById('tossArea');
+  const ball=document.getElementById('tossBall');
+  const aim=document.getElementById('tossAim');
+  resetTossBall();
+  moveTray();
+  let dragging=false, sx=0, sy=0;
+  const start=(x,y)=>{ if(game.tossBusy||game.tossLeft<=0) return; dragging=true; sx=x; sy=y; };
+  const moveAim=(x,y)=>{
+    if(!dragging) return;
+    // 往右拖 = 力道(dx>0);上下 = 角度(dy)
+    const dx=Math.max(0,x-sx), dy=y-sy;
+    const power=Math.min(Math.hypot(dx,dy),220);
+    const ang=Math.atan2(-dy,Math.max(dx,1)); // 仰角
+    // 瞄準線「底部」錨定在紗布(護理師手部),往外延伸
+    const hx=ball.offsetLeft+15, hy=ball.offsetTop+15;  // 紗布中心
+    aim.style.left=hx+'px';
+    aim.style.top=(hy-power)+'px';   // 元素頂端;底邊正好落在手部
+    aim.style.height=power+'px';
+    aim.style.transform='rotate('+(90-ang*180/Math.PI)+'deg)';
+    game._toss={power, ang};
+  };
+  const end=()=>{ if(!dragging) return; dragging=false; aim.style.height='0';
+    if(game._toss && game._toss.power>25){ throwGauze(game._toss); } };
+  area.ontouchstart=e=>{ const t=e.touches[0]; start(t.clientX,t.clientY); };
+  area.ontouchmove=e=>{ e.preventDefault(); const t=e.touches[0]; moveAim(t.clientX,t.clientY); };
+  area.ontouchend=end;
+  area.onmousedown=e=>start(e.clientX,e.clientY);
+  area.onmousemove=e=>moveAim(e.clientX,e.clientY);
+  area.onmouseup=end;
+  show('s-toss');
 }
-// 換一種心律(隨機波形+速度)
-function newRhythm(){
-  const r=HEART_RHYTHMS[Math.floor(Math.random()*HEART_RHYTHMS.length)];
-  game._rhythm=r;
-  game._wavePos=100;
-  const wave=document.getElementById('heartWave');
-  if(wave) wave.textContent=r.emoji;
-  // 顯示目前心律名稱(放在 combo 那欄左側不衝突,用 hint)
-  const tag=document.getElementById('heartRhythm');
-  if(tag) tag.textContent=r.name+'('+(r.speed>=1.5?'很快':r.speed>=1?'偏快':r.speed>=0.6?'正常':'慢')+')';
+function resetTossBall(){
+  const ball=document.getElementById('tossBall');
+  // 紗布起點在護理師手上(左下)
+  ball.style.left='52px'; ball.style.top='';
+  const area=document.getElementById('tossArea'); const H=area.clientHeight||420;
+  ball.style.top=(H-58)+'px';
 }
-// 心跳波峰移動(每掃完一輪換一種心律)
-game.beat=function(){
-  newRhythm();
-  (function move(){
-    if(game.over) return;
-    const wave=document.getElementById('heartWave'); if(!wave){ game.raf=requestAnimationFrame(move); return; }
-    game._wavePos-=game._rhythm.speed;
-    if(game._wavePos<-6){ // 掃出左邊 → 沒按到,combo 重置,換新心律重來
-      game.combo=0; document.getElementById('heartCombo').textContent='';
-      newRhythm();
-    }
-    wave.style.left=game._wavePos+'%';
-    game.raf=requestAnimationFrame(move);
+function moveTray(){
+  const area=document.getElementById('tossArea'); const tray=document.getElementById('tossTray');
+  const W=area.clientWidth||340, H=area.clientHeight||420;
+  // 盤子在右半邊,高度隨機(讓角度有意義)
+  const x=W*0.55+Math.random()*(W*0.32);
+  const y=H*0.25+Math.random()*(H*0.5);
+  tray.style.left=x+'px'; tray.style.top=y+'px';
+  game.trayX=x+29; game.trayY=y+29;  // 盤子中心(58px emoji)
+}
+function throwGauze(t){
+  game.tossBusy=true;
+  const area=document.getElementById('tossArea');
+  const ball=document.getElementById('tossBall');
+  const H=area.clientHeight, W=area.clientWidth;
+  // 初速:力道 × 角度
+  const v=t.power*0.42;
+  let vx=v*Math.cos(t.ang), vy=-v*Math.sin(t.ang);  // vy 負=往上
+  let px=ball.offsetLeft, py=ball.offsetTop, step=0;
+  (function fly(){
+    step++;
+    px+=vx*0.12; py+=vy*0.12; vy+=2.2;  // 重力(平推但略帶弧線)
+    ball.style.left=px+'px'; ball.style.top=py+'px';
+    // 命中盤子中心 ±34
+    if(Math.hypot((px+17)-game.trayX,(py+17)-game.trayY)<36){ finishToss(true,px,py); return; }
+    // 飛出畫面或落地
+    if(py>H-10 || px>W+40 || px<-40 || step>400){ finishToss(false,px,py); return; }
+    game.raf=requestAnimationFrame(fly);
   })();
-};
-function heartHit(){
-  if(game.over) return;
-  // 判定框在中央 50%,寬度對應 ±一定範圍。距離越近分越高
-  const dist=Math.abs(game._wavePos-50);
-  const judge=document.getElementById('heartJudge');
-  let label,color,base;
-  if(dist<=7){ label='完美救援!'; color='#5fc86a'; base=100; }
-  else if(dist<=15){ label='救回來了!'; color='#e7cd92'; base=60; }
-  else if(dist<=26){ label='勉強穩住'; color='#d98ca0'; base=30; }
-  else { // miss
-    label='差一點…'; color='#c0392b'; base=0; game.combo=0;
-    document.getElementById('heartCombo').textContent='';
+}
+function finishToss(hit,px,py){
+  if(hit){
+    game.tossIn++;
+    const sec=(Date.now()-game.tossStart)/1000;
+    const speed=Math.max(0,Math.round((40-sec)*3));
+    const add=200+speed;
+    game.score+=add;
+    tossFloat(game.trayX-20, py, '+'+add, '#2e7d32');
+  }else{
+    tossFloat(px||100, py||100, 'miss', '#c0392b');
   }
-  if(base>0){
-    game.combo++; game.saved++;
-    const mult=1+Math.min(game.combo,10)*0.1;  // 連擊加成,最高 2 倍
-    game.score+=base*mult;
-    document.getElementById('heartCombo').textContent = game.combo>1 ? ('🔥 '+game.combo+' 連續救援 ×'+mult.toFixed(1)) : '';
-    // 命中後換下一種心律(波形+速度都變)
-    newRhythm();
-  }
-  document.getElementById('heartScore').textContent='救活 '+game.saved;
-  judge.textContent=label; judge.style.color=color;
-  judge.classList.remove('show'); void judge.offsetWidth; judge.classList.add('show');
+  game.tossLeft--;
+  document.getElementById('tossScore').textContent=game.score+' 分';
+  document.getElementById('tossBalls').textContent='剩 '+game.tossLeft+' 顆';
+  document.getElementById('tossIn').textContent='進 '+game.tossIn;
+  setTimeout(()=>{
+    if(game.tossLeft<=0){
+      showGameResult('丟完啦!10 顆進了 '+game.tossIn+' 顆',game.score,'🩹','toss');
+      return;
+    }
+    resetTossBall();
+    moveTray();
+    game.tossBusy=false;
+  }, 700);
+}
+function tossFloat(x,y,txt,color){
+  const area=document.getElementById('tossArea');
+  const f=document.createElement('div'); f.className='tossfloat'; f.textContent=txt; f.style.color=color;
+  f.style.left=x+'px'; f.style.top=(y-10)+'px'; area.appendChild(f); setTimeout(()=>f.remove(),800);
 }
 
 /* ---------- 接電路大師(旋轉管線解謎) ----------
@@ -2794,74 +2672,6 @@ function checkWire(){
     setTimeout(()=>{ buildWireLevel(); }, 900);
   }
 }
-
-/* ---------- 妙手手術房(照步驟點對工具) ---------- */
-function startSurgery(){
-  game.score=0; game.step=0;
-  const STEPS=[
-    {tool:'soap', ask:'消毒雙手與器械'},
-    {tool:'mask', ask:'戴上口罩'},
-    {tool:'knife',ask:'劃開切口'},
-    {tool:'scissors',ask:'修剪組織'},
-    {tool:'blood',ask:'止血'},
-    {tool:'thread',ask:'縫合傷口'},
-    {tool:'bandage',ask:'包紮固定'},
-    {tool:'pill',ask:'給予藥物'}
-  ];
-  const TOOLS={soap:{e:'🧼',n:'消毒'},mask:{e:'😷',n:'口罩'},knife:{e:'🔪',n:'手術刀'},
-    scissors:{e:'✂️',n:'剪刀'},blood:{e:'🩸',n:'止血'},thread:{e:'🧵',n:'縫線'},
-    bandage:{e:'🩹',n:'繃帶'},pill:{e:'💊',n:'藥物'},syringe:{e:'💉',n:'針筒'},glove:{e:'🧤',n:'手套'}};
-  game.steps=STEPS; game.toolsMap=TOOLS;
-  document.getElementById('surgeryScore').textContent='0 分';
-  document.getElementById('surgeryTimer').textContent='手術中';
-  document.getElementById('surgeryPatient').className='patient'; document.getElementById('surgeryPatient').textContent='😷';
-  nextSurgeryStep();
-  show('s-surgery');
-}
-function nextSurgeryStep(){
-  if(game.step>=game.steps.length){
-    // 完成手術!
-    document.getElementById('surgeryPatient').textContent='😊';
-    document.getElementById('surgeryPatient').classList.add('ok');
-    document.getElementById('surgeryAsk').innerHTML='手術成功!病人康復 ❤️';
-    document.getElementById('surgeryTools').innerHTML='';
-    setTimeout(()=>{ showGameResult('手術成功!病人康復 ❤️',game.score,'🔪','surgery'); }, 1200);
-    return;
-  }
-  const step=game.steps[game.step];
-  document.getElementById('surgeryAsk').innerHTML='現在需要:<b>'+step.ask+'</b>';
-  // 工具列:正解 + 5 個干擾,洗牌(6 選 1)
-  const wrongPool=Object.keys(game.toolsMap).filter(k=>k!==step.tool);
-  const picks=[step.tool];
-  while(picks.length<6){ const w=wrongPool[Math.floor(Math.random()*wrongPool.length)]; if(!picks.includes(w)) picks.push(w); }
-  for(let i=picks.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [picks[i],picks[j]]=[picks[j],picks[i]]; }
-  const row=document.getElementById('surgeryTools'); row.innerHTML='';
-  game.stepStart=Date.now();
-  picks.forEach(k=>{
-    const t=game.toolsMap[k];
-    const d=document.createElement('div'); d.className='tool';
-    d.innerHTML='<div>'+t.e+'</div><div class="tname">'+t.n+'</div>';
-    d.onclick=()=>surgeryPick(k,d,step.tool);
-    row.appendChild(d);
-  });
-}
-function surgeryPick(picked,el,correct){
-  if(picked===correct){
-    const fast=Date.now()-game.stepStart<1500;
-    const add=fast?150:100;
-    game.score+=add;
-    el.classList.add('right');
-    document.getElementById('surgeryScore').textContent=game.score+' 分';
-    game.step++;
-    setTimeout(nextSurgeryStep, 320);
-  }else{
-    game.score=Math.max(0,game.score-30);
-    el.classList.add('wrong');
-    document.getElementById('surgeryScore').textContent=game.score+' 分';
-    setTimeout(()=>el.classList.remove('wrong'), 400);
-  }
-}
-
 
 /* ============================================================
    彩帶動畫
