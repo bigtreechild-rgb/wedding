@@ -576,6 +576,16 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
       <div class="players" id="plList" style="margin-top:14px"></div>
     </div>
 
+    <div class="card" style="border:2px solid var(--gold-l)">
+      <span class="tag">🎮 遊戲開放控制</span>
+      <h2>控制賓客能不能玩</h2>
+      <p class="muted">關閉時,賓客點進去會看到「遊戲時間未開放,敬請期待」。建議在適當時機才開放,避免大家整場都在玩。</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+        <button class="btn" id="toggleGamesBtn" onclick="toggleOpen('games')" style="font-size:16px;padding:14px">🕹️ 小遊戲:讀取中…</button>
+        <button class="btn" id="toggleQuizBtn" onclick="toggleOpen('quiz')" style="font-size:16px;padding:14px">🎮 快問快答:讀取中…</button>
+      </div>
+    </div>
+
     <div class="card">
       <span class="tag">📺 投影控制台</span>
       <h2>切換大螢幕畫面</h2>
@@ -736,7 +746,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
         <div class="hi">🎮</div><b>快問快答</b><span id="quizCardSub">問答小遊戲</span>
       </div>
       <div class="hubcard" style="--hc:#b07cae" onclick="openMiniGames()">
-        <div class="hi">🕹️</div><b>小遊戲</b><span>玩遊戲也能上榜</span>
+        <div class="hi">🕹️</div><b>小遊戲</b><span id="gamesCardSub">玩遊戲也能上榜</span>
       </div>
       <div class="hubcard" style="--hc:#c8893c" onclick="openLeaderboard()">
         <div class="hi">🏆</div><b>排行榜</b><span>看看誰最高分</span>
@@ -898,6 +908,16 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     </div>
     <button class="btn ghost" onclick="show('s-hub')">← 返回大廳</button>
     <div id="myPhotos" class="myphotos"></div>
+  </section>
+
+  <!-- 賓客:遊戲未開放(主持人控制) -->
+  <section id="s-gate" class="screen">
+    <div class="bigstate">
+      <div class="em">⏳</div>
+      <h2 id="gateTitle">遊戲時間未開放</h2>
+      <p class="muted">敬請期待!主持人開放後就能進來玩囉。<br>先去留個祝福、看看婚紗相簿吧 💕</p>
+      <button class="btn primary" style="margin-top:20px;width:auto;padding:14px 28px" onclick="show('s-hub')">← 返回大廳</button>
+    </div>
   </section>
 
   <!-- 賓客:遊戲尚未開始 -->
@@ -1367,6 +1387,7 @@ function loadRoomConfig(){
 let hostLobbyReady=false;
 function openHostLobby(){
   buildLobby(); show('s-host-lobby');
+  refreshOpenButtons();
   if(!hostLobbyReady){
     hostLobbyReady=true;
     const pref=db.ref('rooms/'+ROOM+'/players');
@@ -1376,7 +1397,35 @@ function openHostLobby(){
     pref.on('child_removed', snap=>{ const el=document.querySelector('.pl[data-id="'+snap.key+'"]'); if(el) el.remove(); updateLobbyCount(); });
     setTimeout(()=>{ firstLoad=false; }, 1000);
     hostWatchInteractions();
+    // 持續監聽開關狀態,讓按鈕標籤即時反映
+    db.ref('rooms/'+ROOM+'/state/gamesOpen').on('value', s=>{ state.gamesOpen=!!s.val(); updateOpenBtn('games'); });
+    db.ref('rooms/'+ROOM+'/state/quizOpen').on('value', s=>{ state.quizOpen=!!s.val(); updateOpenBtn('quiz'); });
   }
+}
+// 主持人:開關小遊戲 / 快問快答
+function toggleOpen(which){
+  const key = which==='games' ? 'gamesOpen' : 'quizOpen';
+  db.ref('rooms/'+ROOM+'/state/'+key).once('value').then(s=>{
+    const cur=!!s.val();
+    db.ref('rooms/'+ROOM+'/state/'+key).set(!cur);
+    toast((which==='games'?'小遊戲':'快問快答') + (!cur?'已開放 ✅':'已關閉 🔒'));
+  });
+}
+function updateOpenBtn(which){
+  const open = which==='games' ? state.gamesOpen : state.quizOpen;
+  const btn = document.getElementById(which==='games'?'toggleGamesBtn':'toggleQuizBtn');
+  if(!btn) return;
+  const label = which==='games' ? '🕹️ 小遊戲' : '🎮 快問快答';
+  btn.textContent = label + ':' + (open?'開放中(點此關閉)':'已關閉(點此開放)');
+  btn.style.background = open ? 'linear-gradient(135deg,#d7f0db,#aee0b5)' : '#eee';
+  btn.style.color = open ? '#2e7d32' : 'var(--ink-soft)';
+}
+function refreshOpenButtons(){
+  db.ref('rooms/'+ROOM+'/state').once('value').then(s=>{
+    const st=s.val()||{};
+    state.gamesOpen=!!st.gamesOpen; state.quizOpen=!!st.quizOpen;
+    updateOpenBtn('games'); updateOpenBtn('quiz');
+  });
 }
 
 // 儲存設定到固定房間(保留既有賓客/留言/照片資料,不覆蓋)
@@ -1877,9 +1926,18 @@ function watchGameAsPlayer(){
     const st=s.val(); if(!st) return;
     const prevPhase=state.phase;
     state.phase=st.phase; state.curQ=st.curQ; state.quizStarted=!!st.quizStarted;
+    state.gamesOpen=!!st.gamesOpen; state.quizOpen=!!st.quizOpen;
     // 更新 Hub 上「快問快答」卡片的副標
     const sub=document.getElementById('quizCardSub');
-    if(sub) sub.textContent = st.quizStarted ? '進行中 · 點我加入 🔴' : '尚未開始';
+    if(sub) sub.textContent = state.quizStarted ? '進行中 · 點我加入 🔴' : (state.quizOpen ? '已開放 · 點我進入' : '尚未開放 ⏳');
+    const gsub=document.getElementById('gamesCardSub');
+    if(gsub) gsub.textContent = state.gamesOpen ? '已開放 · 快來玩!' : '尚未開放 ⏳';
+    // 若正在看「未開放」等候畫面,主持人一開放就自動進去
+    const act=document.querySelector('.screen.active');
+    if(act && act.id==='s-gate'){
+      if(state.gamesOpen && document.getElementById('gateTitle').textContent.includes('小遊戲')) openMiniGames();
+      else if(state.quizOpen && document.getElementById('gateTitle').textContent.includes('快問快答')) openQuizFromHub();
+    }
 
     if(st.phase==='question'){
       // 題目是即時同步、時間敏感 → 一律拉進題目
@@ -1901,6 +1959,10 @@ function watchGameAsPlayer(){
 
 // 從 Hub 點「快問快答」
 function openQuizFromHub(){
+  // 主持人沒開放、且目前沒有正在進行的問答 → 擋下
+  if(!state.quizOpen && !(state.phase==='question'||state.phase==='reveal'||state.phase==='leaderboard'||state.phase==='ended')){
+    showGateClosed('快問快答'); return;
+  }
   if(state.phase==='question'){ loadPlayerQuestion(); }
   else if(state.phase==='reveal'){ showPlayerResult(); }
   else if(state.phase==='leaderboard'||state.phase==='ended'){
@@ -2176,8 +2238,15 @@ function saveMiniScore(gameKey, value){
 }
 
 function openMiniGames(){
+  // 主持人沒開放 → 擋下(但若已在遊戲中返回則放行)
+  if(!state.gamesOpen && state.role!=='host'){ showGateClosed('小遊戲'); return; }
   ['match','catch','meter','wire','toss'].forEach(g=>renderMyLast(g));
   show('s-games');
+}
+// 遊戲未開放的提示畫面
+function showGateClosed(name){
+  document.getElementById('gateTitle').textContent=name+' 時間未開放';
+  show('s-gate');
 }
 
 // 顯示「你上次的得分」(個人最佳)
