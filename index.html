@@ -304,7 +304,7 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 .hub{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 
 /* 彈幕區 */
-.danmaku{position:relative;height:120px;margin:0 0 14px;border-radius:18px;overflow:hidden;
+.danmaku{position:relative;height:180px;margin:0 0 14px;border-radius:18px;overflow:hidden;
   background:linear-gradient(135deg,rgba(181,86,107,.10),rgba(200,160,78,.10));border:1px solid var(--line)}
 .danmaku:empty::before{content:"祝福會在這裡飄過… 💕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:14px}
 .dm{position:absolute;white-space:nowrap;font-weight:700;padding:6px 14px;border-radius:999px;background:#fff;
@@ -316,9 +316,9 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 @keyframes dmfly{from{transform:translateX(100vw)}to{transform:translateX(-110%)}}
 
 /* 祝福牆(固定高度,可捲動) */
-.wishwall-card{padding:14px}
+.wishwall-card{padding:14px;margin-left:58px;margin-right:58px}
 .wishwall-head{font-family:"Noto Serif TC",serif;font-weight:900;color:var(--rose-deep);font-size:17px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.wishwall{max-height:300px;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:10px;padding-right:4px}
+.wishwall{max-height:380px;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:10px;padding-right:4px}
 .wishwall::-webkit-scrollbar{width:6px}
 .wishwall::-webkit-scrollbar-thumb{background:var(--gold-l);border-radius:3px}
 .wishwall:empty::before{content:"還沒有人留言,快到下面「💌 祝福」搶頭香!";color:var(--ink-soft);font-size:14px;display:block;text-align:center;padding:20px 0}
@@ -1106,8 +1106,10 @@ const HEART_CAT_IMGS=[
 
 (function(){const box=document.getElementById('petals');
   const POOL=(typeof HEART_CAT_IMGS!=='undefined'&&HEART_CAT_IMGS.length)?HEART_CAT_IMGS:((typeof NEW_CAT_IMGS!=='undefined'&&NEW_CAT_IMGS.length)?NEW_CAT_IMGS:CAT_IMGS);
+  // 讓貓偏向畫面左右兩側(避開中間的祝福牆);手機與桌機都適用
+  const sidePos=()=>{ const left=Math.random()<0.5; return left ? (Math.random()*15) : (85+Math.random()*13); };
   for(let i=0;i<14;i++){const im=document.createElement('img');im.src=POOL[i%POOL.length];
-    im.style.left=(Math.random()*100)+'%';im.style.animationDuration=(9+Math.random()*9)+'s';im.style.animationDelay=(-Math.random()*14)+'s';
+    im.style.left=sidePos()+'%';im.style.animationDuration=(9+Math.random()*9)+'s';im.style.animationDelay=(-Math.random()*14)+'s';
     const sz=46+Math.random()*40;im.style.width=sz+'px';im.style.opacity=(0.7+Math.random()*0.3).toFixed(2);
     const pop=(ev)=>{ if(im.classList.contains('pop')) return;
       const rect=im.getBoundingClientRect();
@@ -1116,7 +1118,7 @@ const HEART_CAT_IMGS=[
       document.body.appendChild(sp); setTimeout(()=>sp.remove(),700);
       im.classList.add('pop');
       setTimeout(()=>{ im.classList.remove('pop'); im.style.animation='none'; void im.offsetWidth;
-        im.style.animation='fall linear infinite'; im.style.animationDuration=(9+Math.random()*9)+'s'; im.style.left=(Math.random()*100)+'%'; },600);
+        im.style.animation='fall linear infinite'; im.style.animationDuration=(9+Math.random()*9)+'s'; im.style.left=sidePos()+'%'; },600);
     };
     im.addEventListener('click',pop);
     box.appendChild(im);}
@@ -1810,20 +1812,16 @@ let hubWishesReady=false;
 function watchHubWishes(){
   if(hubWishesReady) return; hubWishesReady=true;
   const ref=db.ref('rooms/'+state.room+'/wishes');
-  let firstLoad=true;
+  const joinAt=Date.now();           // 記下進場時間
   const all=[];
   ref.on('child_added', snap=>{
     const w=snap.val(); if(!w) return;
     all.push(w);
     prependWishToWall(w);
     document.getElementById('wishWallCount').textContent=all.length;
-    if(!firstLoad) flyDanmaku(w);   // 首次載入的舊祝福不洗版彈幕
-  });
-  // 首次載入完成後,把既有祝福輪流當彈幕飄(讓畫面一開始就有東西)
-  ref.once('value', s=>{
-    firstLoad=false;
-    const arr=Object.values(s.val()||{});
-    arr.slice(-6).forEach((w,i)=>setTimeout(()=>flyDanmaku(w), i*2600));
+    // 只飄「進場後才寫」的祝福(時間晚於進場);舊的只進祝福牆不重飄
+    const t = typeof w.at==='number' ? w.at : 0;
+    if(t >= joinAt-500) flyDanmaku(w);
   });
 }
 
@@ -1836,17 +1834,30 @@ function prependWishToWall(w){
 }
 
 // 一則祝福從右往左飄過
+// 彈幕排隊系統:3 條軌道,每條同時只跑一則,湧入太多會排隊
+const DM_LANES=5;
+let dmQueue=[];           // 等待飄的祝福
+let dmLaneFree=[true,true,true,true,true];  // 每條軌道是否空閒
 function flyDanmaku(w){
+  dmQueue.push(w);
+  pumpDanmaku();
+}
+function pumpDanmaku(){
   const box=document.getElementById('danmaku'); if(!box) return;
-  const dm=document.createElement('div'); dm.className='dm';
-  dm.innerHTML=avatarHTML2(w,'dmav')+'<span class="dmname">'+esc(w.name||'賓客')+'</span><span class="dmtext">'+esc(w.text||'')+'</span>';
-  // 隨機高度(避免重疊在同一行),隨機速度
-  const lane=Math.floor(Math.random()*3); // 0,1,2 三條軌道
-  dm.style.top=(8+lane*36)+'px';
-  const dur=18+Math.random()*8;
-  dm.style.animation='dmfly '+dur+'s linear forwards';
-  box.appendChild(dm);
-  setTimeout(()=>dm.remove(), dur*1000+200);
+  for(let lane=0; lane<DM_LANES; lane++){
+    if(!dmLaneFree[lane] || !dmQueue.length) continue;
+    const w=dmQueue.shift();
+    dmLaneFree[lane]=false;
+    const dm=document.createElement('div'); dm.className='dm';
+    dm.innerHTML=avatarHTML2(w,'dmav')+'<span class="dmname">'+esc(w.name||'賓客')+'</span><span class="dmtext">'+esc(w.text||'')+'</span>';
+    dm.style.top=(8+lane*36)+'px';
+    const dur=16+Math.random()*5;
+    dm.style.animation='dmfly '+dur+'s linear forwards';
+    box.appendChild(dm);
+    // 這則「前段」離開後(約 35% 時間),該軌道就可放下一則,避免追撞又不會太擠
+    setTimeout(()=>{ dmLaneFree[lane]=true; pumpDanmaku(); }, dur*1000*0.38);
+    setTimeout(()=>{ dm.remove(); }, dur*1000+200);
+  }
 }
 
 // 頭像 HTML(支援 emoji: 與圖片;給彈幕/祝福牆用,class 自訂)
