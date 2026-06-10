@@ -384,6 +384,29 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 @keyframes wireflash{50%{background:#fff6d6}}
 
 /* 神準丟紗布 */
+/* ⚔️ PK 對戰 */
+.pkgamepick,.pkplayerpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pkgame,.pkpp{padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:#fff;font-weight:700;cursor:pointer;font-size:14px;transition:.12s;user-select:none}
+.pkgame.on{background:linear-gradient(135deg,#fff6e0,#ffe9b8);border-color:var(--gold);color:var(--gold-d)}
+.pkpp.a{background:#fbe0e6;border-color:#b5566b;color:#b5566b}
+.pkpp.b{background:#dde7f5;border-color:#4a73b0;color:#4a73b0}
+.pkslot{flex:1;padding:12px;border-radius:12px;text-align:center;font-weight:800;background:var(--cream2);border:1px dashed var(--line);font-size:14px}
+/* PK 大螢幕 */
+.pkboard{background:linear-gradient(135deg,#1c2330,#2a1c2a);border-radius:18px;padding:20px 12px;color:#fff;min-height:60vh}
+.pktitle{text-align:center;font-family:"Playfair Display",serif;font-size:22px;font-weight:900;margin-bottom:14px;color:var(--gold)}
+.pkvs{display:flex;align-items:flex-start;justify-content:center;gap:8px}
+.pkside{flex:1;text-align:center;border-radius:14px;padding:12px 6px}
+.pkside.red{background:rgba(181,86,107,.22);border:2px solid #b5566b}
+.pkside.blue{background:rgba(74,115,176,.22);border:2px solid #4a73b0}
+.pkname{font-weight:800;font-size:16px;margin-bottom:4px}
+.pkscore{font-family:"Playfair Display",serif;font-size:44px;font-weight:900;line-height:1}
+.pkvsmid{font-size:30px;align-self:center}
+.pkmini{position:relative;width:100%;height:180px;margin-top:10px;background:rgba(255,255,255,.08);border-radius:10px;overflow:hidden}
+.pkmini .pkcat{position:absolute;width:42px;height:42px}
+.pkmini .pkcat img{width:100%;height:100%;object-fit:contain}
+.pktimer{text-align:center;font-size:18px;font-weight:800;margin-top:16px;color:var(--gold-l)}
+.pkwinner{text-align:center;font-size:26px;font-weight:900;margin-top:10px;font-family:"Playfair Display",serif;min-height:32px}
+
 /* 神準丟紗布(側面平推) */
 .tossarea{position:relative;width:100%;height:54vh;max-height:440px;background:linear-gradient(180deg,#eaf6f4,#d3ebe7);border-radius:14px;overflow:hidden;touch-action:none}
 .tossnurse{position:absolute;bottom:18px;left:14px;font-size:46px;z-index:2;user-select:none}
@@ -554,6 +577,20 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
   </section>
 
   <!-- ================= 主持人:大廳(QR + 賓客) ================= -->
+  <!-- 主持人:密碼驗證 -->
+  <section id="s-host-auth" class="screen">
+    <div class="bigstate">
+      <div class="em">🔐</div>
+      <h2>主持人驗證</h2>
+      <p class="muted">請輸入主持密碼進入控制台</p>
+      <input id="hostPwInput" type="password" inputmode="numeric" placeholder="主持密碼"
+        style="text-align:center;font-size:22px;letter-spacing:4px;margin-top:16px;max-width:220px"
+        onkeydown="if(event.key==='Enter')checkHostPw()">
+      <button class="btn primary" style="margin-top:14px;width:auto;padding:14px 28px" onclick="checkHostPw()">進入控制台 →</button>
+      <div id="hostPwErr" style="color:#c0392b;font-weight:700;margin-top:10px;min-height:20px"></div>
+    </div>
+  </section>
+
   <section id="s-host-lobby" class="screen host">
     <div id="joinBanner" class="join-banner"></div>
     <div class="brand"><h1 id="lobbyTitle">婚禮快問快答</h1><div class="sub">掃 描 加 入</div><div class="rule"></div></div>
@@ -598,8 +635,72 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     </div>
 
     <button class="btn primary" id="startBtn" onclick="startQuiz()" disabled>🎮 開始快問快答(第一題)</button>
+    <button class="btn" style="margin-top:10px;background:linear-gradient(135deg,#b5566b,#c8893c);color:#fff" onclick="openPkSetup()">⚔️ PK 對戰(兩位賓客上台比拼)</button>
     <button class="btn ghost" style="margin-top:10px" onclick="goHostSetup()">⚙️ 編輯題目與設定</button>
+    <button class="btn ghost" style="margin-top:10px" onclick="openWishAdmin()">🗑️ 祝福管理(刪除不當留言)</button>
     <button class="btn ghost" style="margin-top:10px;color:#c0392b" onclick="resetQuiz()">🧹 重置快問快答(分數歸零)</button>
+  </section>
+
+  <!-- ================= 主持人:PK 對戰設定 ================= -->
+  <section id="s-pk-setup" class="screen host">
+    <div class="brand"><h1>⚔️ PK 對戰</h1><div class="rule"></div></div>
+    <div class="card">
+      <h2>1. 選一個遊戲</h2>
+      <div class="pkgamepick" id="pkGamePick"></div>
+    </div>
+    <div class="card">
+      <h2>2. 選兩位選手</h2>
+      <p class="muted">從目前在線的賓客中各選一位(點一下選為紅方,再點一位為藍方)。</p>
+      <div class="pkplayerpick" id="pkPlayerPick"></div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <div class="pkslot" id="pkSlotA">紅方:未選</div>
+        <div class="pkslot" id="pkSlotB">藍方:未選</div>
+      </div>
+    </div>
+    <button class="btn primary" id="pkStartBtn" onclick="hostStartPk()" disabled>🚀 開始 PK!</button>
+    <button class="btn ghost" style="margin-top:10px" onclick="openHostLobby()">← 返回控制台</button>
+  </section>
+
+  <!-- ================= 主持人:PK 大螢幕(投影) ================= -->
+  <section id="s-pk-screen" class="screen host">
+    <div class="pkboard">
+      <div class="pktitle"><span id="pkTitleGame">PK 對戰</span></div>
+      <div class="pkvs">
+        <div class="pkside red">
+          <div class="pkname" id="pkScreenNameA">紅方</div>
+          <div class="pkscore" id="pkScreenScoreA">0</div>
+          <div class="pkmini" id="pkMiniA"></div>
+        </div>
+        <div class="pkvsmid">🆚</div>
+        <div class="pkside blue">
+          <div class="pkname" id="pkScreenNameB">藍方</div>
+          <div class="pkscore" id="pkScreenScoreB">0</div>
+          <div class="pkmini" id="pkMiniB"></div>
+        </div>
+      </div>
+      <div class="pktimer" id="pkScreenTimer">準備中…</div>
+      <div class="pkwinner" id="pkWinner"></div>
+    </div>
+    <button class="btn ghost" style="margin-top:10px" onclick="endPk()">結束 PK · 返回控制台</button>
+  </section>
+
+  <!-- ================= 選手:PK 遊戲中 ================= -->
+  <section id="s-pk-play" class="screen">
+    <div class="qhead"><span id="pkPlayScore">0 分</span><span id="pkPlaySide" style="font-weight:800"></span><span class="timer" id="pkPlayTimer">30s</span></div>
+    <div class="card" style="padding:10px">
+      <p class="muted" style="margin:2px 0 8px;text-align:center;font-size:13px" id="pkPlayHint">PK 進行中!</p>
+      <div class="catcharea" id="pkCatchArea"></div>
+    </div>
+  </section>
+
+  <!-- 主持人:祝福管理(刪除不當留言) -->
+  <section id="s-wish-admin" class="screen host">
+    <div class="brand"><h1>🗑️ 祝福管理</h1><div class="rule"></div></div>
+    <div class="card">
+      <p class="muted">點每則祝福右邊的「刪除」可移除不當留言。刪除後所有人的畫面與祝福牆會同步移除。</p>
+      <div id="wishAdminList" style="margin-top:12px;display:flex;flex-direction:column;gap:10px;max-height:58vh;overflow-y:auto"></div>
+    </div>
+    <button class="btn ghost" onclick="openHostLobby()">← 返回控制台</button>
   </section>
 
   <!-- ================= 主持人:祝福牆(投影) ================= -->
@@ -1052,6 +1153,7 @@ const TS = ()=> DEMO ? Date.now() : firebase.database.ServerValue.TIMESTAMP;
 /* ---------- 這場婚禮的固定設定 ---------- */
 const ROOM='WEDDING';            // 固定房間,不用每次建立
 const HOST_KEY='yutong1003';     // 主持人專屬網址參數 ?host=yutong1003
+const HOST_PW='1101';            // 進主持台需再輸入的密碼(可自行修改)
 
 /* ---------- 全域狀態 ---------- */
 const state = {
@@ -1352,6 +1454,24 @@ function compress(file,max,q,cb){
    ============================================================ */
 
 // 主持人入口:房間存在 → 直接進控制台;不存在 → 進設定頁做第一次設定
+function showHostAuth(){
+  // 同一裝置驗證過就免再輸入(用 sessionStorage,關閉分頁後失效)
+  try{ if(sessionStorage.getItem('hostOK')==='1'){ enterHostConsole(); return; } }catch(e){}
+  show('s-host-auth');
+  setTimeout(()=>{ const i=document.getElementById('hostPwInput'); if(i) i.focus(); }, 300);
+}
+function checkHostPw(){
+  const v=(document.getElementById('hostPwInput').value||'').trim();
+  if(v===HOST_PW){
+    try{ sessionStorage.setItem('hostOK','1'); }catch(e){}
+    document.getElementById('hostPwErr').textContent='';
+    enterHostConsole();
+  }else{
+    document.getElementById('hostPwErr').textContent='密碼錯誤,請再試一次';
+    document.getElementById('hostPwInput').value='';
+  }
+}
+
 function enterHostConsole(){
   state.role='host'; state.room=ROOM;
   db.ref('rooms/'+ROOM+'/meta').once('value').then(s=>{
@@ -1853,6 +1973,7 @@ function enterHub(){
   document.getElementById('hubTitle').textContent=state.title;
   document.getElementById('hubName').textContent='你是 '+state.name;
   watchHubWishes();
+  watchPkAsPlayer();
   show('s-hub');
 }
 
@@ -1865,18 +1986,55 @@ function watchHubWishes(){
   const all=[];
   ref.on('child_added', snap=>{
     const w=snap.val(); if(!w) return;
-    all.push(w);
-    prependWishToWall(w);
+    all.push(snap.key);
+    prependWishToWall(w, snap.key);
     document.getElementById('wishWallCount').textContent=all.length;
     // 只飄「進場後才寫」的祝福(時間晚於進場);舊的只進祝福牆不重飄
     const t = typeof w.at==='number' ? w.at : 0;
     if(t >= joinAt-500) flyDanmaku(w);
   });
+  // 被主持人刪除的祝福 → 從祝福牆即時移除
+  ref.on('child_removed', snap=>{
+    const el=document.querySelector('.wmsg[data-wid="'+snap.key+'"]'); if(el) el.remove();
+    const i=all.indexOf(snap.key); if(i>=0) all.splice(i,1);
+    const cnt=document.getElementById('wishWallCount'); if(cnt) cnt.textContent=all.length;
+  });
 }
 
-function prependWishToWall(w){
+// 主持人:祝福管理(列出全部、可刪除)
+function openWishAdmin(){
+  const box=document.getElementById('wishAdminList');
+  box.innerHTML='<p class="muted">讀取中…</p>';
+  show('s-wish-admin');
+  db.ref('rooms/'+ROOM+'/wishes').once('value').then(s=>{
+    const data=s.val()||{}; const keys=Object.keys(data);
+    box.innerHTML='';
+    if(!keys.length){ box.innerHTML='<p class="muted">目前沒有任何祝福</p>'; return; }
+    keys.reverse().forEach(k=>{
+      const w=data[k];
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff';
+      row.innerHTML='<div style="flex:1;min-width:0">'+
+        '<div style="font-weight:800;font-size:13px;color:var(--rose-deep)">'+esc(w.name||'賓客')+'</div>'+
+        '<div style="font-size:14px;word-break:break-word">'+esc(w.text||'')+'</div></div>'+
+        '<button class="btn sm" style="background:#c0392b;color:#fff;flex:0 0 auto">刪除</button>';
+      row.querySelector('button').onclick=()=>deleteWish(k, row);
+      box.appendChild(row);
+    });
+  });
+}
+function deleteWish(key, row){
+  if(!confirm('確定刪除這則祝福?刪除後無法復原。')) return;
+  db.ref('rooms/'+ROOM+'/wishes/'+key).remove().then(()=>{
+    if(row) row.remove();
+    toast('已刪除 🗑️');
+  });
+}
+
+function prependWishToWall(w, key){
   const wall=document.getElementById('wishWall'); if(!wall) return;
   const div=document.createElement('div'); div.className='wmsg';
+  if(key) div.dataset.wid=key;
   div.innerHTML='<div class="wtop">'+avatarHTML2(w,'wav')+'<span class="wname">'+esc(w.name||'賓客')+'</span></div>'+
                 '<div class="wtext">'+esc(w.text||'')+'</div>';
   wall.insertBefore(div, wall.firstChild);  // 最新的放最上面
@@ -2442,6 +2600,192 @@ function floatScore(el,txt,color){
   host.appendChild(f); setTimeout(()=>f.remove(),700);
 }
 
+/* ============================================================
+   ⚔️ PK 對戰(主持人選兩人,各自手機玩,大螢幕重現)
+   目前支援:抓貓貓
+   ============================================================ */
+const PK_GAMES=[{key:'catch',name:'🐱 抓貓貓'}];  // 之後可擴充
+let pkSel={game:null, a:null, b:null};   // 主持人設定暫存
+
+function openPkSetup(){
+  pkSel={game:'catch', a:null, b:null};
+  // 遊戲選擇
+  const gp=document.getElementById('pkGamePick'); gp.innerHTML='';
+  PK_GAMES.forEach((g,i)=>{
+    const d=document.createElement('div'); d.className='pkgame'+(i===0?' on':''); d.textContent=g.name;
+    d.onclick=()=>{ document.querySelectorAll('#pkGamePick .pkgame').forEach(x=>x.classList.remove('on')); d.classList.add('on'); pkSel.game=g.key; };
+    gp.appendChild(d);
+  });
+  // 玩家清單(讀目前在線賓客)
+  const pp=document.getElementById('pkPlayerPick'); pp.innerHTML='<p class="muted" style="font-size:13px">讀取賓客中…</p>';
+  db.ref('rooms/'+ROOM+'/players').once('value').then(s=>{
+    const players=s.val()||{}; pp.innerHTML='';
+    const ids=Object.keys(players);
+    if(!ids.length){ pp.innerHTML='<p class="muted" style="font-size:13px">目前沒有賓客在線</p>'; return; }
+    ids.forEach(pid=>{
+      const p=players[pid];
+      const d=document.createElement('div'); d.className='pkpp'; d.dataset.pid=pid;
+      d.innerHTML=avatarHTML2(p,'dmav')+' '+esc(p.name||'賓客');
+      d.onclick=()=>pkPickPlayer(pid, p.name, d);
+      pp.appendChild(d);
+    });
+  });
+  document.getElementById('pkSlotA').textContent='紅方:未選';
+  document.getElementById('pkSlotB').textContent='藍方:未選';
+  document.getElementById('pkStartBtn').disabled=true;
+  show('s-pk-setup');
+}
+function pkPickPlayer(pid, name, el){
+  // 已是某方 → 取消
+  if(pkSel.a===pid){ pkSel.a=null; el.classList.remove('a'); }
+  else if(pkSel.b===pid){ pkSel.b=null; el.classList.remove('b'); }
+  else if(!pkSel.a){ pkSel.a=pid; pkSel.aName=name; el.classList.add('a'); }
+  else if(!pkSel.b){ pkSel.b=pid; pkSel.bName=name; el.classList.add('b'); }
+  else { toast('已選兩位,點選手可取消'); return; }
+  document.getElementById('pkSlotA').textContent='紅方:'+(pkSel.a?esc(pkSel.aName):'未選');
+  document.getElementById('pkSlotB').textContent='藍方:'+(pkSel.b?esc(pkSel.bName):'未選');
+  document.getElementById('pkStartBtn').disabled=!(pkSel.a&&pkSel.b&&pkSel.game);
+}
+function hostStartPk(){
+  if(!(pkSel.a&&pkSel.b&&pkSel.game)) return;
+  const startAt=Date.now()+3000;  // 3 秒後開始(給選手準備)
+  const pk={
+    game:pkSel.game, status:'playing', startAt:startAt, dur:30,
+    a:{pid:pkSel.a, name:pkSel.aName, score:0}, b:{pid:pkSel.b, name:pkSel.bName, score:0}
+  };
+  db.ref('rooms/'+ROOM+'/pk').set(pk).then(()=>{
+    // 清掉舊的貓事件
+    db.ref('rooms/'+ROOM+'/pk/aCats').remove();
+    db.ref('rooms/'+ROOM+'/pk/bCats').remove();
+    openPkScreen();
+  });
+}
+
+// 主持人:PK 大螢幕(投影)
+function openPkScreen(){
+  const gname=(PK_GAMES.find(g=>g.key===pkSel.game)||{}).name||'PK';
+  document.getElementById('pkTitleGame').textContent=gname+' 對戰';
+  document.getElementById('pkWinner').textContent='';
+  show('s-pk-screen');
+  watchPkScreen();
+}
+let pkScreenReady=false;
+function watchPkScreen(){
+  const root=db.ref('rooms/'+ROOM+'/pk');
+  root.on('value', s=>{
+    const pk=s.val(); if(!pk) return;
+    document.getElementById('pkScreenNameA').textContent=pk.a.name;
+    document.getElementById('pkScreenNameB').textContent=pk.b.name;
+    document.getElementById('pkScreenScoreA').textContent=Math.max(0,pk.a.score||0);
+    document.getElementById('pkScreenScoreB').textContent=Math.max(0,pk.b.score||0);
+    if(pk.status==='ended'){
+      const sa=pk.a.score||0, sb=pk.b.score||0;
+      const w = sa===sb ? '平手!🤝' : (sa>sb ? pk.a.name+' 獲勝!🎉' : pk.b.name+' 獲勝!🎉');
+      document.getElementById('pkWinner').textContent=w;
+      document.getElementById('pkScreenTimer').textContent='對戰結束';
+    }
+  });
+  // 重現雙方抓貓畫面:讀貓事件,在對應 mini 區畫出來
+  root.child('aCats').on('child_added', sn=>pkRenderCat('pkMiniA', sn.val()));
+  root.child('bCats').on('child_added', sn=>pkRenderCat('pkMiniB', sn.val()));
+  // 大螢幕倒數
+  if(pkScreenReady) return; pkScreenReady=true;
+}
+function pkRenderCat(miniId, c){
+  if(!c) return;
+  const mini=document.getElementById(miniId); if(!mini) return;
+  const el=document.createElement('div'); el.className='pkcat';
+  el.innerHTML='<img src="'+c.img+'">';
+  el.style.left=(c.xp*(mini.clientWidth-42))+'px';
+  el.style.top=(c.yp*(mini.clientHeight-42))+'px';
+  if(c.trap) el.querySelector('img').style.border='2px solid #c0392b';
+  mini.appendChild(el);
+  // 依事件決定顯示時間;被抓(hit)就快速消失,否則 1.3 秒
+  setTimeout(()=>el.remove(), c.life||1300);
+}
+
+// 選手端:監聽自己有沒有被選中 PK
+let pkWatching=false;
+function watchPkAsPlayer(){
+  if(pkWatching) return; pkWatching=true;
+  db.ref('rooms/'+ROOM+'/pk').on('value', s=>{
+    const pk=s.val();
+    if(!pk || pk.status!=='playing') return;
+    const me = pk.a.pid===state.pid ? 'a' : (pk.b.pid===state.pid ? 'b' : null);
+    if(!me) return;                       // 我沒被選中
+    if(state._pkPlaying) return;          // 已在玩
+    state._pkPlaying=true; state._pkSide=me;
+    startPkCatch(pk, me);
+  });
+}
+
+// 選手端:PK 版抓貓(分數與貓事件即時上傳)
+function startPkCatch(pk, side){
+  game.score=0; game.t=pk.dur||30;
+  document.getElementById('pkPlayScore').textContent='0 分';
+  document.getElementById('pkPlaySide').textContent = side==='a'?'你是紅方':'你是藍方';
+  document.getElementById('pkPlaySide').style.color = side==='a'?'#b5566b':'#4a73b0';
+  document.getElementById('pkPlayHint').textContent='抓貓 +50,點到新郎 -30!和對手比分數 ⚔️';
+  const area=document.getElementById('pkCatchArea'); area.innerHTML='';
+  show('s-pk-play');
+  const wait=Math.max(0, (pk.startAt||Date.now())-Date.now());
+  document.getElementById('pkPlayTimer').textContent='準備…';
+  setTimeout(()=>{
+    stopGameTimers();
+    game.timer=setInterval(()=>{ game.t--; document.getElementById('pkPlayTimer').textContent=game.t+'s';
+      if(game.t<=0){ stopGameTimers(); endPkAsPlayer(side); }
+    },1000);
+    game.spawn=setInterval(()=>pkSpawnCat(side),720);
+    pkSpawnCat(side);
+  }, wait);
+}
+function pkSpawnCat(side){
+  const area=document.getElementById('pkCatchArea'); if(!area) return;
+  const w=area.clientWidth, h=area.clientHeight; if(!w) return;
+  const CATS=(typeof NEW_CAT_IMGS!=='undefined'&&NEW_CAT_IMGS.length)?NEW_CAT_IMGS:CAT_IMGS;
+  const TRAPS=(typeof CARD_IMGS!=='undefined'&&CARD_IMGS.length)?CARD_IMGS:[];
+  const isTrap = TRAPS.length>0 && Math.random()<0.25;
+  const img = isTrap ? TRAPS[Math.floor(Math.random()*TRAPS.length)] : CATS[Math.floor(Math.random()*CATS.length)];
+  const xp=Math.random(), yp=Math.random();  // 相對位置 0~1,讓大螢幕也能重現
+  const cat=document.createElement('div'); cat.className='catchcat'+(isTrap?' trap':'');
+  cat.innerHTML='<img src="'+img+'">';
+  cat.style.left=(xp*(w-66))+'px'; cat.style.top=(yp*(h-66))+'px';
+  // 上傳這隻貓給大螢幕重現
+  db.ref('rooms/'+ROOM+'/pk/'+side+'Cats').push({img:img, xp:xp, yp:yp, trap:isTrap, life:1300});
+  const hit=()=>{
+    if(cat._done) return; cat._done=true;
+    const f=document.createElement('div'); f.className='scorefloat';
+    if(isTrap){ game.score-=30; f.textContent='-30'; f.style.color='#c0392b'; cat.classList.add('trapped'); }
+    else { game.score+=50; f.textContent='+50'; cat.classList.add('gone'); }
+    document.getElementById('pkPlayScore').textContent=Math.max(0,game.score)+' 分';
+    db.ref('rooms/'+ROOM+'/pk/'+side+'/score').set(Math.max(0,game.score));  // 即時上傳分數
+    f.style.left=cat.style.left; f.style.top=cat.style.top; area.appendChild(f); setTimeout(()=>f.remove(),700);
+    setTimeout(()=>cat.remove(),300);
+  };
+  cat.addEventListener('click',hit); cat.addEventListener('touchstart',e=>{e.preventDefault();hit();},{passive:false});
+  area.appendChild(cat);
+  setTimeout(()=>{ if(!cat._done) cat.remove(); },1300);
+}
+function endPkAsPlayer(side){
+  // 標記自己玩完;若兩人都完成,主持端的 value 監聽會判定;這裡也回報最終分數
+  db.ref('rooms/'+ROOM+'/pk/'+side+'/done').set(true);
+  db.ref('rooms/'+ROOM+'/pk/'+side+'/score').set(Math.max(0,game.score));
+  // 檢查雙方是否都完成 → 設 ended
+  db.ref('rooms/'+ROOM+'/pk').once('value').then(s=>{
+    const pk=s.val(); if(!pk) return;
+    if(pk.a&&pk.b&&pk.a.done&&pk.b.done){ db.ref('rooms/'+ROOM+'/pk/status').set('ended'); }
+  });
+  state._pkPlaying=false;
+  toast('你完成了!回大廳看結果 🎉');
+  show('s-hub');
+}
+// 主持人:結束 PK
+function endPk(){
+  db.ref('rooms/'+ROOM+'/pk/status').set('ended');
+  pkScreenReady=false;
+  openHostLobby();
+}
+
 /* ---------- 電錶判讀王(傳統機械指針電錶) ----------
    N 個轉盤,最左為最高位。相鄰轉盤轉向相反(個位順時針)。
    用「數值→角度」生成,答案必為原值。 */
@@ -2828,9 +3172,9 @@ function fallbackToJoin(roomFromUrl){
   const host=params.get('host');
 
   if(host===HOST_KEY){
-    // 主持人:直接進控制台管理這場婚禮
+    // 主持人:先過密碼驗證再進控制台
     state.role='host'; state.room=ROOM;
-    enterHostConsole();
+    showHostAuth();
     return;
   }
 
