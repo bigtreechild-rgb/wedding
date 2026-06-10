@@ -577,6 +577,15 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
   </section>
 
   <!-- ================= 主持人:大廳(QR + 賓客) ================= -->
+  <!-- 純投影:待機畫面 -->
+  <section id="s-screen-idle" class="screen">
+    <div class="bigstate">
+      <div class="em">📺</div>
+      <h2 id="screenIdleTitle">婚禮互動大廳</h2>
+      <p class="muted">大螢幕待機中…<br>主持人切換後,這裡會自動顯示對應畫面</p>
+    </div>
+  </section>
+
   <!-- 主持人:密碼驗證 -->
   <section id="s-host-auth" class="screen">
     <div class="bigstate">
@@ -625,13 +634,18 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
 
     <div class="card">
       <span class="tag">📺 投影控制台</span>
-      <h2>切換大螢幕畫面</h2>
-      <p class="muted">活動進行中,隨時切換大螢幕要顯示的內容。賓客手機端不受影響,可自由瀏覽各功能。</p>
+      <h2>遙控大螢幕畫面</h2>
+      <p class="muted">投影那台請開「投影專用網址」(見下方),這裡按一下,大螢幕就會自動切換,你不用走過去碰它。</p>
       <div class="ctrlgrid">
         <button class="btn gold" onclick="hostOpenWall()">💌 祝福牆</button>
         <button class="btn gold" onclick="hostOpenPhotos()">📸 照片牆</button>
         <button class="btn gold" onclick="hostOpenLeaderboard()">🏆 排行榜</button>
+        <button class="btn gold" onclick="hostScreenQuiz()">🎮 快問快答</button>
       </div>
+      <p class="muted" style="font-size:12px;margin-top:12px;word-break:break-all">
+        📺 投影專用網址(用接投影的那台開):<br>
+        <b id="screenUrl">在你的網址後面加上 ?screen=1</b>
+      </p>
     </div>
 
     <button class="btn primary" id="startBtn" onclick="startQuiz()" disabled>🎮 開始快問快答(第一題)</button>
@@ -1153,7 +1167,7 @@ const TS = ()=> DEMO ? Date.now() : firebase.database.ServerValue.TIMESTAMP;
 /* ---------- 這場婚禮的固定設定 ---------- */
 const ROOM='WEDDING';            // 固定房間,不用每次建立
 const HOST_KEY='yutong1003';     // 主持人專屬網址參數 ?host=yutong1003
-const HOST_PW='1101';            // 進主持台需再輸入的密碼(可自行修改)
+const HOST_PW='1003';            // 進主持台需再輸入的密碼(可自行修改)
 
 /* ---------- 全域狀態 ---------- */
 const state = {
@@ -1508,6 +1522,11 @@ let hostLobbyReady=false;
 function openHostLobby(){
   buildLobby(); show('s-host-lobby');
   refreshOpenButtons();
+  // 顯示投影專用網址(把 ?host=... 換成 ?screen=1)
+  try{
+    const u=new URL(location.href); u.search='?screen=1';
+    const el=document.getElementById('screenUrl'); if(el) el.textContent=u.toString();
+  }catch(e){}
   if(!hostLobbyReady){
     hostLobbyReady=true;
     const pref=db.ref('rooms/'+ROOM+'/players');
@@ -2322,7 +2341,12 @@ function renderWishWall(wishes){
   });
   if(!arr.length) grid.innerHTML='<p class="muted" style="text-align:center;width:100%">還沒有祝福,快邀請賓客留言吧 💌</p>';
 }
-function hostOpenWall(){ show('s-host-wall'); }
+function hostOpenWall(){ setScreen('wall'); show('s-host-wall'); }
+// 主持人:把大螢幕切到快問快答(投影裝置會自動跟著題目跑)
+function hostScreenQuiz(){
+  setScreen('quiz');
+  toast('大螢幕已切到快問快答 🎮');
+}
 
 function renderPhotoWall(photos){
   const grid=document.getElementById('photoGrid'); if(!grid) return;
@@ -2333,7 +2357,7 @@ function renderPhotoWall(photos){
   });
   if(!arr.length) grid.innerHTML='<p class="muted" style="text-align:center;width:100%">還沒有照片,邀請賓客上傳現場美照 📸</p>';
 }
-function hostOpenPhotos(){ show('s-host-photos'); }
+function hostOpenPhotos(){ setScreen('photos'); show('s-host-photos'); }
 
 /* ---- 點歌播放器 ---- */
 function hostOpenSongs(){ renderQueue(); show('s-host-songs'); }
@@ -2468,6 +2492,7 @@ function renderMiniLeaderboard(gameKey, name){
 
 // 主持端投影:快問快答正式排名(可投大螢幕)
 function hostOpenLeaderboard(){
+  setScreen('leaderboard');
   db.ref('rooms/'+state.room+'/players').once('value').then(s=>{
     renderLB('lbList', s.val()||{}, 10, false);
     document.getElementById('lbSub').textContent='快 問 快 答 排 名';
@@ -2666,6 +2691,7 @@ function openPkScreen(){
   const gname=(PK_GAMES.find(g=>g.key===pkSel.game)||{}).name||'PK';
   document.getElementById('pkTitleGame').textContent=gname+' 對戰';
   document.getElementById('pkWinner').textContent='';
+  setScreen('pk');
   show('s-pk-screen');
   watchPkScreen();
 }
@@ -3166,10 +3192,91 @@ function fallbackToJoin(roomFromUrl){
   }
 }
 
+/* ============================================================
+   📺 大螢幕遙控:主持人手機遙控、投影裝置只顯示
+   主持人按投影按鈕 → 寫 rooms/WEDDING/screen → 投影裝置自動切換
+   ============================================================ */
+function setScreen(view){
+  // 只有主持人會呼叫;寫入大螢幕該顯示什麼
+  if(state.role!=='host' && state.role!=='screen') return;
+  db.ref('rooms/'+ROOM+'/screen').set({view:view, at:Date.now()});
+}
+// 純投影裝置:只看 screen 指令與快問快答狀態,自動顯示對應畫面,無控制
+function enterScreenMode(){
+  state.role='screen'; state.room=ROOM;
+  loadRoomConfig().then(()=>{
+    // 監聽主持人指定要顯示的畫面
+    db.ref('rooms/'+ROOM+'/screen').on('value', s=>{
+      const v=(s.val()&&s.val().view)||'idle';
+      renderScreenView(v);
+    });
+    // 快問快答進行中,投影自動跟著題目/公布/排行榜
+    watchQuizForScreen();
+    // PK 即時重現
+    watchPkScreen();
+  });
+}
+function renderScreenView(v){
+  if(v==='wall'){ show('s-host-wall'); }
+  else if(v==='photos'){ show('s-host-photos'); }
+  else if(v==='leaderboard'){
+    db.ref('rooms/'+ROOM+'/players').once('value').then(s=>{
+      renderLB('lbList', s.val()||{}, 10, false);
+      document.getElementById('lbSub').textContent='快 問 快 答 排 名';
+      document.getElementById('lbNextBtn').style.display='none';
+      const tabs=document.getElementById('lbTabs'); if(tabs) tabs.style.display='none';
+      const gp=document.getElementById('lbGamePicker'); if(gp) gp.style.display='none';
+      const back=document.getElementById('lbHubBtn'); if(back) back.style.display='none';
+      show('s-lb');
+    });
+  }
+  else if(v==='pk'){ show('s-pk-screen'); }
+  else { show('s-screen-idle'); }
+}
+// 投影裝置:快問快答時自動顯示題目/公布(從 Firebase 已公開的 question 節點)
+let screenQuizReady=false;
+function watchQuizForScreen(){
+  if(screenQuizReady) return; screenQuizReady=true;
+  const root=db.ref('rooms/'+ROOM);
+  root.child('state').on('value', s=>{
+    const st=s.val(); if(!st) return;
+    db.ref('rooms/'+ROOM+'/screen').once('value').then(scr=>{
+      const v=(scr.val()&&scr.val().view)||'';
+      if(v!=='quiz') return;            // 只有切到 quiz 區才接管
+      if(st.phase==='question'){ screenRenderQuestion(); }
+      else if(st.phase==='reveal'){ screenRenderReveal(); }
+      else if(st.phase==='leaderboard'){ renderScreenView('leaderboard'); }
+    });
+  });
+}
+function screenRenderQuestion(){
+  db.ref('rooms/'+ROOM+'/question').once('value').then(s=>{
+    const q=s.val(); if(!q) return;
+    document.getElementById('hqProgress').textContent='第 '+((q.idx||0)+1)+' 題';
+    document.getElementById('hqText').textContent=q.text||'';
+    const ob=document.getElementById('hqOpts'); ob.innerHTML='';
+    (q.opts||[]).forEach((o,i)=>{ const b=document.createElement('div'); b.className='opt'; b.dataset.i=i;
+      b.innerHTML='<span class="k">'+['A','B','C','D'][i]+'</span>'+esc(o); ob.appendChild(b); });
+    const tot=document.getElementById('hqTotal'); if(tot) tot.textContent='?';
+    show('s-host-q');
+  });
+}
+function screenRenderReveal(){
+  // 公布答案時,投影顯示排行榜(最簡單可靠)
+  renderScreenView('leaderboard');
+}
+
 (function init(){
   if(!fbReady){ show('s-config'); return; }
   const params=new URLSearchParams(location.search);
   const host=params.get('host');
+  const screen=params.get('screen');
+
+  // 純投影模式:接投影機那台用,只顯示、不控制
+  if(screen==='1'){
+    enterScreenMode();
+    return;
+  }
 
   if(host===HOST_KEY){
     // 主持人:先過密碼驗證再進控制台
