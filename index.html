@@ -704,6 +704,12 @@ canvas.confetti{position:fixed;inset:0;pointer-events:none;z-index:40}
     <div class="card" style="padding:10px">
       <p class="muted" style="margin:2px 0 8px;text-align:center;font-size:13px" id="pkPlayHint">PK 進行中!</p>
       <div class="catcharea" id="pkCatchArea"></div>
+      <div class="matchgrid" id="pkMatchGrid" style="display:none"></div>
+      <div class="tossarea" id="pkTossArea" style="display:none">
+        <img class="tosstray" id="pkTossTray" src="" alt="收納桶">
+        <div class="gauze" id="pkTossBall"></div>
+        <div class="tossaim" id="pkTossAim"></div>
+      </div>
     </div>
   </section>
 
@@ -2629,7 +2635,11 @@ function floatScore(el,txt,color){
    ⚔️ PK 對戰(主持人選兩人,各自手機玩,大螢幕重現)
    目前支援:抓貓貓
    ============================================================ */
-const PK_GAMES=[{key:'catch',name:'🐱 抓貓貓'}];  // 之後可擴充
+const PK_GAMES=[
+  {key:'catch',name:'🐱 抓貓貓'},
+  {key:'match',name:'🃏 配對翻牌'},
+  {key:'toss',name:'🩹 丟紗布'}
+];
 let pkSel={game:null, a:null, b:null};   // 主持人設定暫存
 
 function openPkSetup(){
@@ -2691,9 +2701,36 @@ function openPkScreen(){
   const gname=(PK_GAMES.find(g=>g.key===pkSel.game)||{}).name||'PK';
   document.getElementById('pkTitleGame').textContent=gname+' 對戰';
   document.getElementById('pkWinner').textContent='';
+  document.getElementById('pkScreenTimer').textContent='準備中…';
+  const mA=document.getElementById('pkMiniA'), mB=document.getElementById('pkMiniB');
+  if(mA) mA.innerHTML=''; if(mB) mB.innerHTML='';
   setScreen('pk');
   show('s-pk-screen');
   watchPkScreen();
+  // 大螢幕倒數(抓貓/丟紗布為限時;配對為先完成者勝,倒數僅作保險)
+  startPkScreenCountdown();
+}
+let pkScreenCountTimer=null;
+function startPkScreenCountdown(){
+  if(pkScreenCountTimer){ clearInterval(pkScreenCountTimer); pkScreenCountTimer=null; }
+  db.ref('rooms/'+ROOM+'/pk').once('value').then(s=>{
+    const pk=s.val(); if(!pk) return;
+    const dur=pk.dur||30;
+    const endAt=(pk.startAt||Date.now())+dur*1000+1500;  // 留 1.5 秒緩衝
+    pkScreenCountTimer=setInterval(()=>{
+      const left=Math.max(0, Math.round((endAt-Date.now())/1000));
+      const tEl=document.getElementById('pkScreenTimer');
+      db.ref('rooms/'+ROOM+'/pk/status').once('value').then(st=>{
+        if(st.val()==='ended'){ clearInterval(pkScreenCountTimer); pkScreenCountTimer=null; return; }
+        if(tEl) tEl.textContent='剩 '+left+' 秒';
+        if(left<=0){
+          // 時間到還沒 ended → 由大螢幕強制結束並判定
+          clearInterval(pkScreenCountTimer); pkScreenCountTimer=null;
+          db.ref('rooms/'+ROOM+'/pk/status').set('ended');
+        }
+      });
+    },1000);
+  });
 }
 let pkScreenReady=false;
 function watchPkScreen(){
@@ -2704,6 +2741,14 @@ function watchPkScreen(){
     document.getElementById('pkScreenNameB').textContent=pk.b.name;
     document.getElementById('pkScreenScoreA').textContent=Math.max(0,pk.a.score||0);
     document.getElementById('pkScreenScoreB').textContent=Math.max(0,pk.b.score||0);
+    // 依遊戲類型,在 mini 區顯示進度(配對:幾對;丟紗布:進幾顆)
+    if(pk.game==='match'){
+      pkRenderMatchProgress('pkMiniA', pk.a);
+      pkRenderMatchProgress('pkMiniB', pk.b);
+    }else if(pk.game==='toss'){
+      pkRenderTossProgress('pkMiniA', pk.a);
+      pkRenderTossProgress('pkMiniB', pk.b);
+    }
     if(pk.status==='ended'){
       const sa=pk.a.score||0, sb=pk.b.score||0;
       const w = sa===sb ? '平手!🤝' : (sa>sb ? pk.a.name+' 獲勝!🎉' : pk.b.name+' 獲勝!🎉');
@@ -2711,11 +2756,31 @@ function watchPkScreen(){
       document.getElementById('pkScreenTimer').textContent='對戰結束';
     }
   });
-  // 重現雙方抓貓畫面:讀貓事件,在對應 mini 區畫出來
+  // 抓貓:重現雙方抓貓畫面
   root.child('aCats').on('child_added', sn=>pkRenderCat('pkMiniA', sn.val()));
   root.child('bCats').on('child_added', sn=>pkRenderCat('pkMiniB', sn.val()));
-  // 大螢幕倒數
   if(pkScreenReady) return; pkScreenReady=true;
+}
+// 配對翻牌:大螢幕顯示進度(已配對對數 / 總對數 + 進度條)
+function pkRenderMatchProgress(miniId, p){
+  const mini=document.getElementById(miniId); if(!mini) return;
+  const matched=p.matched||0, pairs=p.pairs||7;
+  const pct=Math.round(matched/pairs*100);
+  mini.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px">'+
+    '<div style="font-size:40px;font-weight:900">'+matched+' / '+pairs+'</div>'+
+    '<div style="font-size:14px;opacity:.8">配對完成</div>'+
+    '<div style="width:80%;height:14px;background:rgba(255,255,255,.2);border-radius:8px;overflow:hidden">'+
+    '<div style="width:'+pct+'%;height:100%;background:var(--gold);transition:width .3s"></div></div></div>';
+}
+// 丟紗布:大螢幕顯示進幾顆 / 剩幾顆
+function pkRenderTossProgress(miniId, p){
+  const mini=document.getElementById(miniId); if(!mini) return;
+  const inN=p.in||0, left=(p.left!=null?p.left:10);
+  let dots=''; for(let i=0;i<10;i++){ dots+='<span style="font-size:18px">'+(i<inN?'🩹':'⚪')+'</span>'; }
+  mini.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px">'+
+    '<div style="font-size:40px;font-weight:900">進 '+inN+'</div>'+
+    '<div style="font-size:13px;opacity:.8">剩 '+left+' 顆</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:3px;justify-content:center;max-width:90%">'+dots+'</div></div>';
 }
 function pkRenderCat(miniId, c){
   if(!c) return;
@@ -2740,9 +2805,19 @@ function watchPkAsPlayer(){
     const me = pk.a.pid===state.pid ? 'a' : (pk.b.pid===state.pid ? 'b' : null);
     if(!me) return;                       // 我沒被選中
     if(state._pkPlaying) return;          // 已在玩
-    state._pkPlaying=true; state._pkSide=me;
-    startPkCatch(pk, me);
+    if(state._pkDoneRound===pk.startAt) return;  // 這一局我已經玩完,別重啟
+    state._pkPlaying=true; state._pkSide=me; state._pkRound=pk.startAt;
+    // 依遊戲類型啟動對應 PK 版
+    if(pk.game==='match') startPkMatch(pk, me);
+    else if(pk.game==='toss') startPkToss(pk, me);
+    else startPkCatch(pk, me);
   });
+}
+// 切換 PK 遊戲畫面容器(只顯示對應的)
+function pkShowArea(which){
+  document.getElementById('pkCatchArea').style.display = which==='catch'?'':'none';
+  document.getElementById('pkMatchGrid').style.display = which==='match'?'':'none';
+  document.getElementById('pkTossArea').style.display = which==='toss'?'':'none';
 }
 
 // 選手端:PK 版抓貓(分數與貓事件即時上傳)
@@ -2752,20 +2827,26 @@ function startPkCatch(pk, side){
   document.getElementById('pkPlaySide').textContent = side==='a'?'你是紅方':'你是藍方';
   document.getElementById('pkPlaySide').style.color = side==='a'?'#b5566b':'#4a73b0';
   document.getElementById('pkPlayHint').textContent='抓貓 +50,點到新郎 -30!和對手比分數 ⚔️';
+  pkShowArea('catch');
   const area=document.getElementById('pkCatchArea'); area.innerHTML='';
   show('s-pk-play');
   const wait=Math.max(0, (pk.startAt||Date.now())-Date.now());
   document.getElementById('pkPlayTimer').textContent='準備…';
+  game.pkOver=false;
   setTimeout(()=>{
     stopGameTimers();
     game.timer=setInterval(()=>{ game.t--; document.getElementById('pkPlayTimer').textContent=game.t+'s';
-      if(game.t<=0){ stopGameTimers(); endPkAsPlayer(side); }
+      if(game.t<=0){ game.pkOver=true; stopGameTimers();
+        const area=document.getElementById('pkCatchArea'); if(area) area.innerHTML='';  // 清掉殘留的貓
+        endPkAsPlayer(side);
+      }
     },1000);
     game.spawn=setInterval(()=>pkSpawnCat(side),720);
     pkSpawnCat(side);
   }, wait);
 }
 function pkSpawnCat(side){
+  if(game.pkOver) return;   // 遊戲已結束,不再生貓
   const area=document.getElementById('pkCatchArea'); if(!area) return;
   const w=area.clientWidth, h=area.clientHeight; if(!w) return;
   const CATS=(typeof NEW_CAT_IMGS!=='undefined'&&NEW_CAT_IMGS.length)?NEW_CAT_IMGS:CAT_IMGS;
@@ -2779,7 +2860,7 @@ function pkSpawnCat(side){
   // 上傳這隻貓給大螢幕重現
   db.ref('rooms/'+ROOM+'/pk/'+side+'Cats').push({img:img, xp:xp, yp:yp, trap:isTrap, life:1300});
   const hit=()=>{
-    if(cat._done) return; cat._done=true;
+    if(cat._done || game.pkOver) return; cat._done=true;   // 結束後點貓不計分
     const f=document.createElement('div'); f.className='scorefloat';
     if(isTrap){ game.score-=30; f.textContent='-30'; f.style.color='#c0392b'; cat.classList.add('trapped'); }
     else { game.score+=50; f.textContent='+50'; cat.classList.add('gone'); }
@@ -2793,6 +2874,7 @@ function pkSpawnCat(side){
   setTimeout(()=>{ if(!cat._done) cat.remove(); },1300);
 }
 function endPkAsPlayer(side){
+  stopGameTimers();
   // 標記自己玩完;若兩人都完成,主持端的 value 監聽會判定;這裡也回報最終分數
   db.ref('rooms/'+ROOM+'/pk/'+side+'/done').set(true);
   db.ref('rooms/'+ROOM+'/pk/'+side+'/score').set(Math.max(0,game.score));
@@ -2802,14 +2884,159 @@ function endPkAsPlayer(side){
     if(pk.a&&pk.b&&pk.a.done&&pk.b.done){ db.ref('rooms/'+ROOM+'/pk/status').set('ended'); }
   });
   state._pkPlaying=false;
+  state._pkDoneRound=state._pkRound;   // 記住這局已完成,資料更新不會重啟
+  game.pkStart=null;
   toast('你完成了!回大廳看結果 🎉');
   show('s-hub');
 }
 // 主持人:結束 PK
 function endPk(){
   db.ref('rooms/'+ROOM+'/pk/status').set('ended');
+  if(pkScreenCountTimer){ clearInterval(pkScreenCountTimer); pkScreenCountTimer=null; }
   pkScreenReady=false;
   openHostLobby();
+}
+
+/* ---------- PK 版:配對翻牌(比誰先配對完) ---------- */
+function startPkMatch(pk, side){
+  game.score=0; game.t=0;
+  document.getElementById('pkPlayScore').textContent='0 對';
+  document.getElementById('pkPlaySide').textContent = side==='a'?'你是紅方':'你是藍方';
+  document.getElementById('pkPlaySide').style.color = side==='a'?'#b5566b':'#4a73b0';
+  document.getElementById('pkPlayHint').textContent='翻牌配對!比對手先全部配對完就贏 🃏';
+  pkShowArea('match');
+  show('s-pk-play');
+  const N=CARD_IMGS.length;
+  let deck=[]; for(let k=0;k<N;k++){ deck.push(k); deck.push(k); }
+  for(let i=deck.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [deck[i],deck[j]]=[deck[j],deck[i]]; }
+  game.deck=deck; game.flipped=[]; game.matched=0; game.moves=0; game.lock=false; game.pairs=N;
+  const grid=document.getElementById('pkMatchGrid'); grid.innerHTML='';
+  deck.forEach((idx,i)=>{
+    const c=document.createElement('div'); c.className='mcard'; c.dataset.i=i;
+    c.innerHTML='<div class="face back">❤</div><div class="face front" style="background-image:url('+CARD_IMGS[idx]+')"></div>';
+    c.onclick=()=>pkFlipCard(i,c,idx,side); grid.appendChild(c);
+  });
+  const wait=Math.max(0,(pk.startAt||Date.now())-Date.now());
+  document.getElementById('pkPlayTimer').textContent='準備…';
+  stopGameTimers();
+  setTimeout(()=>{
+    game.pkStart=Date.now();
+    game.timer=setInterval(()=>{ game.t++; document.getElementById('pkPlayTimer').textContent=game.t+'s'; },1000);
+    // 上傳總對數讓大螢幕畫進度
+    db.ref('rooms/'+ROOM+'/pk/'+side+'/pairs').set(N);
+    db.ref('rooms/'+ROOM+'/pk/'+side+'/matched').set(0);
+  }, wait);
+}
+function pkFlipCard(i,el,idx,side){
+  if(game.lock||el.classList.contains('flipped')||el.classList.contains('matched')) return;
+  if(!game.pkStart) return;  // 還沒開始(準備倒數中)
+  el.classList.add('flipped'); game.flipped.push({i,el,idx});
+  if(game.flipped.length===2){
+    game.moves++;
+    const [a,b]=game.flipped;
+    if(a.idx===b.idx){
+      a.el.classList.add('matched'); b.el.classList.add('matched'); game.flipped=[]; game.matched++;
+      document.getElementById('pkPlayScore').textContent=game.matched+' 對';
+      db.ref('rooms/'+ROOM+'/pk/'+side+'/matched').set(game.matched);  // 即時上傳進度
+      // 分數 = 配對數 ×100(大螢幕比分用),完成後再加速度獎勵
+      db.ref('rooms/'+ROOM+'/pk/'+side+'/score').set(game.matched*100);
+      if(game.matched===game.pairs){
+        const sec=(Date.now()-game.pkStart)/1000;
+        const speed=Math.max(0,Math.round((90-sec)*10));
+        const finalScore=game.pairs*100+speed;
+        db.ref('rooms/'+ROOM+'/pk/'+side+'/score').set(finalScore);
+        endPkAsPlayer(side);
+      }
+    }else{
+      game.lock=true;
+      setTimeout(()=>{ a.el.classList.remove('flipped'); b.el.classList.remove('flipped'); game.flipped=[]; game.lock=false; },800);
+    }
+  }
+}
+
+/* ---------- PK 版:丟紗布(比誰丟進越多) ---------- */
+function startPkToss(pk, side){
+  game.score=0; game.tossLeft=10; game.tossIn=0; game.tossStart=Date.now(); game.tossBusy=false;
+  document.getElementById('pkPlayScore').textContent='進 0';
+  document.getElementById('pkPlaySide').textContent = side==='a'?'你是紅方':'你是藍方';
+  document.getElementById('pkPlaySide').style.color = side==='a'?'#b5566b':'#4a73b0';
+  document.getElementById('pkPlayHint').textContent='10 顆紗布,比對手丟進越多越好 🩹';
+  pkShowArea('toss');
+  show('s-pk-play');
+  const area=document.getElementById('pkTossArea');
+  const ball=document.getElementById('pkTossBall');
+  const aim=document.getElementById('pkTossAim');
+  const tray=document.getElementById('pkTossTray');
+  if(tray && typeof TOSS_BIN_IMG!=='undefined' && !(tray.src||'').startsWith('data:')) tray.src=TOSS_BIN_IMG;
+  db.ref('rooms/'+ROOM+'/pk/'+side+'/in').set(0);
+  db.ref('rooms/'+ROOM+'/pk/'+side+'/left').set(10);
+  const resetBall=()=>{ const H=area.clientHeight||420; ball.style.left='52px'; ball.style.top=(H-58)+'px'; };
+  const moveTrayPk=()=>{
+    const W=area.clientWidth||340, H=area.clientHeight||420;
+    const x=W*0.55+Math.random()*(W*0.32), y=H*0.22+Math.random()*(H*0.45);
+    tray.style.left=x+'px'; tray.style.top=y+'px';
+    game.trayX=x+36; game.trayY=y+34;
+  };
+  const wait=Math.max(0,(pk.startAt||Date.now())-Date.now());
+  document.getElementById('pkPlayTimer').textContent='準備…';
+  setTimeout(()=>{
+    document.getElementById('pkPlayTimer').textContent='開始!';
+    resetBall(); moveTrayPk();
+  }, wait);
+  let dragging=false, sx=0, sy=0;
+  const start=(x,y)=>{ if(game.tossBusy||game.tossLeft<=0||Date.now()<(pk.startAt||0)) return; dragging=true; sx=x; sy=y; };
+  const moveAim=(x,y)=>{
+    if(!dragging) return;
+    const dx=Math.max(0,x-sx), dy=y-sy;
+    const power=Math.min(Math.hypot(dx,dy),220);
+    const ang=Math.atan2(-dy,Math.max(dx,1));
+    const hx=ball.offsetLeft+15, hy=ball.offsetTop+15;
+    aim.style.left=hx+'px'; aim.style.top=(hy-power)+'px'; aim.style.height=power+'px';
+    aim.style.transform='rotate('+(90-ang*180/Math.PI)+'deg)';
+    game._toss={power, ang};
+  };
+  const end=()=>{ if(!dragging) return; dragging=false; aim.style.height='0';
+    if(game._toss && game._toss.power>25){ pkThrowGauze(game._toss, side, resetBall, moveTrayPk); } };
+  area.ontouchstart=e=>{ const t=e.touches[0]; start(t.clientX,t.clientY); };
+  area.ontouchmove=e=>{ e.preventDefault(); const t=e.touches[0]; moveAim(t.clientX,t.clientY); };
+  area.ontouchend=end;
+  area.onmousedown=e=>start(e.clientX,e.clientY);
+  area.onmousemove=e=>moveAim(e.clientX,e.clientY);
+  area.onmouseup=end;
+}
+function pkThrowGauze(t, side, resetBall, moveTrayPk){
+  game.tossBusy=true;
+  const area=document.getElementById('pkTossArea');
+  const ball=document.getElementById('pkTossBall');
+  const H=area.clientHeight, W=area.clientWidth;
+  const v=t.power*0.42;
+  let vx=v*Math.cos(t.ang), vy=-v*Math.sin(t.ang);
+  let px=ball.offsetLeft, py=ball.offsetTop, step=0;
+  (function fly(){
+    step++;
+    px+=vx*0.12; py+=vy*0.12; vy+=2.2;
+    ball.style.left=px+'px'; ball.style.top=py+'px';
+    if(Math.hypot((px+17)-game.trayX,(py+17)-game.trayY)<36){ pkFinishToss(true,side,resetBall,moveTrayPk); return; }
+    if(py>H-10 || px>W+40 || px<-40 || step>400){ pkFinishToss(false,side,resetBall,moveTrayPk); return; }
+    game.raf=requestAnimationFrame(fly);
+  })();
+}
+function pkFinishToss(hit, side, resetBall, moveTrayPk){
+  if(hit){
+    game.tossIn++;
+    const sec=(Date.now()-game.tossStart)/1000;
+    const speed=Math.max(0,Math.round((40-sec)*3));
+    game.score+=200+speed;
+    db.ref('rooms/'+ROOM+'/pk/'+side+'/in').set(game.tossIn);
+    db.ref('rooms/'+ROOM+'/pk/'+side+'/score').set(game.score);
+  }
+  game.tossLeft--;
+  document.getElementById('pkPlayScore').textContent='進 '+game.tossIn;
+  db.ref('rooms/'+ROOM+'/pk/'+side+'/left').set(game.tossLeft);
+  setTimeout(()=>{
+    if(game.tossLeft<=0){ endPkAsPlayer(side); return; }
+    game.tossBusy=false; resetBall(); moveTrayPk();
+  }, 700);
 }
 
 /* ---------- 電錶判讀王(傳統機械指針電錶) ----------
