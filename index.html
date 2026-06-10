@@ -1167,7 +1167,7 @@ const TS = ()=> DEMO ? Date.now() : firebase.database.ServerValue.TIMESTAMP;
 /* ---------- 這場婚禮的固定設定 ---------- */
 const ROOM='WEDDING';            // 固定房間,不用每次建立
 const HOST_KEY='yutong1003';     // 主持人專屬網址參數 ?host=yutong1003
-const HOST_PW='1003';            // 進主持台需再輸入的密碼(可自行修改)
+const HOST_PW='1101';            // 進主持台需再輸入的密碼(可自行修改)
 
 /* ---------- 全域狀態 ---------- */
 const state = {
@@ -3204,17 +3204,19 @@ function setScreen(view){
 // 純投影裝置:只看 screen 指令與快問快答狀態,自動顯示對應畫面,無控制
 function enterScreenMode(){
   state.role='screen'; state.room=ROOM;
-  loadRoomConfig().then(()=>{
-    // 監聽主持人指定要顯示的畫面
-    db.ref('rooms/'+ROOM+'/screen').on('value', s=>{
-      const v=(s.val()&&s.val().view)||'idle';
-      renderScreenView(v);
-    });
-    // 快問快答進行中,投影自動跟著題目/公布/排行榜
-    watchQuizForScreen();
-    // PK 即時重現
-    watchPkScreen();
+  // 先載入標題等設定(不阻塞監聽)
+  loadRoomConfig();
+  // 載入並即時更新祝福牆、照片牆資料(否則投影出來是空的)
+  hostWatchInteractions();
+  // 監聽主持人指定要顯示的畫面
+  db.ref('rooms/'+ROOM+'/screen').on('value', s=>{
+    const v=(s.val()&&s.val().view)||'idle';
+    renderScreenView(v);
   });
+  // 快問快答進行中,投影自動跟著題目/公布/排行榜
+  watchQuizForScreen();
+  // PK 即時重現
+  watchPkScreen();
 }
 function renderScreenView(v){
   if(v==='wall'){ show('s-host-wall'); }
